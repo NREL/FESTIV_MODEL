@@ -1,0 +1,11 @@
+=start
+DACINTERVAL_LENGTH
+NDACINTERVAL
+=end
+=start
+LOSS_BIAS
+=end
+=start
+MARKETGATE /12/
+DAC_PROCESS_TIME /0/
+=end

@@ -1,0 +1,5 @@
+bardisplay=2
+feasopt=0
+mipstart=1
+relaxfixedinfeas=1
+writemst=dascucsoln

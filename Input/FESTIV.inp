@@ -1,0 +1,6 @@
+inputPath = C:\Users\ikrad\Documents\FESTIV\Input\RTS96\Microgrid\October_15-21\RTS96_Microgrid_October.h5
+start_execution = 
+delete_old_files = Yes
+unit_out_num = 0
+simulation_days = 1
+rtc_vg_data_create = 9.00439

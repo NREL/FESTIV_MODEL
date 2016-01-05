@@ -1,0 +1,4 @@
+=start
+$onempty
+$SETGLOBAL SUSD_TRAJECTORY_CHECK "YES"
+=end

@@ -1,0 +1,35 @@
+%%DEBUG_DASCUC
+%Debug DASCUC to see what infeasibilities occurred. Requires solution of LP
+%and integers turned off.
+
+% Create gck file
+fid=fopen('DASCUC.gck','w+');
+fprintf(fid,'%s','blockpic');
+fprintf(fid,'\r\n');
+fclose(fid);
+
+DASCUC_DEBUG_GAMS_CALL = ['gams ..\DASCUC.gms Cdir="',DIRECTORY,'TEMP" --DIRECTORY="',DIRECTORY,'" --INPUT_FILE="',inputPath,'" --NETWORK_CHECK="',NETWORK_CHECK,'" --CONTINGENCY_CHECK="',CONTINGENCY_CHECK,'" --USE_INTEGER="NO"',' --USEGAMS="',USEGAMS,'"'];
+
+system(DASCUC_DEBUG_GAMS_CALL);
+
+[DEBUGDACPRODCOST,DEBUGDACGENSCHEDULE,DEBUGDACLMP,DEBUGDACUNITSTATUS,DEBUGDACUNITSTARTUP,DEBUGDACUNITSHUTDOWN,DEBUGDACGENRESERVESCHEDULE,...
+    DEBUGDACRCP,DEBUGDACLOADDIST,DEBUGDACGENVALUE,DEBUGDACSTORAGEVALUE,DEBUGDACVGCURTAILMENT,DEBUGDACLOAD,DEBUGDACRESERVEVALUE,DEBUGDACRESERVELEVEL,DEBUGDACBRANCHDATA,...
+    DEBUGDACBLOCKCOST,DEBUGDACBLOCKMW,DEBUGDACBPRIME,DEBUGDACBGAMMA,DEBUGDACLOSSLOAD,DEBUGDACINSUFFRESERVE,DEBUGDACGEN,DEBUGDACBUS,DEBUGDACHOUR,...
+    DEBUGDACBRANCH,DEBUGDACRESERVETYPE,DEBUGDACSLACKBUS,DEBUGDACGENBUS,DEBUGDACBRANCHBUS,DEBUGDACPUMPSCHEDULE,DEBUGDACSTORAGELEVEL,DEBUGDACPUMPING] ...
+    = getgamsdata('DASCUCOUTPUTSOL1','DASCUCOUTPUTSOL2','DASCUCOUTPUTSOL3','DASCUC','YES',GEN,INTERVAL,BUS,BRANCH,RESERVETYPE,RESERVEPARAM,GENPARAM,STORAGEPARAM,BRANCHPARAM);
+
+if exist('time','var') == 1
+    [time modelSolveStatus numberOfInfes solverStatus relativeGap]
+else
+    [-1 modelSolveStatus numberOfInfes solverStatus relativeGap]
+end
+if modelSolveStatus == 1
+    debugstr2='feasible.';
+    fprintf(['The DASCUC solution was',' ',debugstr2,'\n']);
+else
+    debugstr2 = ['infeasible with',' ',num2str(numberOfInfes),' ','infeasible constraints.'];
+    fprintf(['The DASCUC solution was',' ',debugstr2,'\n']);
+    disp('Check DASCUC.lst file for infeasibilities.');
+end;
+
+

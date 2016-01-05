@@ -1,0 +1,481 @@
+% Create GAMS variables for RTSCUC model solve
+
+clear INTERVAL
+INTERVAL.name = 'INTERVAL';
+INTERVAL.uels = {'1'};
+for t=2:HRTC
+    INTERVAL.uels = [INTERVAL.uels; num2str(t)];
+end
+INTERVAL.uels = INTERVAL.uels';
+INTERVAL.val = ones(HRTC,1);
+INTERVAL.form = 'full';
+
+if Solving_Initial_Models == 1
+    LOAD.val = RTC_LOAD_FULL(1:HRTC,3);
+end
+LOAD.uels = {INTERVAL.uels}; 
+LOAD.name = 'LOAD';
+LOAD.form = 'full';
+LOAD.type = 'parameter';
+RTC_LOAD = LOAD;
+
+VG_FORECAST.name = 'VG_FORECAST';
+VG_FORECAST.val = VG_FORECAST_VAL;
+VG_FORECAST.uels = {INTERVAL.uels GEN.uels};
+VG_FORECAST.form = 'full';
+VG_FORECAST.type = 'parameter';
+
+if Solving_Initial_Models == 1
+    RESERVELEVEL_VAL(1:HRTC,:) = RTC_RESERVE_FULL(1:HRTC,3:end); 
+    RESERVELEVEL.val = RESERVELEVEL_VAL;
+else
+    RESERVELEVEL.val = RESERVELEVEL_VAL(1:HRTC,:);
+end
+RESERVELEVEL.name = 'RESERVELEVEL';
+RESERVELEVEL.uels = {INTERVAL.uels RTC_RESERVE_FIELD(3:end)};
+RESERVELEVEL.form = 'full';
+RESERVELEVEL.type = 'parameter';
+
+if Solving_Initial_Models == 1
+    RTC_INTERCHANGE_VAL(1:HRTC,:) = RTC_INTERCHANGE_FULL(1:HRTC,3:end); 
+    INTERCHANGE.val = RTC_INTERCHANGE_VAL;
+else
+    INTERCHANGE.val = RTC_INTERCHANGE_VAL(1:HRTC,:);
+end
+INTERCHANGE.name = 'INTERCHANGE';
+INTERCHANGE.uels = {INTERVAL.uels RTC_INTERCHANGE_FIELD(3:end)};
+INTERCHANGE.form = 'full';
+INTERCHANGE.type = 'parameter';
+
+NRTCINTERVAL.val = HRTC;
+NRTCINTERVAL.name = 'NRTCINTERVAL';
+NRTCINTERVAL.form = 'full';
+NRTCINTERVAL.uels = cell(1,0);
+NRTCINTERVAL.type = 'parameter';
+
+RTCINTERVAL_LENGTH.val = IRTC;
+RTCINTERVAL_LENGTH.name = 'RTCINTERVAL_LENGTH';
+RTCINTERVAL_LENGTH.form = 'full';
+RTCINTERVAL_LENGTH.uels = cell(1,0);
+RTCINTERVAL_LENGTH.type = 'parameter';
+
+RTCINTERVAL_UPDATE.val = tRTC;
+RTCINTERVAL_UPDATE.name = 'RTCINTERVAL_UPDATE';
+RTCINTERVAL_UPDATE.form = 'full';
+RTCINTERVAL_UPDATE.uels = cell(1,0);
+RTCINTERVAL_UPDATE.type = 'parameter';
+
+if Solving_Initial_Models == 1
+    RTC_PROCESS_TIME.val = IDAC*60-IRTC;
+else
+    RTC_PROCESS_TIME.val = PRTC;
+end
+RTC_PROCESS_TIME.name = 'RTC_PROCESS_TIME';
+RTC_PROCESS_TIME.form = 'full';
+RTC_PROCESS_TIME.uels = cell(1,0);
+RTC_PROCESS_TIME.type = 'parameter';
+
+RTCSTART.val = RTSCUCSTART_YES;
+RTCSTART.name = 'RTCSTART';
+RTCSTART.form = 'full';
+RTCSTART.uels = {GEN.uels INTERVAL.uels};
+RTCSTART.type = 'parameter';
+
+RTCSHUT.val = RTSCUCSHUT_YES;
+RTCSHUT.name = 'RTCSHUT';
+RTCSHUT.form = 'full';
+RTCSHUT.uels = {GEN.uels INTERVAL.uels};
+RTCSHUT.type = 'parameter';
+
+RTCPUMPSTART.val = RTSCUCPUMPSTART_YES;
+RTCPUMPSTART.name = 'RTCPUMPSTART';
+RTCPUMPSTART.form = 'full';
+RTCPUMPSTART.uels = {GEN.uels INTERVAL.uels};
+RTCPUMPSTART.type = 'parameter';
+
+RTCPUMPSHUT.val = RTSCUCPUMPSHUT_YES;
+RTCPUMPSHUT.name = 'RTCPUMPSHUT';
+RTCPUMPSHUT.form = 'full';
+RTCPUMPSHUT.uels = {GEN.uels INTERVAL.uels};
+RTCPUMPSHUT.type = 'parameter';
+
+if ninterchange > 0
+    UNIT_STATUS_ENFORCED_ON_VAL(interchanges,:)=1;
+    UNIT_STATUS_ENFORCED_OFF_VAL(interchanges,:)=1;
+end
+
+UNIT_STATUS_ENFORCED_ON.name = 'UNIT_STATUS_ENFORCED_ON';
+UNIT_STATUS_ENFORCED_ON.val = UNIT_STATUS_ENFORCED_ON_VAL(:,1:HRTC);
+UNIT_STATUS_ENFORCED_ON.uels = {GEN.uels INTERVAL.uels};
+UNIT_STATUS_ENFORCED_ON.form = 'full';
+UNIT_STATUS_ENFORCED_ON.type = 'parameter';
+
+UNIT_STATUS_ENFORCED_OFF.name = 'UNIT_STATUS_ENFORCED_OFF';
+UNIT_STATUS_ENFORCED_OFF.val = UNIT_STATUS_ENFORCED_OFF_VAL(:,1:HRTC);
+UNIT_STATUS_ENFORCED_OFF.uels = {GEN.uels INTERVAL.uels};
+UNIT_STATUS_ENFORCED_OFF.form = 'full';
+UNIT_STATUS_ENFORCED_OFF.type = 'parameter';
+
+if Solving_Initial_Models == 1
+    GEN_FORCED_OUT.val = zeros(ngen,1);
+else
+    GEN_FORCED_OUT.val = GEN_FORCED_OUT_VAL;
+end
+GEN_FORCED_OUT.name = 'GEN_FORCED_OUT';
+GEN_FORCED_OUT.uels = {GEN.uels};        
+GEN_FORCED_OUT.form = 'full';
+GEN_FORCED_OUT.type = 'parameter';
+
+PUMPING_ENFORCED_ON.name = 'PUMPING_ENFORCED_ON';
+PUMPING_ENFORCED_ON.val = PUMPING_ENFORCED_ON_VAL(:,1:HRTC);
+PUMPING_ENFORCED_ON.uels = {GEN.uels INTERVAL.uels};
+PUMPING_ENFORCED_ON.form = 'full';
+PUMPING_ENFORCED_ON.type = 'parameter';
+
+PUMPING_ENFORCED_OFF.name = 'PUMPING_ENFORCED_OFF';
+PUMPING_ENFORCED_OFF.val = PUMPING_ENFORCED_OFF_VAL(:,1:HRTC);
+PUMPING_ENFORCED_OFF.uels = {GEN.uels INTERVAL.uels};
+PUMPING_ENFORCED_OFF.form = 'full';
+PUMPING_ENFORCED_OFF.type = 'parameter';
+
+STARTUP_PERIOD.name = 'STARTUP_PERIOD';
+STARTUP_PERIOD.val = STARTUP_PERIOD_VAL;
+STARTUP_PERIOD.uels ={GEN.uels};
+STARTUP_PERIOD.form = 'full';
+STARTUP_PERIOD.type = 'parameter';
+
+SHUTDOWN_PERIOD.name = 'SHUTDOWN_PERIOD';
+SHUTDOWN_PERIOD.val = SHUTDOWN_PERIOD_VAL;
+SHUTDOWN_PERIOD.uels ={GEN.uels};
+SHUTDOWN_PERIOD.form = 'full';
+SHUTDOWN_PERIOD.type = 'parameter';
+
+INITIAL_STARTUP_PERIODS.name = 'INITIAL_STARTUP_PERIODS';
+INITIAL_STARTUP_PERIODS.val = INITIAL_STARTUP_PERIODS_VAL;
+INITIAL_STARTUP_PERIODS.uels ={GEN.uels};
+INITIAL_STARTUP_PERIODS.form = 'full';
+INITIAL_STARTUP_PERIODS.type = 'parameter';
+
+INTERVALS_STARTED_AGO.name = 'INTERVALS_STARTED_AGO';
+INTERVALS_STARTED_AGO.val = INTERVALS_STARTED_AGO_VAL;
+INTERVALS_STARTED_AGO.uels ={GEN.uels};
+INTERVALS_STARTED_AGO.form = 'full';
+INTERVALS_STARTED_AGO.type = 'parameter';
+
+PUMPUP_PERIOD.name = 'PUMPUP_PERIOD';
+PUMPUP_PERIOD.val = PUMPUP_PERIOD_VAL;
+PUMPUP_PERIOD.uels ={GEN.uels};
+PUMPUP_PERIOD.form = 'full';
+PUMPUP_PERIOD.type = 'parameter';
+
+PUMPDOWN_PERIOD.name = 'PUMPDOWN_PERIOD';
+PUMPDOWN_PERIOD.val = PUMPDOWN_PERIOD_VAL;
+PUMPDOWN_PERIOD.uels ={GEN.uels};
+PUMPDOWN_PERIOD.form = 'full';
+PUMPDOWN_PERIOD.type = 'parameter';
+
+INITIAL_PUMPUP_PERIODS.name = 'INITIAL_PUMPUP_PERIODS';
+INITIAL_PUMPUP_PERIODS.val = INITIAL_PUMPUP_PERIODS_VAL;
+INITIAL_PUMPUP_PERIODS.uels ={GEN.uels};
+INITIAL_PUMPUP_PERIODS.form = 'full';
+INITIAL_PUMPUP_PERIODS.type = 'parameter';
+
+INTERVALS_PUMPUP_AGO.name = 'INTERVALS_PUMPUP_AGO';
+INTERVALS_PUMPUP_AGO.val = INTERVALS_PUMPUP_AGO_VAL;
+INTERVALS_PUMPUP_AGO.uels ={GEN.uels};
+INTERVALS_PUMPUP_AGO.form = 'full';
+INTERVALS_PUMPUP_AGO.type = 'parameter';
+
+ACTUAL_GEN_OUTPUT.name = 'ACTUAL_GEN_OUTPUT';
+ACTUAL_GEN_OUTPUT_VAL(ACTUAL_GEN_OUTPUT_VAL~=0)=ACTUAL_GEN_OUTPUT_VAL(ACTUAL_GEN_OUTPUT_VAL~=0)+eps;
+ACTUAL_GEN_OUTPUT.val = ACTUAL_GEN_OUTPUT_VAL;
+ACTUAL_GEN_OUTPUT.uels ={GEN.uels};
+ACTUAL_GEN_OUTPUT.form = 'full';
+ACTUAL_GEN_OUTPUT.type = 'parameter';
+
+LAST_GEN_SCHEDULE.name = 'LAST_GEN_SCHEDULE';
+LAST_GEN_SCHEDULE_VAL(LAST_GEN_SCHEDULE_VAL~=0)=LAST_GEN_SCHEDULE_VAL(LAST_GEN_SCHEDULE_VAL~=0)+eps;
+LAST_GEN_SCHEDULE.val = LAST_GEN_SCHEDULE_VAL;
+LAST_GEN_SCHEDULE.uels ={GEN.uels};
+LAST_GEN_SCHEDULE.form = 'full';
+LAST_GEN_SCHEDULE.type = 'parameter';
+
+RAMP_SLACK_UP.name = 'RAMP_SLACK_UP';
+RAMP_SLACK_UP.val = RAMP_SLACK_UP_VAL;
+RAMP_SLACK_UP.uels ={GEN.uels};
+RAMP_SLACK_UP.form = 'full';
+RAMP_SLACK_UP.type = 'parameter';
+
+RAMP_SLACK_DOWN.name = 'RAMP_SLACK_DOWN';
+RAMP_SLACK_DOWN.val = RAMP_SLACK_DOWN_VAL;
+RAMP_SLACK_DOWN.uels ={GEN.uels};
+RAMP_SLACK_DOWN.form = 'full';
+RAMP_SLACK_DOWN.type = 'parameter';
+
+LAST_STATUS.name = 'LAST_STATUS';
+LAST_STATUS.val = LAST_STATUS_VAL;
+LAST_STATUS.uels = {GEN.uels};
+LAST_STATUS.form = 'full';
+LAST_STATUS.type = 'parameter';
+
+LAST_STATUS_ACTUAL.name = 'LAST_STATUS_ACTUAL';
+LAST_STATUS_ACTUAL.val = LAST_STATUS_ACTUAL_VAL;
+LAST_STATUS_ACTUAL.uels = {GEN.uels};
+LAST_STATUS_ACTUAL.form = 'full';
+LAST_STATUS_ACTUAL.type = 'parameter';
+
+ACTUAL_PUMP_OUTPUT.name = 'ACTUAL_PUMP_OUTPUT';
+ACTUAL_PUMP_OUTPUT.val = ACTUAL_PUMP_OUTPUT_VAL;
+ACTUAL_PUMP_OUTPUT.uels ={GEN.uels};
+ACTUAL_PUMP_OUTPUT.form = 'full';
+ACTUAL_PUMP_OUTPUT.type = 'parameter';
+
+LAST_PUMP_SCHEDULE.name = 'LAST_PUMP_SCHEDULE';
+LAST_PUMP_SCHEDULE.val = LAST_PUMP_SCHEDULE_VAL;
+LAST_PUMP_SCHEDULE.uels ={GEN.uels};
+LAST_PUMP_SCHEDULE.form = 'full';
+LAST_PUMP_SCHEDULE.type = 'parameter';
+
+LAST_PUMPSTATUS.name = 'LAST_PUMPSTATUS';
+LAST_PUMPSTATUS.val = LAST_PUMPSTATUS_VAL;
+LAST_PUMPSTATUS.uels = {GEN.uels};
+LAST_PUMPSTATUS.form = 'full';
+LAST_PUMPSTATUS.type = 'parameter';
+
+LAST_PUMPSTATUS_ACTUAL.name = 'LAST_PUMPSTATUS_ACTUAL';
+LAST_PUMPSTATUS_ACTUAL.val = LAST_PUMPSTATUS_ACTUAL_VAL;
+LAST_PUMPSTATUS_ACTUAL.uels = {GEN.uels};
+LAST_PUMPSTATUS_ACTUAL.form = 'full';
+LAST_PUMPSTATUS_ACTUAL.type = 'parameter';
+
+END_STORAGE_PENALTY_PLUS_PRICE.form = 'full';
+END_STORAGE_PENALTY_PLUS_PRICE.type = 'parameter';
+END_STORAGE_PENALTY_PLUS_PRICE.uels = {GEN.uels};
+END_STORAGE_PENALTY_PLUS_PRICE.name = 'END_STORAGE_PENALTY_PLUS_PRICE';
+
+END_STORAGE_PENALTY_MINUS_PRICE.form = 'full';
+END_STORAGE_PENALTY_MINUS_PRICE.type = 'parameter';
+END_STORAGE_PENALTY_MINUS_PRICE.uels = {GEN.uels};
+END_STORAGE_PENALTY_MINUS_PRICE.name = 'END_STORAGE_PENALTY_MINUS_PRICE';
+
+INITIAL_DISPATCH_SLACK_SET.val = [1;1];
+INITIAL_DISPATCH_SLACK_SET.name = 'INITIAL_DISPATCH_SLACK_SET';
+INITIAL_DISPATCH_SLACK_SET.form = 'full';
+INITIAL_DISPATCH_SLACK_SET.uels = {'IGNORE_ACTUAL' 'IGNORE_BP'};
+INITIAL_DISPATCH_SLACK_SET.type = 'set';
+
+%This is a gams parameter to avoid using the time 0 ramp constraints.
+if Solving_Initial_Models == 1
+    INITIAL_DISPATCH_SLACK.val = [0;1] ; 
+end
+INITIAL_DISPATCH_SLACK.name = 'INITIAL_DISPATCH_SLACK';
+INITIAL_DISPATCH_SLACK.form = 'full';
+INITIAL_DISPATCH_SLACK.uels = INITIAL_DISPATCH_SLACK_SET.uels;
+INITIAL_DISPATCH_SLACK.type = 'parameter';
+
+clear BUS_DELIVERY_FACTORS GEN_DELIVERY_FACTORS;
+
+GEN_DELIVERY_FACTORS.val=RTC_GEN_DELIVERY_FACTORS_VAL;
+GEN_DELIVERY_FACTORS.name='GEN_DELIVERY_FACTORS';
+GEN_DELIVERY_FACTORS.form='full';
+GEN_DELIVERY_FACTORS.type='parameter';
+GEN_DELIVERY_FACTORS.uels={GEN.uels INTERVAL.uels};
+
+BUS_DELIVERY_FACTORS.val=RTC_BUS_DELIVERY_FACTORS_VAL;
+BUS_DELIVERY_FACTORS.name='BUS_DELIVERY_FACTORS';
+BUS_DELIVERY_FACTORS.form='full';
+BUS_DELIVERY_FACTORS.type='parameter';
+BUS_DELIVERY_FACTORS.uels={BUS.uels INTERVAL.uels};
+
+if Solving_Initial_Models == 1
+    LOSS_BIAS.val = 0;
+else
+    LOSS_BIAS.val = storelosses(max(1,AGC_interval_index-1),1)-abs(RTSCUCMARGINALLOSS(RTSCUC_binding_interval_index-1,2));
+end
+LOSS_BIAS.name = 'LOSS_BIAS';
+LOSS_BIAS.form = 'full';
+LOSS_BIAS.uels = cell(1,0);
+LOSS_BIAS.type = 'parameter';
+
+if RTSCUC_binding_interval_index <= 2
+    DELAYSD.val = zeros(ngen,1);
+else
+    DELAYSD.val = delayedshutdown;
+end
+DELAYSD.name = 'DELAYSD';
+DELAYSD.form = 'full';
+DELAYSD.uels = GEN.uels;
+DELAYSD.type = 'parameter';
+
+BLOCK2.uels={'BLOCK1','BLOCK2','BLOCK3','BLOCK4'};
+BLOCK2.name='BLOCK';
+BLOCK2.type='SET';
+BLOCK2.form='FULL';
+BLOCK2.val=ones(1,4);
+
+GENBLOCK.uels = {COST_CURVE_STRING' BLOCK2.uels};
+BLOCKMW=COST_CURVE_VAL(:,[2,4,6,8]);
+GENBLOCK.val = double(BLOCKMW>eps);
+GENBLOCK.name = 'GENBLOCK';
+GENBLOCK.form = 'full';
+GENBLOCK.type = 'set';
+
+BLOCK_COST.name='BLOCK_COST';
+BLOCK_COST.uels={COST_CURVE_STRING' BLOCK2.uels};
+BLOCK_COST.form='FULL';
+BLOCK_COST.type='parameter';
+BLOCK_COST.val=COST_CURVE_VAL(:,[1 3 5 7]);
+
+BLOCK_CAP.name='BLOCK_CAP';
+BLOCK_CAP.uels={COST_CURVE_STRING' BLOCK2.uels};
+BLOCK_CAP.form='FULL';
+BLOCK_CAP.type='parameter';
+BLOCK_CAP.val=COST_CURVE_VAL(:,[2 4 6 8])./SYSTEMVALUE.val(mva_pu);
+
+QSC.name='QSC';
+QSC.uels={GEN_VAL' RESERVETYPE_VAL'};
+QSC.form='FULL';
+QSC.type='parameter';
+QSC.val=zeros(ngen,nreserve);
+for rr=1:nreserve
+    if RESERVEVALUE.val(rr,res_on)==0
+        qsc_idx=60*GENVALUE.val(:,su_time)<=RESERVEVALUE.val(rr,res_time);
+        QSC.val(qsc_idx,rr)=min(GENVALUE.val(qsc_idx,capacity),GENVALUE.val(qsc_idx,min_gen)+GENVALUE.val(qsc_idx,ramp_rate).*(repmat(RESERVEVALUE.val(rr,res_time),size(find(qsc_idx)))-60*GENVALUE.val(qsc_idx,su_time)));
+    end
+end
+QSC.val=QSC.val./SYSTEMVALUE.val(mva_pu);
+
+if ~isempty(GENEFFICIENCYVALUE_VAL)
+    geneffmwvalues=GENEFFICIENCYVALUE_VAL(:,[2,4,6]);
+    stoeffmwvalues=PUMPEFFICIENCYVALUE_VAL(:,[2,4,6]);
+    geneffvalues=GENEFFICIENCYVALUE_VAL(:,[1,3,5]);
+    stoeffvalues=PUMPEFFICIENCYVALUE_VAL(:,[1,3,5]);
+else
+    geneffmwvalues=[];
+    stoeffmwvalues=[];
+    geneffvalues=[];
+    stoeffvalues=[];
+end
+GEN_EFFICIENCY_BLOCK.name='GEN_EFFICIENCY_BLOCK';
+GEN_EFFICIENCY_BLOCK.uels={STORAGEGENEFFICIENCYBLOCK.uels{1,1} STORAGEGENEFFICIENCYBLOCK.uels{1,2}};
+GEN_EFFICIENCY_BLOCK.form='full';
+GEN_EFFICIENCY_BLOCK.type='parameter';
+GEN_EFFICIENCY_BLOCK.val=geneffvalues;
+GEN_EFFICIENCY_MW.name='GEN_EFFICIENCY_MW';
+GEN_EFFICIENCY_MW.uels={STORAGEGENEFFICIENCYBLOCK.uels{1,1} STORAGEGENEFFICIENCYBLOCK.uels{1,2}};
+GEN_EFFICIENCY_MW.form='full';
+GEN_EFFICIENCY_MW.type='parameter';
+GEN_EFFICIENCY_MW.val=geneffmwvalues./SYSTEMVALUE.val(mva_pu);
+PUMP_EFFICIENCY_BLOCK.name='PUMP_EFFICIENCY_BLOCK';
+PUMP_EFFICIENCY_BLOCK.uels={STORAGEGENEFFICIENCYBLOCK.uels{1,1} STORAGEGENEFFICIENCYBLOCK.uels{1,2}};
+PUMP_EFFICIENCY_BLOCK.form='full';
+PUMP_EFFICIENCY_BLOCK.type='parameter';
+PUMP_EFFICIENCY_BLOCK.val=stoeffvalues;
+PUMP_EFFICIENCY_MW.name='PUMP_EFFICIENCY_MW';
+PUMP_EFFICIENCY_MW.uels={STORAGEGENEFFICIENCYBLOCK.uels{1,1} STORAGEGENEFFICIENCYBLOCK.uels{1,2}};
+PUMP_EFFICIENCY_MW.form='full';
+PUMP_EFFICIENCY_MW.type='parameter';
+PUMP_EFFICIENCY_MW.val=stoeffmwvalues./SYSTEMVALUE.val(mva_pu);
+
+sttemp=ACTUAL_GEN_OUTPUT.val<GENVALUE.val(:,min_gen)&LAST_GEN_SCHEDULE.val>=GENVALUE.val(:,min_gen);
+UNIT_STARTUP_ACTUAL.val=zeros(ngen,1);
+UNIT_STARTUP_ACTUAL.name='UNIT_STARTUP_ACTUAL';
+UNIT_STARTUP_ACTUAL.form='full';
+UNIT_STARTUP_ACTUAL.type='parameter';
+UNIT_STARTUP_ACTUAL.uels={GEN.uels};
+UNIT_STARTUP_ACTUAL.val(sttemp)=1;
+sttemp=ACTUAL_PUMP_OUTPUT.val<STORAGEVALUE.val(:,min_pump)&LAST_PUMP_SCHEDULE.val>=STORAGEVALUE.val(:,min_pump);
+UNIT_PUMPUP_ACTUAL.val=zeros(ngen,1);
+UNIT_PUMPUP_ACTUAL.name='UNIT_PUMPUP_ACTUAL';
+UNIT_PUMPUP_ACTUAL.form='full';
+UNIT_PUMPUP_ACTUAL.type='parameter';
+UNIT_PUMPUP_ACTUAL.uels={GEN.uels};
+UNIT_PUMPUP_ACTUAL.val(sttemp)=1;
+
+LAST_STARTUP.name='LAST_STARTUP';
+LAST_STARTUP.form='full';
+LAST_STARTUP.type='parameter';
+LAST_STARTUP.uels={GEN.uels};
+LAST_STARTUP.val=max(zeros(ngen,1),LAST_STATUS.val-LAST_STATUS_ACTUAL.val);
+LAST_SHUTDOWN.name='LAST_SHUTDOWN';
+LAST_SHUTDOWN.form='full';
+LAST_SHUTDOWN.type='parameter';
+LAST_SHUTDOWN.uels={GEN.uels};
+LAST_SHUTDOWN.val=max(zeros(ngen,1),LAST_STATUS_ACTUAL.val-LAST_STATUS.val);
+
+gt1=GENVALUE.val(:,pucost);
+gt2=GENVALUE.val(:,gen_type);
+cond1=gt1==1;
+cond2=gt2==7|gt2==10|gt2==16;
+cond3=cond1&cond2;
+cond4=VG_FORECAST.val(1,:)<1;
+cond5=cond4'&cond3;
+offset_temp1=max(zeros(ngen,1),LAST_GEN_SCHEDULE.val-GENVALUE.val(:,ramp_rate).*IRTC);
+offset_temp2=max(offset_temp1,ACTUAL_GEN_OUTPUT.val-GENVALUE.val(:,ramp_rate).*(IRTC+PRTC));
+offset_temp2(~cond3)=0;
+offset_temp2(~cond5)=0;
+PUCOST_BLOCK_OFFSET.name='PUCOST_BLOCK_OFFSET';
+PUCOST_BLOCK_OFFSET.form='full';
+PUCOST_BLOCK_OFFSET.type='parameter';
+PUCOST_BLOCK_OFFSET.uels={GEN.uels};
+PUCOST_BLOCK_OFFSET.val=offset_temp2;
+
+% Convert to per unit
+GENVALUE.val(:,capacity)=GENVALUE.val(:,capacity)./SYSTEMVALUE.val(mva_pu);
+GENVALUE.val(:,min_gen)=GENVALUE.val(:,min_gen)./SYSTEMVALUE.val(mva_pu);
+GENVALUE.val(:,ramp_rate)=GENVALUE.val(:,ramp_rate)./SYSTEMVALUE.val(mva_pu);
+GENVALUE.val(:,initial_MW)=GENVALUE.val(:,initial_MW)./SYSTEMVALUE.val(mva_pu);
+STORAGEVALUE.val(:,storage_max)=STORAGEVALUE.val(:,storage_max)./SYSTEMVALUE.val(mva_pu);
+STORAGEVALUE.val(:,initial_storage)=STORAGEVALUE.val(:,initial_storage)./SYSTEMVALUE.val(mva_pu);
+STORAGEVALUE.val(:,final_storage)=STORAGEVALUE.val(:,final_storage)./SYSTEMVALUE.val(mva_pu);
+STORAGEVALUE.val(:,max_pump)=STORAGEVALUE.val(:,max_pump)./SYSTEMVALUE.val(mva_pu);
+STORAGEVALUE.val(:,min_pump)=STORAGEVALUE.val(:,min_pump)./SYSTEMVALUE.val(mva_pu);
+STORAGEVALUE.val(:,pump_ramp_rate)=STORAGEVALUE.val(:,pump_ramp_rate)./SYSTEMVALUE.val(mva_pu);
+STORAGEVALUE.val(:,initial_pump_mw)=STORAGEVALUE.val(:,initial_pump_mw)./SYSTEMVALUE.val(mva_pu);
+LOAD.val=LOAD.val./SYSTEMVALUE.val(mva_pu);
+RESERVELEVEL.val=RESERVELEVEL.val./SYSTEMVALUE.val(mva_pu);
+BRANCHDATA.val(:,line_rating)=BRANCHDATA.val(:,line_rating)./SYSTEMVALUE.val(mva_pu);
+BRANCHDATA.val(:,ste_rating)=BRANCHDATA.val(:,ste_rating)./SYSTEMVALUE.val(mva_pu);
+VG_FORECAST.val=VG_FORECAST.val./SYSTEMVALUE.val(mva_pu);
+INTERCHANGE.val=INTERCHANGE.val./SYSTEMVALUE.val(mva_pu);
+LOSS_BIAS.val=LOSS_BIAS.val./SYSTEMVALUE.val(mva_pu);
+COST_CURVE.val(:,[2 4 6 8])=COST_CURVE.val(:,[2 4 6 8])./SYSTEMVALUE.val(mva_pu);
+if ~isempty(PUMPEFFICIENCYVALUE.val)
+    PUMPEFFICIENCYVALUE.val(:,[2 4 6])=PUMPEFFICIENCYVALUE.val(:,[2 4 6])./SYSTEMVALUE.val(mva_pu);
+    GENEFFICIENCYVALUE.val(:,[2 4 6])=GENEFFICIENCYVALUE.val(:,[2 4 6])./SYSTEMVALUE.val(mva_pu);
+end
+ACTUAL_GEN_OUTPUT.val=ACTUAL_GEN_OUTPUT.val./SYSTEMVALUE.val(mva_pu);
+LAST_GEN_SCHEDULE.val=LAST_GEN_SCHEDULE.val./SYSTEMVALUE.val(mva_pu);
+ACTUAL_PUMP_OUTPUT.val=ACTUAL_PUMP_OUTPUT.val./SYSTEMVALUE.val(mva_pu);
+LAST_PUMP_SCHEDULE.val=LAST_PUMP_SCHEDULE.val./SYSTEMVALUE.val(mva_pu);
+RAMP_SLACK_UP.val=RAMP_SLACK_UP.val./SYSTEMVALUE.val(mva_pu);
+RAMP_SLACK_DOWN.val=RAMP_SLACK_DOWN.val./SYSTEMVALUE.val(mva_pu);
+DEFAULT_DATA.GENVALUE=GENVALUE;
+DEFAULT_DATA.STORAGEVALUE=STORAGEVALUE;
+DEFAULT_DATA.BRANCHDATA=BRANCHDATA;
+DEFAULT_DATA.COST_CURVE=COST_CURVE;
+DEFAULT_DATA.PUMPEFFICIENCYVALUE=PUMPEFFICIENCYVALUE;
+DEFAULT_DATA.GENEFFICIENCYVALUE=GENEFFICIENCYVALUE;
+
+% Update initial statuses of DEFAULT_DATA set
+DEFAULT_DATA.GENVALUE.val(:,initial_status:initial_MW) = GENVALUE.val(:,initial_status:initial_MW);
+DEFAULT_DATA.STORAGEVALUE.val(:,[initial_storage,final_storage,initial_pump_status,initial_pump_mw,initial_pump_hour]) = STORAGEVALUE.val(:,[initial_storage,final_storage,initial_pump_status,initial_pump_mw,initial_pump_hour]);
+
+% Load default system values
+BRANCHBUS2            = DEFAULT_DATA.BRANCHBUS2;
+GENBUS2               = DEFAULT_DATA.GENBUS2;
+PARTICIPATION_FACTORS = DEFAULT_DATA.PARTICIPATION_FACTORS;
+BRANCHDATA            = DEFAULT_DATA.BRANCHDATA;
+COST_CURVE            = DEFAULT_DATA.COST_CURVE;
+SYSTEMVALUE           = DEFAULT_DATA.SYSTEMVALUE;
+STARTUP_VALUE         = DEFAULT_DATA.STARTUP_VALUE;
+RESERVE_COST          = DEFAULT_DATA.RESERVE_COST;
+RESERVEVALUE          = DEFAULT_DATA.RESERVEVALUE;
+PUMPEFFICIENCYVALUE   = DEFAULT_DATA.PUMPEFFICIENCYVALUE;
+GENEFFICIENCYVALUE    = DEFAULT_DATA.GENEFFICIENCYVALUE;
+GENVALUE              = DEFAULT_DATA.GENVALUE;
+LOAD_DIST             = DEFAULT_DATA.LOAD_DIST;
+STORAGEVALUE          = DEFAULT_DATA.STORAGEVALUE;
+PTDF                  = DEFAULT_DATA.PTDF;
+PTDF_PAR              = DEFAULT_DATA.PTDF_PAR;
+LODF                  = DEFAULT_DATA.LODF;

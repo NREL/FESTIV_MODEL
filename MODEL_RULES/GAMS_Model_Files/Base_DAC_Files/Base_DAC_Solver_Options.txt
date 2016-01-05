@@ -1,0 +1,9 @@
+=start
+$IF EXIST TOTAL_DASCUCOUTPUT.gdx EXECUTE_LOADPOINT 'TOTAL_DASCUCOUTPUT.gdx' ;
+SCUC.iterlim =500000;
+SCUC.optcr = 0.001;
+SCUC.reslim = 1800;
+option solvelink=5;
+SCUC.optfile = 1;
+heaplimit = 10000;
+=end
