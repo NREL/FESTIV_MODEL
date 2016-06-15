@@ -1,7 +1,6 @@
 function[PRODCOST,GENSCHEDULE,LMP,UNITSTATUS,UNITSTARTUP,UNITSHUTDOWN,GENRESERVESCHEDULE,RCP,LOADDIST,...
     GENVALUE,STORAGEVALUE,VGCURTAILMENT,LOAD,RESERVEVALUE,RESERVELEVEL,BRANCHDATA,BLOCKCOST,BLOCKCAP,BPRIME,BGAMMA,LOSSLOAD,INSUFFRESERVE,...
-    GEN,BUS,INTERVAL,BRANCH,RESERVETYPE,SLACKBUS,GENBUS,BRANCHBUS,PUMPSCHEDULE,STORAGELEVEL,PUMPING,RAMP_UP_DUAL,INTERTEMPORAL_RAMP_PRICE,...
-    ENDSTORAGEPENALTYPLUS,ENDSTORAGEPENALTYMINUS] ...
+    GEN,BUS,INTERVAL,BRANCH,RESERVETYPE,SLACKBUS,GENBUS,BRANCHBUS,PUMPSCHEDULE,STORAGELEVEL,PUMPING] ...
     = getgamsdata(inputfile,MODEL,CONTINGENCY,GEN,INTERVAL,BUS,BRANCH,RESERVETYPE,RESERVEPARAM,GENPARAM,STORAGEPARAM,BRANCHPARAM)
 
 
@@ -37,7 +36,6 @@ LOAD2=evalin('base','LOAD');
 RESERVELEVEL=evalin('base','RESERVELEVEL');
 VG_FORECAST=evalin('base','VG_FORECAST');
 LOSS_BIAS=evalin('base','LOSS_BIAS');
-
 
 GENVALUE.val(:,capacity)=GENVALUE.val(:,capacity).*SYSTEMVALUE.val(mva_pu);
 GENVALUE.val(:,min_gen)=GENVALUE.val(:,min_gen).*SYSTEMVALUE.val(mva_pu);
@@ -104,6 +102,8 @@ branchbus_rgdx.name = 'BRANCHBUS';
 BRANCHBUSSET_TMP = rgdx(input1,branchbus_rgdx);
 slackbus_rgdx.name = 'SLACKBUS';
 SLACKBUS_TMP = rgdx(input1,slackbus_rgdx);
+ctgc_rgdx.name = 'CTGC_BRANCH';
+ctgc_rgdx = rgdx(input1,ctgc_rgdx);
 
 
 
@@ -235,21 +235,6 @@ storagevalue_rgdx.form = 'full';
 storagevalue_rgdx.name = 'STORAGEVALUE';
 storagevalue_rgdx.uels = {GEN.uels STORAGEPARAM.uels};
 %STORAGEVALUE = rgdx(input1,storagevalue_rgdx);
-try
-%     rampupdual_rgdx.form = 'full';
-%     rampupdual_rgdx.name = 'RAMP_UP_DUAL';
-%     rampupdual_rgdx.uels = {GEN.uels INTERVAL.uels};
-%     RAMP_UP_DUAL = rgdx(input1,rampupdual_rgdx);
-    rampdowndual_rgdx.form = 'full';
-    %rampdowndual_rgdx.name = 'RAMP_DOWN_DUAL';
-    %rampdowndual_rgdx.uels = {GEN.uels INTERVAL.uels};
-    rampdowndual_rgdx.name = 'RAMP_PRICE_B';
-    rampdowndual_rgdx.uels = {GEN.uels INTERVAL.uels};
-    INTERTEMPORAL_RAMP_PRICE = rgdx(input1,rampdowndual_rgdx);
-catch
-    RAMP_UP_DUAL=[];
-    INTERTEMPORAL_RAMP_PRICE=[];
-end;
 %{
 if strcmp(MODEL,'DASCUC')
     ENDSTORAGEPENALTYPLUS=[];
@@ -442,17 +427,17 @@ assignin('caller','marginalLoss',tetemp);
 
 BUS_DELIVERY_FACTORS=evalin('base','BUS_DELIVERY_FACTORS');
 nbus=evalin('base','nbus');
+nbranch=evalin('base','nbranch');
 PTDF=evalin('base','PTDF');
+LODF=evalin('base','LODF');
 NETWORK_CHECK=evalin('base','NETWORK_CHECK');
+CONTINGENCY_CHECK=evalin('base','CONTINGENCY_CHECK');
+
 LMP_temp=zeros(HLMP,nbus);
+MEC=zeros(HLMP,nbus);
 MCC=zeros(HLMP,nbus);
 MLC=zeros(HLMP,nbus);
-
-Q_NETENERGY_rgdx.form = 'full';
-Q_NETENERGY_rgdx.name = 'Q_NETENERGY';
-Q_NETENERGY_rgdx.field = 'm';
-Q_NETENERGY_rgdx.uels = {BUS.uels INTERVAL.uels};
-Q_NETENERGY = rgdx(input1,Q_NETENERGY_rgdx);
+MCC_CTGC=zeros(HLMP,nbus);
 
 Q_LOAD_BALANCE_rgdx.form = 'full';
 Q_LOAD_BALANCE_rgdx.name = 'Q_LOAD_BALANCE';
@@ -460,29 +445,31 @@ Q_LOAD_BALANCE_rgdx.field = 'm';
 Q_LOAD_BALANCE_rgdx.uels = {INTERVAL.uels};
 Q_LOAD_BALANCE = rgdx(input1,Q_LOAD_BALANCE_rgdx);
 
-Q_TRANSMISSION_CONSTRAINT1_rgdx.form = 'full';
-Q_TRANSMISSION_CONSTRAINT1_rgdx.name = 'Q_TRANSMISSION_CONSTRAINT1';
-Q_TRANSMISSION_CONSTRAINT1_rgdx.field = 'm';
-Q_TRANSMISSION_CONSTRAINT1_rgdx.uels = {BRANCH.uels INTERVAL.uels};
-Q_TRANSMISSION_CONSTRAINT1 = rgdx(input1,Q_TRANSMISSION_CONSTRAINT1_rgdx);
-Q_TRANSMISSION_CONSTRAINT2_rgdx.form = 'full';
-Q_TRANSMISSION_CONSTRAINT2_rgdx.name = 'Q_TRANSMISSION_CONSTRAINT2';
-Q_TRANSMISSION_CONSTRAINT2_rgdx.field = 'm';
-Q_TRANSMISSION_CONSTRAINT2_rgdx.uels = {BRANCH.uels INTERVAL.uels};
-Q_TRANSMISSION_CONSTRAINT2 = rgdx(input1,Q_TRANSMISSION_CONSTRAINT2_rgdx);
+if strcmp(NETWORK_CHECK,'YES')
+    Q_TRANSMISSION_CONSTRAINT1_rgdx.form = 'full';
+    Q_TRANSMISSION_CONSTRAINT1_rgdx.name = 'Q_TRANSMISSION_CONSTRAINT1';
+    Q_TRANSMISSION_CONSTRAINT1_rgdx.field = 'm';
+    Q_TRANSMISSION_CONSTRAINT1_rgdx.uels = {BRANCH.uels INTERVAL.uels};
+    Q_TRANSMISSION_CONSTRAINT1 = rgdx(input1,Q_TRANSMISSION_CONSTRAINT1_rgdx);
+    Q_TRANSMISSION_CONSTRAINT2_rgdx.form = 'full';
+    Q_TRANSMISSION_CONSTRAINT2_rgdx.name = 'Q_TRANSMISSION_CONSTRAINT2';
+    Q_TRANSMISSION_CONSTRAINT2_rgdx.field = 'm';
+    Q_TRANSMISSION_CONSTRAINT2_rgdx.uels = {BRANCH.uels INTERVAL.uels};
+    Q_TRANSMISSION_CONSTRAINT2 = rgdx(input1,Q_TRANSMISSION_CONSTRAINT2_rgdx);
+end;
 
-% if strcmp(CONTINGENCY_CHECK,'YES')
-%     Q_TRANSMISSION_CONSTRAINT1_CTGC_rgdx.form = 'full';
-%     Q_TRANSMISSION_CONSTRAINT1_CTGC_rgdx.name = 'Q_TRANSMISSION_CONSTRAINT1_CTGC';
-%     Q_TRANSMISSION_CONSTRAINT1_CTGC_rgdx.field = 'm';
-%     Q_TRANSMISSION_CONSTRAINT1_CTGC_rgdx.uels = {BRANCH.uels BRANCH.uels INTERVAL.uels};
-%     Q_TRANSMISSION_CONSTRAINT1_CTGC = rgdx(input1,Q_TRANSMISSION_CONSTRAINT1_CTGC_rgdx);
-%     Q_TRANSMISSION_CONSTRAINT2_CTGC_rgdx.form = 'full';
-%     Q_TRANSMISSION_CONSTRAINT2_CTGC_rgdx.name = 'Q_TRANSMISSION_CONSTRAINT2_CTGC';
-%     Q_TRANSMISSION_CONSTRAINT2_CTGC_rgdx.field = 'm';
-%     Q_TRANSMISSION_CONSTRAINT2_CTGC_rgdx.uels = {BRANCH.uels BRANCH.uels INTERVAL.uels};
-%     Q_TRANSMISSION_CONSTRAINT2_CTGC = rgdx(input1,Q_TRANSMISSION_CONSTRAINT2_CTGC_rgdx);
-% end
+ if strcmp(CONTINGENCY_CHECK,'YES')
+     Q_TRANSMISSION_CONSTRAINT1_CTGC_rgdx.form = 'full';
+     Q_TRANSMISSION_CONSTRAINT1_CTGC_rgdx.name = 'Q_TRANSMISSION_CONSTRAINT1_CTGC';
+     Q_TRANSMISSION_CONSTRAINT1_CTGC_rgdx.field = 'm';
+     Q_TRANSMISSION_CONSTRAINT1_CTGC_rgdx.uels = {BRANCH.uels BRANCH.uels INTERVAL.uels};
+     Q_TRANSMISSION_CONSTRAINT1_CTGC = rgdx(input1,Q_TRANSMISSION_CONSTRAINT1_CTGC_rgdx);
+     Q_TRANSMISSION_CONSTRAINT2_CTGC_rgdx.form = 'full';
+     Q_TRANSMISSION_CONSTRAINT2_CTGC_rgdx.name = 'Q_TRANSMISSION_CONSTRAINT2_CTGC';
+     Q_TRANSMISSION_CONSTRAINT2_CTGC_rgdx.field = 'm';
+     Q_TRANSMISSION_CONSTRAINT2_CTGC_rgdx.uels = {BRANCH.uels BRANCH.uels INTERVAL.uels};
+     Q_TRANSMISSION_CONSTRAINT2_CTGC = rgdx(input1,Q_TRANSMISSION_CONSTRAINT2_CTGC_rgdx);
+ end
 
 if strcmp(MODEL,'DASCUC')
     INTERVAL_SCALAR=ILMP.*ones(HLMP,1);
@@ -494,16 +481,31 @@ else
 end
 if strcmp(NETWORK_CHECK,'YES')
     LMP_temp(:,SYSTEMVALUE.val(slack_bus))=Q_LOAD_BALANCE.val./(INTERVAL_SCALAR.*SYSTEMVALUE.val(mva_pu));
+    MEC(:,SYSTEMVALUE.val(slack_bus))=LMP_temp(:,SYSTEMVALUE.val(slack_bus));
     MLC(:,SYSTEMVALUE.val(slack_bus))=(Q_LOAD_BALANCE.val./(INTERVAL_SCALAR.*SYSTEMVALUE.val(mva_pu))).*(BUS_DELIVERY_FACTORS.val(SYSTEMVALUE.val(slack_bus),:)-1)';
     notslack=ones(nbus,1);
     notslack(SYSTEMVALUE.val(slack_bus))=0;
     notslack=find(notslack);
-    LMP_temp(:,notslack)=(repmat(Q_LOAD_BALANCE.val,1,nbus-1)-Q_NETENERGY.val(notslack,:)')./repmat((INTERVAL_SCALAR.*SYSTEMVALUE.val(mva_pu)),1,nbus-1);
-    MLC(:,notslack)=((repmat(Q_LOAD_BALANCE.val,1,nbus-1)-Q_NETENERGY.val(notslack,:)')./repmat((INTERVAL_SCALAR.*SYSTEMVALUE.val(mva_pu)),1,nbus-1)).*(BUS_DELIVERY_FACTORS.val(notslack,:)-1)';
+    MEC(:,notslack) = repmat(LMP_temp(:,SYSTEMVALUE.val(slack_bus)),1,nbus-1);
+    MLC(:,notslack)=((repmat(Q_LOAD_BALANCE.val,1,nbus-1))./repmat((INTERVAL_SCALAR.*SYSTEMVALUE.val(mva_pu)),1,nbus-1)).*(BUS_DELIVERY_FACTORS.val(notslack,:)-1)';
+    %LMP_temp(:,notslack)=(repmat(Q_LOAD_BALANCE.val,1,nbus-1)-Q_NETENERGY.val(notslack,:)')./repmat((INTERVAL_SCALAR.*SYSTEMVALUE.val(mva_pu)),1,nbus-1);
+    %NOTE EE: I believe the right hand side of the net energy does not
+    %account for losses, so currently this is incorrect. There is a better
+    %way of calculating but for now the below just adds the components.
+    MCC(:,:)=(PTDF.val'*(Q_TRANSMISSION_CONSTRAINT1.val+Q_TRANSMISSION_CONSTRAINT2.val))'./repmat((INTERVAL_SCALAR.*SYSTEMVALUE.val(mva_pu)),1,nbus);
+    if strcmp(CONTINGENCY_CHECK,'YES')
+        for l=1:nbranch %note that this does every branch, should really only do ctgc_monitored branches. Currently wasn't a indexing mechanisms to do that.
+            mcc_ctgc_shadow_price_tmp = zeros(nbranch,HLMP);
+            for h=1:HLMP
+                mcc_ctgc_shadow_price_tmp(:,h)=(Q_TRANSMISSION_CONSTRAINT1_CTGC.val(l,:,h)+Q_TRANSMISSION_CONSTRAINT2_CTGC.val(l,:,h));
+            end;
+            MCC_CTGC(:,:)=MCC_CTGC(:,:) + ((PTDF.val'+PTDF.val(l,:)'*LODF.val(l,:))*(mcc_ctgc_shadow_price_tmp))'./repmat((INTERVAL_SCALAR.*SYSTEMVALUE.val(mva_pu)),1,nbus);
+        end;
+    end;
+    LMP_temp = MEC + MCC + MLC + MCC_CTGC;
 else
     LMP_temp(:,:)=repmat(Q_LOAD_BALANCE.val./(INTERVAL_SCALAR.*SYSTEMVALUE.val(mva_pu)),1,nbus);
 end
-MCC(:,:)=(PTDF.val'*(Q_TRANSMISSION_CONSTRAINT1.val+Q_TRANSMISSION_CONSTRAINT2.val))'./repmat((INTERVAL_SCALAR.*SYSTEMVALUE.val(mva_pu)),1,nbus);
 LMP.val=LMP_temp';
 assignin('caller','MCC',MCC');
 assignin('caller','MLC',MLC');
@@ -574,47 +576,5 @@ end
 total_cost_with_penalties = total_cost + insuf_reserve_cost + lost_load_cost;
 PRODCOST.val=[obj_func.val;reservoir_value_kept;lost_load_cost;additional_load_cost;insuf_reserve_cost;total_cost;total_cost_with_penalties];
 
-ngen=evalin('base','ngen');
-if strcmp(MODEL,'RTSCED')
-    Q_RAMP_RATE_UP0_BP_rgdx.form = 'full';
-    Q_RAMP_RATE_UP0_BP_rgdx.name = 'Q_RAMP_RATE_UP0_BP';
-    Q_RAMP_RATE_UP0_BP_rgdx.field = 'm';
-    Q_RAMP_RATE_UP0_BP_rgdx.uels = {GEN.uels INTERVAL.uels};
-    Q_RAMP_RATE_UP0_BP = rgdx(input1,Q_RAMP_RATE_UP0_BP_rgdx);
-    Q_RAMP_RATE_UP0_ACTUAL_rgdx.form = 'full';
-    Q_RAMP_RATE_UP0_ACTUAL_rgdx.name = 'Q_RAMP_RATE_UP0_ACTUAL';
-    Q_RAMP_RATE_UP0_ACTUAL_rgdx.field = 'm';
-    Q_RAMP_RATE_UP0_ACTUAL_rgdx.uels = {GEN.uels INTERVAL.uels};
-    Q_RAMP_RATE_UP0_ACTUAL = rgdx(input1,Q_RAMP_RATE_UP0_ACTUAL_rgdx);
-    Q_RAMP_RATE_DOWN0_BP_rgdx.form = 'full';
-    Q_RAMP_RATE_DOWN0_BP_rgdx.name = 'Q_RAMP_RATE_DOWN0_BP';
-    Q_RAMP_RATE_DOWN0_BP_rgdx.field = 'm';
-    Q_RAMP_RATE_DOWN0_BP_rgdx.uels = {GEN.uels INTERVAL.uels};
-    Q_RAMP_RATE_DOWN0_BP = rgdx(input1,Q_RAMP_RATE_DOWN0_BP_rgdx);
-    Q_RAMP_RATE_DOWN0_ACTUAL_rgdx.form = 'full';
-    Q_RAMP_RATE_DOWN0_ACTUAL_rgdx.name = 'Q_RAMP_RATE_DOWN0_ACTUAL';
-    Q_RAMP_RATE_DOWN0_ACTUAL_rgdx.field = 'm';
-    Q_RAMP_RATE_DOWN0_ACTUAL_rgdx.uels = {GEN.uels INTERVAL.uels};
-    Q_RAMP_RATE_DOWN0_ACTUAL = rgdx(input1,Q_RAMP_RATE_DOWN0_ACTUAL_rgdx);
-    Q_RAMP_RATE_UP_rgdx.form = 'full';
-    Q_RAMP_RATE_UP_rgdx.name = 'Q_RAMP_RATE_UP';
-    Q_RAMP_RATE_UP_rgdx.field = 'm';
-    Q_RAMP_RATE_UP_rgdx.uels = {GEN.uels INTERVAL.uels};
-    Q_RAMP_RATE_UP = rgdx(input1,Q_RAMP_RATE_UP_rgdx);
-    Q_RAMP_RATE_DOWN_rgdx.form = 'full';
-    Q_RAMP_RATE_DOWN_rgdx.name = 'Q_RAMP_RATE_DOWN';
-    Q_RAMP_RATE_DOWN_rgdx.field = 'm';
-    Q_RAMP_RATE_DOWN_rgdx.uels = {GEN.uels INTERVAL.uels};
-    Q_RAMP_RATE_DOWN = rgdx(input1,Q_RAMP_RATE_DOWN_rgdx);
-    RAMP_UP_DUAL.val=zeros(ngen,HLMP);
-    RAMP_DOWN_DUAL.val=zeros(ngen,HLMP);
-    RAMP_UP_DUAL.val(:,1)=(Q_RAMP_RATE_UP0_BP.val(:,1)+Q_RAMP_RATE_UP0_ACTUAL.val(:,1))./SYSTEMVALUE.val(mva_pu);
-    RAMP_DOWN_DUAL.val(:,1)=(Q_RAMP_RATE_DOWN0_BP.val(:,1)+Q_RAMP_RATE_DOWN0_ACTUAL.val(:,1))./SYSTEMVALUE.val(mva_pu);
-    if HLMP > 1
-        RAMP_UP_DUAL.val(:,2:end)=Q_RAMP_RATE_UP.val(:,2:end)./SYSTEMVALUE.val(mva_pu);
-        RAMP_DOWN_DUAL.val(:,2:end)=Q_RAMP_RATE_DOWN.val(:,2:end)./SYSTEMVALUE.val(mva_pu);
-    end
-    assignin('base','RAMP_DOWN_DUAL',RAMP_DOWN_DUAL);
-end
 
 end

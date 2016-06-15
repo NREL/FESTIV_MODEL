@@ -985,6 +985,28 @@ function addruns_callback(~,~)
     completeinputpathname=inputPath;
     assignin('base','completeinputpathname',completeinputpathname);
     useHDF5=evalin('base','useHDF5');
+    %{
+    allneededVars = whos;
+    for ii = 1:length(allneededVars)
+
+        % Check if the "class" for a variable matches "matlab.ui.Figure" to
+        % check if it is a MATLAB figure. Proceed if it is not a MATLAB figure
+        if (~strcmp(allneededVars(ii).class,'matlab.ui.Figure'))
+
+            % Check if the .MAT file already exists- if yes, append variable to
+            % the existing .MAT File
+            if exist(strcat('tempws',num2str(numberoffiles)),'file') == 2
+                save(strcat('tempws',num2str(numberoffiles)),allneededVars(ii).name,'-append');
+
+            else % If .MAT file does not exist, create a new one.
+                save(strcat('tempws',num2str(numberoffiles)),allneededVars(ii).name);
+            end
+        end
+
+
+    end
+    %}
+    clear mainFigure
     save(strcat('tempws',num2str(numberoffiles)));
     numberoffiles=numberoffiles+1;
     assignin('base','SIMULATE_CONTINGENCIES_in','NO'); % reset contingencies after adding it
@@ -1137,9 +1159,9 @@ function runFESTIV(~,~)
         multiplefilecheck=multiplerunscheckvalue;
         assignin('base','multiplefilecheck',multiplefilecheck);
         useHDF5=evalin('base','useHDF5');
+        close(gcf);
         save tempws;
         save tempws1;
-        close(gcf);
     else
         if numberoffiles-1 <= 1
             warndlg(sprintf('''Multiple Runs'' checked but there are less than two runs in the queue.\nPlease uncheck ''Multiple Runs'' or add more runs to the queue.'),'!! Warning !!')
@@ -1149,11 +1171,11 @@ function runFESTIV(~,~)
             multiplefilecheck=evalin('base','MRcheck');
             assignin('base','multiplefilecheck',multiplefilecheck);
             useHDF5=evalin('base','useHDF5');
+            close(gcf);
             save('tempws.mat','multiplefilecheck','-append');
             save('tempws1.mat','multiplefilecheck','-append');
             numofinputfiles=numberoffiles-1;
             save('tempws1.mat','numofinputfiles','numofinputfiles','-append');
-            close(gcf);
         end
     end
 end
@@ -2864,7 +2886,13 @@ function build_gams_models_callback(~,~)
     gams_model_figure = figure('name','Create GAMS Models','NumberTitle','off','menubar','none','color','white','position',[50 50 900 700]);
     assignin('base','gams_model_figure',gams_model_figure);
     tgroup = uitabgroup('Parent', gams_model_figure);
+    [matversion, matverdatestr] = version;
+    matverdate=str2num(matverdatestr(end-4:end));
+    if matverdate < 2014
     set(tgroup,'SelectionChangeFcn',{@tab_changed_fcn});
+    else
+    set(tgroup,'SelectionChange',{@tab_changed_fcn});
+    end;
     assignin('base','tgroup',tgroup);
     tab1 = uitab('Parent', tgroup, 'Title', 'DASCUC');
     tab2 = uitab('Parent', tgroup, 'Title', 'RTSCUC');
@@ -3148,7 +3176,7 @@ function create_gams_rules(~,~)
             end
             writableGAMSsectionNames=fieldnames(data_to_write);
             firstWrite=1;
-            for i=1:23
+            for i=1:size(GAMSsectionNames,1)
                if ~isempty(find(strcmp(sprintf('section_%d',i),writableGAMSsectionNames),1))
                    if firstWrite==1
                        openOption='w+';
@@ -3220,18 +3248,22 @@ function create_gams_rules(~,~)
                        end
                        for j=1:max_size
                            if j==1 && i == 9
-                               data_type='VARIABLE';use_comma=1;
+                               data_type='VARIABLE';use_final_semicolon=1;
                            elseif j==2 && i == 9
-                               data_type = 'POSITIVE VARIABLE';use_comma=1;
+                               data_type = 'POSITIVE VARIABLE';use_final_semicolon=1;
                            elseif i == 9
-                               data_type = ' ';use_comma=0;
+                               data_type = ' ';use_final_semicolon=0;
+                           elseif j == 1 && i == 11
+                               data_type = 'EQUATION';use_final_semicolon=0;
+                           elseif j == max_size && i == 11
+                               data_type = ' ';use_final_semicolon = 1;
                            else
-                               data_type = 'EQUATION';use_comma=1;
+                               data_type = ' ';use_final_semicolon = 0;
                            end
-                           if j==1 || j==2
-                               writeGamsLists(GAMS_FILE_NAME,openOption,sprintf('*     %s     *',GAMSsectionNames{i}),data_to_write.(sprintf('section_%d',i)).(sprintf('definition_%d',j)),data_type,0,0,use_comma);
+                           if j==1 
+                               writeGamsLists(GAMS_FILE_NAME,openOption,sprintf('*     %s     *',GAMSsectionNames{i}),data_to_write.(sprintf('section_%d',i)).(sprintf('definition_%d',j)),data_type,0,0,use_final_semicolon);
                            else
-                               writeGamsLists(GAMS_FILE_NAME,openOption,'',data_to_write.(sprintf('section_%d',i)).(sprintf('definition_%d',j)),data_type,0,0,use_comma);
+                               writeGamsLists(GAMS_FILE_NAME,openOption,'',data_to_write.(sprintf('section_%d',i)).(sprintf('definition_%d',j)),data_type,0,0,use_final_semicolon);
                            end
                        end
                    else
@@ -3343,7 +3375,6 @@ function dac_default_checked(~,~)
                                            'Base_DAC_Load_Flow_Equations.txt';
                                            'Base_DAC_Normal_Generator_Limits_Equations.txt';
                                            'Base_DAC_Phase_Shifter_Equations.txt';
-                                           'Base_DAC_Primary_Frequency_Response_Equations.txt';
                                            'Base_DAC_Storage_Commitment_Equations.txt';
                                            'Base_DAC_Storage_Efficiency_Equations.txt';
                                            'Base_DAC_Storage_Equations.txt';
@@ -3385,7 +3416,6 @@ function dac_default_checked(~,~)
                                            'MODEL_RULES\GAMS_Model_Files\Base_DAC_Files\Base_DAC_Load_Flow_Equations.txt';
                                            'MODEL_RULES\GAMS_Model_Files\Base_DAC_Files\Base_DAC_Normal_Generator_Limits_Equations.txt';
                                            'MODEL_RULES\GAMS_Model_Files\Base_DAC_Files\Base_DAC_Phase_Shifter_Equations.txt';
-                                           'MODEL_RULES\GAMS_Model_Files\Base_DAC_Files\Base_DAC_Primary_Frequency_Response_Equations.txt';
                                            'MODEL_RULES\GAMS_Model_Files\Base_DAC_Files\Base_DAC_Storage_Commitment_Equations.txt';
                                            'MODEL_RULES\GAMS_Model_Files\Base_DAC_Files\Base_DAC_Storage_Efficiency_Equations.txt';
                                            'MODEL_RULES\GAMS_Model_Files\Base_DAC_Files\Base_DAC_Storage_Equations.txt';

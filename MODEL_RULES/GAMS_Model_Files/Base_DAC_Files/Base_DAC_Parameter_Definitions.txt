@@ -19,11 +19,3 @@ $IFI '%USEGAMS%' == 'YES'    SET BRANCHBUS(BRANCH,BUS,BUS2) BRANCH FROM_BUS AND 
 $IFI '%USEGAMS%' == 'YES'    $INCLUDE "%DIRECTORY%TEMP\BRANCHBUS2.inc";
 $IFI '%USEGAMS%' == 'YES'    /;
 =end
-=start
-$IF EXIST pfrinput.gdx $gdxin pfrinput
-$IF EXIST pfrinput.gdx $LOAD PFR_MULTIPLIER
-=end
-=start
-$IF EXIST pfrinput.gdx $gdxin pfrinput
-$IF EXIST pfrinput.gdx $LOAD DAMPING_MULTIPLIER
-=end

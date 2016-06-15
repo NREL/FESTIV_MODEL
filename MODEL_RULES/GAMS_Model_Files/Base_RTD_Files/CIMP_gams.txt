@@ -1,0 +1,6 @@
+=start
+*at end of GAMS
+PARAMETER RAMP_PRICE_B(GEN,INTERVAL);
+*RAMP PRICING BASED ON PAPER "Scheduling and pricing for expected ramp capability in real-time power markets"
+$IF EXIST RAMP_PRICING.INC $INCLUDE RAMP_PRICING.INC
+=end

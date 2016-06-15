@@ -38,7 +38,7 @@ figure
 sumgen = sum(ACTUAL_GENERATION(:,2:ngen+1)'-ACTUAL_PUMP(:,2:ngen+1)')';
 plot(ACTUAL_GENERATION(:,1),sumgen);
 hold('on')
-line(ACTUAL_GENERATION(:,1),ACTUAL_LOAD_FULL(1:AGC_interval_index-1,2)+storelosses,'color','red');
+line(ACTUAL_GENERATION(1:AGC_interval_index-1,1),ACTUAL_LOAD_FULL(1:AGC_interval_index-1,2)+storelosses(1:AGC_interval_index-1),'color','red');
 legend('Total Generation','Total Load')
 title('Generation and Load');
 fig7=gcf;

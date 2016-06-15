@@ -128,8 +128,10 @@ for t=1:ACT_size
             RTRevenue_Result_Energy_TMP_;
         Diff_(:,:)=RTSCEDBINDINGRESERVE(minRT,plus1,1:nreserve)-DASCUCRESERVE(minDA,plus1,:);
         RTRevenue_Result_AS_TMP_=zeros(size(Diff_));
-        for i=1:ngen; RTRevenue_Result_AS_TMP_(i,:) =  ...
-            (Diff_(i,:).*RTSCEDBINDINGRESERVEPRICE(minRT,2:end))*(t_AGC/3600); end % i=1:ngen
+        for i=1:ngen; 
+            RTRevenue_Result_AS_TMP_(i,:) =  ...
+            (Diff_(i,:).*RTSCEDBINDINGRESERVEPRICE(minRT,2:end))*(t_AGC/3600); 
+        end % i=1:ngen
         RTRevenue_Result(minRT,:) = RTRevenue_Result(minRT,:)+RTRevenue_Result_Energy_TMP_(1,:);
         RTRevenue_Result_AS(minRT,1:ngen,:) = RTRevenue_Result_AS_TMP_(:,:);
          sumRTrev_=sum(RTRevenue_Result_AS_TMP_,2)';

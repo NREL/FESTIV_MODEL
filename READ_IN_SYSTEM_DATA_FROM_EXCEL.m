@@ -425,6 +425,34 @@ for a =1:size(COST_CURVE.val,1)
 end;
 DEFAULT_DATA.COST_CURVE=COST_CURVE;
 
+BLOCK2.uels={'BLOCK1','BLOCK2','BLOCK3','BLOCK4'};
+BLOCK2.name='BLOCK';
+BLOCK2.type='SET';
+BLOCK2.form='FULL';
+BLOCK2.val=ones(1,4);
+
+GENBLOCK.uels = {COST_CURVE_STRING' BLOCK2.uels};
+BLOCKMW=COST_CURVE_VAL(:,[2,4,6,8]);
+GENBLOCK.val = double(BLOCKMW>eps);
+GENBLOCK.name = 'GENBLOCK';
+GENBLOCK.form = 'full';
+GENBLOCK.type = 'set';
+DEFAULT_DATA.GENBLOCK=GENBLOCK;
+
+BLOCK_COST.name='BLOCK_COST';
+BLOCK_COST.uels={COST_CURVE_STRING' BLOCK2.uels};
+BLOCK_COST.form='FULL';
+BLOCK_COST.type='parameter';
+BLOCK_COST.val=COST_CURVE.val(:,[1 3 5 7]);
+DEFAULT_DATA.BLOCK_COST=BLOCK_COST;
+
+BLOCK_CAP.name='BLOCK_CAP';
+BLOCK_CAP.uels={COST_CURVE_STRING' BLOCK2.uels};
+BLOCK_CAP.form='FULL';
+BLOCK_CAP.type='parameter';
+BLOCK_CAP.val=COST_CURVE.val(:,[2 4 6 8])./SYSTEMVALUE.val(mva_pu);
+DEFAULT_DATA.BLOCK_CAP=BLOCK_CAP;
+
 if useHDF5==0
     [~, PUMP_EFF_VAL] = xlsread(inputPath,'PUMPEFFICIENCY','B1:W1');
 else
@@ -617,5 +645,17 @@ npar = 0;
 for l=1:nbranch
     if BRANCHDATA.val(l,branch_type) ==2 || BRANCHDATA.val(l,branch_type) == 3
         npar = npar+1;
+    end;
+end;
+nhvdc = 0;
+for l=1:nbranch
+    if BRANCHDATA.val(l,branch_type) ==4 
+        nhvdc = nhvdc+1;
+    end;
+end;
+nctgc = 0;
+for l=1:nbranch
+    if BRANCHDATA.val(l,ctgc_monitor) ==1 
+        nctgc = nctgc+1;
     end;
 end;

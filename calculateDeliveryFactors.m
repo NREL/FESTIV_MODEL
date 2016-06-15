@@ -12,6 +12,7 @@ for t=1:H
        y2=x2==b;
        x=y1+y2;
        temp=1-2*sum(PTDF_VAL(logical(x),b).*LINEFLOWS(logical(x),t)/systemMVA.*branch_resistances(logical(x),1)) ;
+       %temp=1-2*sum(PTDF_VAL(:,b).*LINEFLOWS(:,t)/systemMVA.*branch_resistances(:,1)) ;
        BUS_DELIVERY_FACTORS_VAL(b,t)=temp;
     end
 end

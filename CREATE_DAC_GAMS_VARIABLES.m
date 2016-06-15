@@ -1,5 +1,27 @@
 % Create GAMS variables for DASCUC model solve
 
+% Load default system values
+BRANCHBUS2            = DEFAULT_DATA.BRANCHBUS2;
+GENBUS2               = DEFAULT_DATA.GENBUS2;
+PARTICIPATION_FACTORS = DEFAULT_DATA.PARTICIPATION_FACTORS;
+BRANCHDATA            = DEFAULT_DATA.BRANCHDATA;
+COST_CURVE            = DEFAULT_DATA.COST_CURVE;
+SYSTEMVALUE           = DEFAULT_DATA.SYSTEMVALUE;
+STARTUP_VALUE         = DEFAULT_DATA.STARTUP_VALUE;
+RESERVE_COST          = DEFAULT_DATA.RESERVE_COST;
+RESERVEVALUE          = DEFAULT_DATA.RESERVEVALUE;
+PUMPEFFICIENCYVALUE   = DEFAULT_DATA.PUMPEFFICIENCYVALUE;
+GENEFFICIENCYVALUE    = DEFAULT_DATA.GENEFFICIENCYVALUE;
+GENVALUE              = DEFAULT_DATA.GENVALUE;
+LOAD_DIST             = DEFAULT_DATA.LOAD_DIST;
+STORAGEVALUE          = DEFAULT_DATA.STORAGEVALUE;
+PTDF                  = DEFAULT_DATA.PTDF;
+PTDF_PAR              = DEFAULT_DATA.PTDF_PAR;
+LODF                  = DEFAULT_DATA.LODF;
+BLOCK_COST            = DEFAULT_DATA.BLOCK_COST;
+BLOCK_CAP             = DEFAULT_DATA.BLOCK_CAP;
+GENBLOCK              = DEFAULT_DATA.GENBLOCK;  
+
 if Solving_Initial_Models == 1
     NDACINTERVAL.val = HDAC;
 end
@@ -140,19 +162,6 @@ LOSS_BIAS.form = 'full';
 LOSS_BIAS.uels = cell(1,0);
 LOSS_BIAS.type = 'parameter';
 
-BLOCK2.uels={'BLOCK1','BLOCK2','BLOCK3','BLOCK4'};
-BLOCK2.name='BLOCK';
-BLOCK2.type='SET';
-BLOCK2.form='FULL';
-BLOCK2.val=ones(1,4);
-
-GENBLOCK.uels = {COST_CURVE_STRING' BLOCK2.uels};
-BLOCKMW=COST_CURVE_VAL(:,[2,4,6,8]);
-GENBLOCK.val = double(BLOCKMW>eps);
-GENBLOCK.name = 'GENBLOCK';
-GENBLOCK.form = 'full';
-GENBLOCK.type = 'set';
-
 PUMPBLOCKS={'BLOCK1','BLOCK2','BLOCK3'};
 if ~isempty(GENEFFICIENCYVALUE_VAL)
     geneffmwvalues=GENEFFICIENCYVALUE_VAL(:,[2,4,6]);
@@ -176,18 +185,6 @@ STORAGEPUMPEFFICIENCYBLOCK.form='FULL';
 STORAGEGENEFFICIENCYBLOCK.val=double(geneffmwvalues>eps);
 STORAGEPUMPEFFICIENCYBLOCK.val=double(stoeffmwvalues>eps);
 
-BLOCK_COST.name='BLOCK_COST';
-BLOCK_COST.uels={COST_CURVE_STRING' BLOCK2.uels};
-BLOCK_COST.form='FULL';
-BLOCK_COST.type='parameter';
-BLOCK_COST.val=COST_CURVE_VAL(:,[1 3 5 7]);
-
-BLOCK_CAP.name='BLOCK_CAP';
-BLOCK_CAP.uels={COST_CURVE_STRING' BLOCK2.uels};
-BLOCK_CAP.form='FULL';
-BLOCK_CAP.type='parameter';
-BLOCK_CAP.val=COST_CURVE_VAL(:,[2 4 6 8])./SYSTEMVALUE.val(mva_pu);
-
 QSC.name='QSC';
 QSC.uels={GEN_VAL' RESERVETYPE_VAL'};
 QSC.form='FULL';
@@ -199,7 +196,6 @@ for rr=1:nreserve
         QSC.val(qsc_idx,rr)=min(GENVALUE.val(qsc_idx,capacity),GENVALUE.val(qsc_idx,min_gen)+GENVALUE.val(qsc_idx,ramp_rate).*(repmat(RESERVEVALUE.val(rr,res_time),size(find(qsc_idx)))-60*GENVALUE.val(qsc_idx,su_time)));
     end
 end
-QSC.val=QSC.val./SYSTEMVALUE.val(mva_pu);
 
 OFFLINE_BLOCK.name='OFFLINE_BLOCK';
 OFFLINE_BLOCK.uels={STARTUP_VALUE_STRING1' STARTUP_VALUE_STRING2};
@@ -328,7 +324,6 @@ GEN_EFFICIENCY_MW.name='GEN_EFFICIENCY_MW';
 GEN_EFFICIENCY_MW.uels={STORAGEGENEFFICIENCYBLOCK.uels{1,1} STORAGEGENEFFICIENCYBLOCK.uels{1,2}};
 GEN_EFFICIENCY_MW.form='full';
 GEN_EFFICIENCY_MW.type='parameter';
-GEN_EFFICIENCY_MW.val=geneffmwvalues./SYSTEMVALUE.val(mva_pu);
 PUMP_EFFICIENCY_BLOCK.name='PUMP_EFFICIENCY_BLOCK';
 PUMP_EFFICIENCY_BLOCK.uels={STORAGEGENEFFICIENCYBLOCK.uels{1,1} STORAGEGENEFFICIENCYBLOCK.uels{1,2}};
 PUMP_EFFICIENCY_BLOCK.form='full';
@@ -338,15 +333,6 @@ PUMP_EFFICIENCY_MW.name='PUMP_EFFICIENCY_MW';
 PUMP_EFFICIENCY_MW.uels={STORAGEGENEFFICIENCYBLOCK.uels{1,1} STORAGEGENEFFICIENCYBLOCK.uels{1,2}};
 PUMP_EFFICIENCY_MW.form='full';
 PUMP_EFFICIENCY_MW.type='parameter';
-PUMP_EFFICIENCY_MW.val=stoeffmwvalues./SYSTEMVALUE.val(mva_pu);
-
-DROOP_EQ.name='DROOP_EQ';
-DROOP_EQ.form='full';
-DROOP_EQ.type='parameter';
-DROOP_EQ.uels={GEN_VAL'};
-DROOP_EQ.val=zeros(ngen,1);
-temp_idx=GENVALUE.val(:,droop) > 0 & GENVALUE.val(:,capacity) > 0;
-DROOP_EQ.val(temp_idx,1)=GENVALUE.val(temp_idx,droop).*SYSTEMVALUE.val(frequency,1)./GENVALUE.val(temp_idx,capacity);
 
 END_STORAGE_PENALTY_PLUS_PRICE.name='END_STORAGE_PENALTY_PLUS_PRICE';
 END_STORAGE_PENALTY_PLUS_PRICE.form='full';
@@ -362,76 +348,5 @@ END_STORAGE_PENALTY_MINUS_PRICE.uels={GEN_VAL'};
 END_STORAGE_PENALTY_MINUS_PRICE.val=zeros(ngen,1);
 END_STORAGE_PENALTY_MINUS_PRICE.val(temp_idx,1)=SYSTEMVALUE.val(voll,1);
 
-gens_with_govs=GEN_VAL(GENVALUE.val(:,droop)>0);
-PFR_MULTIPLIER.name='PFR_MULTIPLIER';
-PFR_MULTIPLIER.form='full';
-PFR_MULTIPLIER.type='parameter';
-PFR_MULTIPLIER.uels={gens_with_govs' INTERVAL.uels RESERVETYPE_VAL'};
-PFR_MULTIPLIER.val=zeros(size(gens_with_govs,1),HDAC,nreserve);
-for rr=1:nreserve
-    if RESERVEVALUE.val(rr,res_gov) > 1 - eps
-        PFR_MULTIPLIER.val(gens_with_govs,:,rr)=1;
-    end
-end
 
-DAMPING_MULTIPLIER.name='DAMPING_MULTIPLIER';
-DAMPING_MULTIPLIER.form='full';
-DAMPING_MULTIPLIER.type='parameter';
-DAMPING_MULTIPLIER.uels={INTERVAL.uels RESERVETYPE_VAL'};
-DAMPING_MULTIPLIER.val=zeros(HDAC,nreserve);
-res_with_govs=RESERVEVALUE.val(:,res_gov)>1-eps;
-DAMPING_MULTIPLIER.val(:,res_with_govs)=1;
 
-% Convert to per unit
-GENVALUE.val(:,capacity)=GENVALUE.val(:,capacity)./SYSTEMVALUE.val(mva_pu);
-GENVALUE.val(:,min_gen)=GENVALUE.val(:,min_gen)./SYSTEMVALUE.val(mva_pu);
-GENVALUE.val(:,ramp_rate)=GENVALUE.val(:,ramp_rate)./SYSTEMVALUE.val(mva_pu);
-GENVALUE.val(:,initial_MW)=GENVALUE.val(:,initial_MW)./SYSTEMVALUE.val(mva_pu);
-STORAGEVALUE.val(:,storage_max)=STORAGEVALUE.val(:,storage_max)./SYSTEMVALUE.val(mva_pu);
-STORAGEVALUE.val(:,initial_storage)=STORAGEVALUE.val(:,initial_storage)./SYSTEMVALUE.val(mva_pu);
-STORAGEVALUE.val(:,final_storage)=STORAGEVALUE.val(:,final_storage)./SYSTEMVALUE.val(mva_pu);
-STORAGEVALUE.val(:,max_pump)=STORAGEVALUE.val(:,max_pump)./SYSTEMVALUE.val(mva_pu);
-STORAGEVALUE.val(:,min_pump)=STORAGEVALUE.val(:,min_pump)./SYSTEMVALUE.val(mva_pu);
-STORAGEVALUE.val(:,pump_ramp_rate)=STORAGEVALUE.val(:,pump_ramp_rate)./SYSTEMVALUE.val(mva_pu);
-STORAGEVALUE.val(:,initial_pump_mw)=STORAGEVALUE.val(:,initial_pump_mw)./SYSTEMVALUE.val(mva_pu);
-LOAD.val=LOAD.val./SYSTEMVALUE.val(mva_pu);
-RESERVELEVEL.val=RESERVELEVEL.val./SYSTEMVALUE.val(mva_pu);
-BRANCHDATA.val(:,line_rating)=BRANCHDATA.val(:,line_rating)./SYSTEMVALUE.val(mva_pu);
-BRANCHDATA.val(:,ste_rating)=BRANCHDATA.val(:,ste_rating)./SYSTEMVALUE.val(mva_pu);
-VG_FORECAST.val=VG_FORECAST.val./SYSTEMVALUE.val(mva_pu);
-INTERCHANGE.val=INTERCHANGE.val./SYSTEMVALUE.val(mva_pu);
-LOSS_BIAS.val=LOSS_BIAS.val./SYSTEMVALUE.val(mva_pu);
-COST_CURVE.val(:,[2 4 6 8])=COST_CURVE.val(:,[2 4 6 8])./SYSTEMVALUE.val(mva_pu);
-if ~isempty(PUMPEFFICIENCYVALUE.val)
-    PUMPEFFICIENCYVALUE.val(:,[2 4 6])=PUMPEFFICIENCYVALUE.val(:,[2 4 6])./SYSTEMVALUE.val(mva_pu);
-    GENEFFICIENCYVALUE.val(:,[2 4 6])=GENEFFICIENCYVALUE.val(:,[2 4 6])./SYSTEMVALUE.val(mva_pu);
-end
-DEFAULT_DATA.GENVALUE=GENVALUE;
-DEFAULT_DATA.STORAGEVALUE=STORAGEVALUE;
-DEFAULT_DATA.BRANCHDATA=BRANCHDATA;
-DEFAULT_DATA.COST_CURVE=COST_CURVE;
-DEFAULT_DATA.PUMPEFFICIENCYVALUE=PUMPEFFICIENCYVALUE;
-DEFAULT_DATA.GENEFFICIENCYVALUE=GENEFFICIENCYVALUE;
-
-% Update initial statuses of DEFAULT_DATA set
-DEFAULT_DATA.GENVALUE.val(:,initial_status:initial_MW) = GENVALUE.val(:,initial_status:initial_MW);
-DEFAULT_DATA.STORAGEVALUE.val(:,[initial_storage,final_storage,initial_pump_status,initial_pump_mw,initial_pump_hour]) = STORAGEVALUE.val(:,[initial_storage,final_storage,initial_pump_status,initial_pump_mw,initial_pump_hour]);
-
-% Load default system values
-BRANCHBUS2            = DEFAULT_DATA.BRANCHBUS2;
-GENBUS2               = DEFAULT_DATA.GENBUS2;
-PARTICIPATION_FACTORS = DEFAULT_DATA.PARTICIPATION_FACTORS;
-BRANCHDATA            = DEFAULT_DATA.BRANCHDATA;
-COST_CURVE            = DEFAULT_DATA.COST_CURVE;
-SYSTEMVALUE           = DEFAULT_DATA.SYSTEMVALUE;
-STARTUP_VALUE         = DEFAULT_DATA.STARTUP_VALUE;
-RESERVE_COST          = DEFAULT_DATA.RESERVE_COST;
-RESERVEVALUE          = DEFAULT_DATA.RESERVEVALUE;
-PUMPEFFICIENCYVALUE   = DEFAULT_DATA.PUMPEFFICIENCYVALUE;
-GENEFFICIENCYVALUE    = DEFAULT_DATA.GENEFFICIENCYVALUE;
-GENVALUE              = DEFAULT_DATA.GENVALUE;
-LOAD_DIST             = DEFAULT_DATA.LOAD_DIST;
-STORAGEVALUE          = DEFAULT_DATA.STORAGEVALUE;
-PTDF                  = DEFAULT_DATA.PTDF;
-PTDF_PAR              = DEFAULT_DATA.PTDF_PAR;
-LODF                  = DEFAULT_DATA.LODF;
