@@ -417,9 +417,12 @@ if strcmp(MODEL,'DASCUC')
 elseif strcmp(MODEL,'RTSCUC')
     HLMP=evalin('base','HRTC');
     ILMP=evalin('base','IRTC');
-else
+elseif strcmp(MODEL,'RTSCED')
     HLMP=evalin('base','HRTD');
     ILMP=evalin('base','IRTD');
+else
+    HLMP=evalin('base','HRPU');
+    ILMP=evalin('base','IRPU');
 end
 
 tetemp=(sum(GENSCHEDULE.val)'-sum(PUMPSCHEDULE.val)'-LOAD.val+LOSSLOAD.val-overgeneration.val.*SYSTEMVALUE.val(mva_pu)-LOSS_BIAS.val.*ones(HLMP,1))./SYSTEMVALUE.val(mva_pu);
@@ -473,7 +476,7 @@ end;
 
 if strcmp(MODEL,'DASCUC')
     INTERVAL_SCALAR=ILMP.*ones(HLMP,1);
-elseif strcmp(MODEL,'RTSCUC')
+elseif strcmp(MODEL,'RTSCUC') || strcmp(MODEL,'RPU')
     INTERVAL_SCALAR=ILMP/60.*ones(HLMP,1);
 else
     INTERVAL_MINUTES=evalin('base','INTERVAL_MINUTES');

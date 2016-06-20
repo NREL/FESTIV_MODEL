@@ -5,7 +5,7 @@ VG_FULL = [];
 VG_FIELD = [];
 RESERVE_FULL = [];
 useHDF5=evalin('caller','useHDF5');
-
+nvg_input_file = size(ACTUAL_VG_FULL,2)-1;
 % Determine model being forecasted
 if strcmp(model,'DAC')
     model2='DA';
@@ -83,9 +83,9 @@ if nvcr > 0
         end;
         if nvg > 0
             if strcmp(model,'DAC')
-                VG_FULL_VG = forecast_creation(ACTUAL_VG_FULL,nvg,I*60,I*60,t*60,H,t_AGC,P*60,simulation_days,0,max_data,'DA',vg_data_create);
+                VG_FULL_VG = forecast_creation(ACTUAL_VG_FULL,nvg_input_file,I*60,I*60,t*60,H,t_AGC,P*60,simulation_days,0,max_data,'DA',vg_data_create);
             else
-                VG_FULL_VG = forecast_creation(ACTUAL_VG_FULL,nvg,I,I2,t,H,t_AGC,P,simulation_days,0,max_data,'RT',vg_data_create);
+                VG_FULL_VG = forecast_creation(ACTUAL_VG_FULL,nvg_input_file,I,I2,t,H,t_AGC,P,simulation_days,0,max_data,'RT',vg_data_create);
             end
             VG_FIELD_VG = [' ' ACTUAL_VG_FIELD];
             if nvcr>nvg
@@ -130,9 +130,9 @@ if nvcr > 0
             end;
             vg_error = vg_error(1:H,1);
             if strcmp(model,'DAC')
-                VG_FULL_VG = forecast_creation(ACTUAL_VG_FULL,nvg,I*60,I*60,t*60,H,t_AGC,P*60,simulation_days,vg_error,max_data,'DA',vg_data_create);
+                VG_FULL_VG = forecast_creation(ACTUAL_VG_FULL,nvg_input_file,I*60,I*60,t*60,H,t_AGC,P*60,simulation_days,vg_error,max_data,'DA',vg_data_create);
             else
-                VG_FULL_VG = forecast_creation(ACTUAL_VG_FULL,nvg,I,I,t,H,t_AGC,P,simulation_days,vg_error,max_data,'RT',vg_data_create);
+                VG_FULL_VG = forecast_creation(ACTUAL_VG_FULL,nvg_input_file,I,I,t,H,t_AGC,P,simulation_days,vg_error,max_data,'RT',vg_data_create);
             end
             VG_FIELD_VG = [' ' ACTUAL_VG_FIELD];
             if nvcr>nvg

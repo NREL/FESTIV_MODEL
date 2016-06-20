@@ -1,5 +1,4 @@
 =start
-INTERVAL
 GEN
 BUS
 GENPARAM
@@ -15,7 +14,7 @@ GENBLOCK
 STORAGEPARAM
 =end
 =start
-
+INTERVAL
 =end
 =start
 SLACKBUS(BUS)
