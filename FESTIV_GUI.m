@@ -985,29 +985,15 @@ function addruns_callback(~,~)
     completeinputpathname=inputPath;
     assignin('base','completeinputpathname',completeinputpathname);
     useHDF5=evalin('base','useHDF5');
-    %{
-    allneededVars = whos;
-    for ii = 1:length(allneededVars)
 
-        % Check if the "class" for a variable matches "matlab.ui.Figure" to
-        % check if it is a MATLAB figure. Proceed if it is not a MATLAB figure
-        if (~strcmp(allneededVars(ii).class,'matlab.ui.Figure'))
+    % Get a list of all variables
+    allvars = whos;
 
-            % Check if the .MAT file already exists- if yes, append variable to
-            % the existing .MAT File
-            if exist(strcat('tempws',num2str(numberoffiles)),'file') == 2
-                save(strcat('tempws',num2str(numberoffiles)),allneededVars(ii).name,'-append');
+    % Identify the variables that ARE NOT graphics handles. This uses a regular
+    % expression on the class of each variable to check if it's a graphics object
+    tosave = cellfun(@isempty, regexp({allvars.class}, '^matlab\.(ui|graphics)\.'));
 
-            else % If .MAT file does not exist, create a new one.
-                save(strcat('tempws',num2str(numberoffiles)),allneededVars(ii).name);
-            end
-        end
-
-
-    end
-    %}
-    clear mainFigure
-    save(strcat('tempws',num2str(numberoffiles)));
+    save(strcat('tempws',num2str(numberoffiles)),allvars(tosave).name);
     numberoffiles=numberoffiles+1;
     assignin('base','SIMULATE_CONTINGENCIES_in','NO'); % reset contingencies after adding it
     assignin('base','gen_outage_time_in',0);
