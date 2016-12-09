@@ -1803,7 +1803,7 @@ while(time < end_time)
             
             for i=1:ngen
                 rtcdelaycondition= (indexofunitsSD(i,1) > eps && ((rtcminimumpossible(i,1) > GENVALUE.val(i,min_gen)+eps) && (RTSCUCBINDINGSCHEDULE(RTSCUC_binding_interval_index-1,i+1) > GENVALUE.val(i,min_gen)))) && ( GENVALUE.val(i,gen_type) ~= 7 && GENVALUE.val(i,gen_type) ~= 10 && GENVALUE.val(i,gen_type) ~= 14 && GENVALUE.val(i,gen_type) ~= 16);
-                rtcdelaycondition2= ceil(((RTSCUCBINDINGSCHEDULE(RTSCUC_binding_interval_index-1,i+1)-GENVALUE.val(i,min_gen))/(GENVALUE.val(i,ramp_rate)*IRTC))-eps*10) > eps && sum(STATUS(RTSCUC_binding_interval_index:RTSCUC_binding_interval_index+HRTC-1,i)) < HRTC && (GENVALUE.val(i,gen_type) ~= 7 && GENVALUE.val(i,gen_type) ~= 10 && GENVALUE.val(i,gen_type) ~= 14 && GENVALUE.val(i,gen_type) ~= 16) && GENVALUE.val(i,su_time) > tRTCstart;
+                rtcdelaycondition2= indexofunitsSD(i,1) > eps && ceil(((RTSCUCBINDINGSCHEDULE(RTSCUC_binding_interval_index-1,i+1)-GENVALUE.val(i,min_gen))/(GENVALUE.val(i,ramp_rate)*IRTC))-eps*10) > eps && sum(STATUS(RTSCUC_binding_interval_index:RTSCUC_binding_interval_index+HRTC-1,i)) < HRTC && (GENVALUE.val(i,gen_type) ~= 7 && GENVALUE.val(i,gen_type) ~= 10 && GENVALUE.val(i,gen_type) ~= 14 && GENVALUE.val(i,gen_type) ~= 16) && GENVALUE.val(i,su_time) > tRTCstart; %EE 08162016 Interim bandaid to add the indexofunitsSD(i,1) > eps. I am not sure what this line does.
                 if rtcdelaycondition
                     STATUS(indexofunitsSD(i,1):min(size(STATUS,1),indexofunitsSD(i,1)+X(i,1)-1),i)=1;
                     STATUS(indexofunitsSD(i,1)+X(i,1):min(size(STATUS,1),indexofunitsSD(i,1)+X(i,1)-1+(GENVALUE.val(i,md_time)*60/IRTC)),i)=0;

@@ -115,17 +115,17 @@ uicontrol('parent',mainFigure,'style','text','string',':','units','normalized','
 uicontrol('parent',mainFigure,'style','text','string',':','units','normalized','position',[.565 .142 .01 .05],'fontunits','normalized','fontsize',0.5);
 
 % create extra options input request interfaces
-options=uipanel('parent',mainFigure,'Title','Extra Options','units','normalized','Position', [.03 .03 .62 .09],'fontunits','normalized','fontsize',0.2,'BackgroundColor',get(mainFigure,'color'));
-uicontrol('parent',options,'units','normalized','position',[.015 .15 .15 .8],'string','<html><center>RPU</center></html>','fontunits','normalized','fontsize',0.35,'callback',{@rpu_callback});
-uicontrol('parent',options,'units','normalized','position',[.345 .15 .15 .8],'string','<html><center>Multiple<br>Runs</center></html>','fontunits','normalized','fontsize',0.35,'callback',{@MultipleRuns_callback});
-uicontrol('parent',options,'units','normalized','position',[.18 .15 .15 .8],'string','<html><center>CTGC<br>Options</center></html>','fontunits','normalized','fontsize',0.35,'callback',{@contingencies_callback});
-uicontrol('parent',options,'units','normalized','position',[.51 .15 .15 .8],'string','<html><center>Debug</center></html>','fontunits','normalized','fontsize',0.35,'callback',{@debugging_callback});
-uicontrol('parent',options,'units','normalized','position',[.675 .15 .15 .8],'string','<html><center>Other<br>Rules</center></html>','fontunits','normalized','fontsize',0.35,'callback',{@other_rules_callback});
-uicontrol('parent',options,'units','normalized','position',[.84 .15 .15 .8],'string','<html><center>GAMS</center></html>','fontunits','normalized','fontsize',0.35,'callback',{@build_gams_models_callback});
-
-% create Go and Cancel buttons
-uicontrol('Parent',mainFigure,'Style','pushbutton','String','Cancel','units','normalized','Position', [0.825 0.03 0.145 0.09],'fontunits','normalized','fontsize',0.30,'Callback', {@cancel_callback});
-uicontrol('Parent',mainFigure,'Style','pushbutton','String','Go!','units','normalized','Position', [.67 .03 .145 .09],'fontunits','normalized','fontsize',0.30,'Callback',{@runFESTIV}); 
+options=uipanel('parent',mainFigure,'Title','Extra Options','units','normalized','Position', [.03 .03 .725 .09],'fontunits','normalized','fontsize',0.2,'BackgroundColor',get(mainFigure,'color'));
+uicontrol('parent',options,'units','normalized','position',[.01 .15 .11 .8],'string','<html><center>RPU</center></html>','fontunits','normalized','fontsize',0.35,'callback',{@rpu_callback});
+uicontrol('parent',options,'units','normalized','position',[.135 .15 .11 .8],'string','<html><center>Multiple<br>Runs</center></html>','fontunits','normalized','fontsize',0.35,'callback',{@MultipleRuns_callback});
+uicontrol('parent',options,'units','normalized','position',[.260 .15 .11 .8],'string','<html><center>CTGC<br>Options</center></html>','fontunits','normalized','fontsize',0.35,'callback',{@contingencies_callback});
+uicontrol('parent',options,'units','normalized','position',[.385 .15 .11 .8],'string','<html><center>Debug</center></html>','fontunits','normalized','fontsize',0.35,'callback',{@debugging_callback});
+uicontrol('parent',options,'units','normalized','position',[.51 .15 .11 .8],'string','<html><center>Other<br>Rules</center></html>','fontunits','normalized','fontsize',0.35,'callback',{@other_rules_callback});
+uicontrol('parent',options,'units','normalized','position',[.635 .15 .11 .8],'string','<html><center>Save<br>Rules</center></html>','fontunits','normalized','fontsize',0.35,'callback',{@save_rules_callback});
+uicontrol('parent',options,'units','normalized','position',[.76 .15 .11 .8],'string','<html><center>Load<br>Rules</center></html>','fontunits','normalized','fontsize',0.35,'callback',{@load_rules_callback});
+uicontrol('parent',options,'units','normalized','position',[.885 .15 .11 .8],'string','<html><center>GAMS</center></html>','fontunits','normalized','fontsize',0.35,'callback',{@build_gams_models_callback});
+uicontrol('Parent',mainFigure,'Style','pushbutton','String','<html><center>Cancel</center></html>','units','normalized','Position', [0.775 0.03 0.1 0.08],'fontunits','normalized','fontsize',0.35,'Callback', {@cancel_callback});
+uicontrol('Parent',mainFigure,'Style','pushbutton','String','<html><center>Go!</center></html>','units','normalized','Position', [.885 .03 0.1 .08],'fontunits','normalized','fontsize',0.40,'Callback',{@runFESTIV}); 
 
 % make main figure visible
 set(mainFigure,'visible','on');
@@ -1113,7 +1113,8 @@ function runFESTIV(~,~)
         assignin('base','RTD_RESERVE_FORECAST_MODE_in',RTD_RESERVE_FORECAST_MODE_in);
         assignin('base','DAC_load_forecast_data_create_in',DAC_load_forecast_data_create_in);
         assignin('base','DAC_vg_forecast_data_create_in',DAC_vg_forecast_data_create_in);
-        assignin('base','autosavecheck',get(autosavecheck_in,'value'));
+        autosavecheck=get(autosavecheck_in,'value');
+        assignin('base','autosavecheck',autosavecheck);
         
         assignin('base','USE_INTEGER_in',USE_INTEGER_in);
         assignin('base','timefordebugstop_in',timefordebugstop_in);
@@ -3378,46 +3379,46 @@ function dac_default_checked(~,~)
     gamsFilesNames_DAC.User_Defined_11={};
     gamsFilesNames_DAC.Footer={'Base_DAC_Footer.txt'};
 
-    gamsFilesPaths_DAC.Header={'MODEL_RULES\GAMS_Model_Files\Base_DAC_Files\Base_DAC_Header.txt'};
+    gamsFilesPaths_DAC.Header={['MODEL_RULES',filesep,'GAMS_Model_Files',filesep,'Base_DAC_Files',filesep,'Base_DAC_Header.txt']};
     gamsFilesPaths_DAC.User_Defined_1={};
-    gamsFilesPaths_DAC.Load_Inputs={'MODEL_RULES\GAMS_Model_Files\Base_DAC_Files\Base_DAC_Scalar_Declarations.txt';
-                                    'MODEL_RULES\GAMS_Model_Files\Base_DAC_Files\Base_DAC_Set_Declarations.txt';
-                                    'MODEL_RULES\GAMS_Model_Files\Base_DAC_Files\Base_DAC_Parameter_Declarations.txt';
-                                    'MODEL_RULES\GAMS_Model_Files\Base_DAC_Files\Base_DAC_Table_Declarations.txt'};
+    gamsFilesPaths_DAC.Load_Inputs={['MODEL_RULES',filesep,'GAMS_Model_Files',filesep,'Base_DAC_Files',filesep,'Base_DAC_Scalar_Declarations.txt'];
+                                    ['MODEL_RULES',filesep,'GAMS_Model_Files',filesep,'Base_DAC_Files',filesep,'Base_DAC_Set_Declarations.txt'];
+                                    ['MODEL_RULES',filesep,'GAMS_Model_Files',filesep,'Base_DAC_Files',filesep,'Base_DAC_Parameter_Declarations.txt'];
+                                    ['MODEL_RULES',filesep,'GAMS_Model_Files',filesep,'Base_DAC_Files',filesep,'Base_DAC_Table_Declarations.txt']};
     gamsFilesPaths_DAC.User_Defined_2={};
-    gamsFilesPaths_DAC.Define_Inputs={'MODEL_RULES\GAMS_Model_Files\Base_DAC_Files\Base_DAC_Set_Definitions.txt';
-                                      'MODEL_RULES\GAMS_Model_Files\Base_DAC_Files\Base_DAC_Parameter_Definitions.txt';
-                                      'MODEL_RULES\GAMS_Model_Files\Base_DAC_Files\Base_DAC_Table_Definitions.txt'};
+    gamsFilesPaths_DAC.Define_Inputs={['MODEL_RULES',filesep,'GAMS_Model_Files',filesep,'Base_DAC_Files',filesep,'Base_DAC_Set_Definitions.txt'];
+                                      ['MODEL_RULES',filesep,'GAMS_Model_Files',filesep,'Base_DAC_Files',filesep,'Base_DAC_Parameter_Definitions.txt'];
+                                      ['MODEL_RULES',filesep,'GAMS_Model_Files',filesep,'Base_DAC_Files',filesep,'Base_DAC_Table_Definitions.txt']};
     gamsFilesPaths_DAC.User_Defined_3={};
-    gamsFilesPaths_DAC.Manipulate_Inputs={'MODEL_RULES\GAMS_Model_Files\Base_DAC_Files\Base_DAC_Convert_To_PU.txt'};
+    gamsFilesPaths_DAC.Manipulate_Inputs={['MODEL_RULES',filesep,'GAMS_Model_Files',filesep,'Base_DAC_Files',filesep,'Base_DAC_Convert_To_PU.txt']};
     gamsFilesPaths_DAC.User_Defined_4={};
-    gamsFilesPaths_DAC.Declare_Variables={'MODEL_RULES\GAMS_Model_Files\Base_DAC_Files\Base_DAC_Variable_Declarations.txt';'MODEL_RULES\GAMS_Model_Files\Base_DAC_Files\Base_DAC_Variable_Definitions.txt'};
+    gamsFilesPaths_DAC.Declare_Variables={['MODEL_RULES',filesep,'GAMS_Model_Files',filesep,'Base_DAC_Files',filesep,'Base_DAC_Variable_Declarations.txt'];['MODEL_RULES',filesep,'GAMS_Model_Files',filesep,'Base_DAC_Files',filesep,'Base_DAC_Variable_Definitions.txt']};
     gamsFilesPaths_DAC.User_Defined_5={};
-    gamsFilesPaths_DAC.Declare_Equations={'MODEL_RULES\GAMS_Model_Files\Base_DAC_Files\Base_DAC_Equation_Declarations.txt';'MODEL_RULES\GAMS_Model_Files\Base_DAC_Files\Base_DAC_Storage_Equation_Declarations.txt'};
+    gamsFilesPaths_DAC.Declare_Equations={['MODEL_RULES',filesep,'GAMS_Model_Files',filesep,'Base_DAC_Files',filesep,'Base_DAC_Equation_Declarations.txt'];['MODEL_RULES',filesep,'GAMS_Model_Files',filesep,'Base_DAC_Files',filesep,'Base_DAC_Storage_Equation_Declarations.txt']};
     gamsFilesPaths_DAC.User_Defined_6={};
-    gamsFilesPaths_DAC.Define_Constraints={'MODEL_RULES\GAMS_Model_Files\Base_DAC_Files\Base_DAC_Contingency_Equations.txt';
-                                           'MODEL_RULES\GAMS_Model_Files\Base_DAC_Files\Base_DAC_Objective_Function.txt';
-                                           'MODEL_RULES\GAMS_Model_Files\Base_DAC_Files\Base_DAC_Gen_Reserve_Capabilities_Equations.txt';
-                                           'MODEL_RULES\GAMS_Model_Files\Base_DAC_Files\Base_DAC_Generator_Commitment_Equations.txt';
-                                           'MODEL_RULES\GAMS_Model_Files\Base_DAC_Files\Base_DAC_Load_Flow_Equations.txt';
-                                           'MODEL_RULES\GAMS_Model_Files\Base_DAC_Files\Base_DAC_Normal_Generator_Limits_Equations.txt';
-                                           'MODEL_RULES\GAMS_Model_Files\Base_DAC_Files\Base_DAC_Phase_Shifter_Equations.txt';
-                                           'MODEL_RULES\GAMS_Model_Files\Base_DAC_Files\Base_DAC_Storage_Commitment_Equations.txt';
-                                           'MODEL_RULES\GAMS_Model_Files\Base_DAC_Files\Base_DAC_Storage_Efficiency_Equations.txt';
-                                           'MODEL_RULES\GAMS_Model_Files\Base_DAC_Files\Base_DAC_Storage_Equations.txt';
-                                           'MODEL_RULES\GAMS_Model_Files\Base_DAC_Files\Base_DAC_System_Equations.txt';
-                                           'MODEL_RULES\GAMS_Model_Files\Base_DAC_Files\Base_DAC_Unconventional_Storage_Equations.txt';
-                                           'MODEL_RULES\GAMS_Model_Files\Base_DAC_Files\Base_DAC_Variable_Startup_Equations.txt'};
+    gamsFilesPaths_DAC.Define_Constraints={['MODEL_RULES',filesep,'GAMS_Model_Files',filesep,'Base_DAC_Files',filesep,'Base_DAC_Contingency_Equations.txt'];
+                                           ['MODEL_RULES',filesep,'GAMS_Model_Files',filesep,'Base_DAC_Files',filesep,'Base_DAC_Objective_Function.txt'];
+                                           ['MODEL_RULES',filesep,'GAMS_Model_Files',filesep,'Base_DAC_Files',filesep,'Base_DAC_Gen_Reserve_Capabilities_Equations.txt'];
+                                           ['MODEL_RULES',filesep,'GAMS_Model_Files',filesep,'Base_DAC_Files',filesep,'Base_DAC_Generator_Commitment_Equations.txt'];
+                                           ['MODEL_RULES',filesep,'GAMS_Model_Files',filesep,'Base_DAC_Files',filesep,'Base_DAC_Load_Flow_Equations.txt'];
+                                           ['MODEL_RULES',filesep,'GAMS_Model_Files',filesep,'Base_DAC_Files',filesep,'Base_DAC_Normal_Generator_Limits_Equations.txt'];
+                                           ['MODEL_RULES',filesep,'GAMS_Model_Files',filesep,'Base_DAC_Files',filesep,'Base_DAC_Phase_Shifter_Equations.txt'];
+                                           ['MODEL_RULES',filesep,'GAMS_Model_Files',filesep,'Base_DAC_Files',filesep,'Base_DAC_Storage_Commitment_Equations.txt'];
+                                           ['MODEL_RULES',filesep,'GAMS_Model_Files',filesep,'Base_DAC_Files',filesep,'Base_DAC_Storage_Efficiency_Equations.txt'];
+                                           ['MODEL_RULES',filesep,'GAMS_Model_Files',filesep,'Base_DAC_Files',filesep,'Base_DAC_Storage_Equations.txt'];
+                                           ['MODEL_RULES',filesep,'GAMS_Model_Files',filesep,'Base_DAC_Files',filesep,'Base_DAC_System_Equations.txt'];
+                                           ['MODEL_RULES',filesep,'GAMS_Model_Files',filesep,'Base_DAC_Files',filesep,'Base_DAC_Unconventional_Storage_Equations.txt'];
+                                           ['MODEL_RULES',filesep,'GAMS_Model_Files',filesep,'Base_DAC_Files',filesep,'Base_DAC_Variable_Startup_Equations.txt']};
     gamsFilesPaths_DAC.User_Defined_7={};
-    gamsFilesPaths_DAC.Model_Definition={'MODEL_RULES\GAMS_Model_Files\Base_DAC_Files\Base_DAC_Model_Definition.txt'};
+    gamsFilesPaths_DAC.Model_Definition={['MODEL_RULES',filesep,'GAMS_Model_Files',filesep,'Base_DAC_Files',filesep,'Base_DAC_Model_Definition.txt']};
     gamsFilesPaths_DAC.User_Defined_8={};
-    gamsFilesPaths_DAC.Solver_Options={'MODEL_RULES\GAMS_Model_Files\Base_DAC_Files\Base_DAC_Solver_Options.txt'};
+    gamsFilesPaths_DAC.Solver_Options={['MODEL_RULES',filesep,'GAMS_Model_Files',filesep,'Base_DAC_Files',filesep,'Base_DAC_Solver_Options.txt']};
     gamsFilesPaths_DAC.User_Defined_9={};
-    gamsFilesPaths_DAC.Solve_Statement={'MODEL_RULES\GAMS_Model_Files\Base_DAC_Files\Base_DAC_Solve_Statement.txt'};
+    gamsFilesPaths_DAC.Solve_Statement={['MODEL_RULES',filesep,'GAMS_Model_Files',filesep,'Base_DAC_Files',filesep,'Base_DAC_Solve_Statement.txt']};
     gamsFilesPaths_DAC.User_Defined_10={};
-    gamsFilesPaths_DAC.Post_Processing={'MODEL_RULES\GAMS_Model_Files\Base_DAC_Files\Base_DAC_Post_Processing.txt';'MODEL_RULES\GAMS_Model_Files\Base_DAC_Files\Base_DAC_Storage_Post_Processing.txt'};
+    gamsFilesPaths_DAC.Post_Processing={['MODEL_RULES',filesep,'GAMS_Model_Files',filesep,'Base_DAC_Files',filesep,'Base_DAC_Post_Processing.txt'];['MODEL_RULES',filesep,'GAMS_Model_Files',filesep,'Base_DAC_Files',filesep,'Base_DAC_Storage_Post_Processing.txt']};
     gamsFilesPaths_DAC.User_Defined_11={};
-    gamsFilesPaths_DAC.Footer={'MODEL_RULES\GAMS_Model_Files\Base_DAC_Files\Base_DAC_Footer.txt'};
+    gamsFilesPaths_DAC.Footer={['MODEL_RULES',filesep,'GAMS_Model_Files',filesep,'Base_DAC_Files',filesep,'Base_DAC_Footer.txt']};
     assignin('base','gamsFilesNames_DAC',gamsFilesNames_DAC);
     assignin('base','gamsFilesPaths_DAC',gamsFilesPaths_DAC);
     try
@@ -3469,44 +3470,44 @@ function rtc_default_checked(~,~)
     gamsFilesNames_RTC.User_Defined_11={};
     gamsFilesNames_RTC.Footer={'Base_RTC_Footer.txt'};
 
-    gamsFilesPaths_RTC.Header={'MODEL_RULES\GAMS_Model_Files\Base_RTC_Files\Base_RTC_Header.txt'};
+    gamsFilesPaths_RTC.Header={['MODEL_RULES',filesep,'GAMS_Model_Files',filesep,'Base_RTC_Files',filesep,'Base_RTC_Header.txt']};
     gamsFilesPaths_RTC.User_Defined_1={};
-    gamsFilesPaths_RTC.Load_Inputs={'MODEL_RULES\GAMS_Model_Files\Base_RTC_Files\Base_RTC_Scalar_Declarations.txt';
-                                    'MODEL_RULES\GAMS_Model_Files\Base_RTC_Files\Base_RTC_Set_Declarations.txt';
-                                    'MODEL_RULES\GAMS_Model_Files\Base_RTC_Files\Base_RTC_Parameter_Declarations.txt'};
+    gamsFilesPaths_RTC.Load_Inputs={['MODEL_RULES',filesep,'GAMS_Model_Files',filesep,'Base_RTC_Files',filesep,'Base_RTC_Scalar_Declarations.txt'];
+                                    ['MODEL_RULES',filesep,'GAMS_Model_Files',filesep,'Base_RTC_Files',filesep,'Base_RTC_Set_Declarations.txt'];
+                                    ['MODEL_RULES',filesep,'GAMS_Model_Files',filesep,'Base_RTC_Files',filesep,'Base_RTC_Parameter_Declarations.txt']};
     gamsFilesPaths_RTC.User_Defined_2={};
-    gamsFilesPaths_RTC.Define_Inputs={'MODEL_RULES\GAMS_Model_Files\Base_RTC_Files\Base_RTC_Set_Definitions.txt';
-                                      'MODEL_RULES\GAMS_Model_Files\Base_RTC_Files\Base_RTC_Parameter_Definitions.txt'};
+    gamsFilesPaths_RTC.Define_Inputs={['MODEL_RULES',filesep,'GAMS_Model_Files',filesep,'Base_RTC_Files',filesep,'Base_RTC_Set_Definitions.txt'];
+                                      ['MODEL_RULES',filesep,'GAMS_Model_Files',filesep,'Base_RTC_Files',filesep,'Base_RTC_Parameter_Definitions.txt']};
     gamsFilesPaths_RTC.User_Defined_3={};
-    gamsFilesPaths_RTC.Manipulate_Inputs={'MODEL_RULES\GAMS_Model_Files\Base_RTC_Files\Base_RTC_Convert_To_PU.txt'};
+    gamsFilesPaths_RTC.Manipulate_Inputs={['MODEL_RULES',filesep,'GAMS_Model_Files',filesep,'Base_RTC_Files',filesep,'Base_RTC_Convert_To_PU.txt']};
     gamsFilesPaths_RTC.User_Defined_4={};
-    gamsFilesPaths_RTC.Declare_Variables={'MODEL_RULES\GAMS_Model_Files\Base_RTC_Files\Base_RTC_Variable_Declarations.txt';'MODEL_RULES\GAMS_Model_Files\Base_RTC_Files\Base_RTC_Variable_Definitions.txt'};
+    gamsFilesPaths_RTC.Declare_Variables={['MODEL_RULES',filesep,'GAMS_Model_Files',filesep,'Base_RTC_Files',filesep,'Base_RTC_Variable_Declarations.txt'];['MODEL_RULES',filesep,'GAMS_Model_Files',filesep,'Base_RTC_Files',filesep,'Base_RTC_Variable_Definitions.txt']};
     gamsFilesPaths_RTC.User_Defined_5={};
-    gamsFilesPaths_RTC.Declare_Equations={'MODEL_RULES\GAMS_Model_Files\Base_RTC_Files\Base_RTC_Equation_Declarations.txt';'MODEL_RULES\GAMS_Model_Files\Base_RTC_Files\Base_RTC_Storage_Equation_Declarations.txt'};
+    gamsFilesPaths_RTC.Declare_Equations={['MODEL_RULES',filesep,'GAMS_Model_Files',filesep,'Base_RTC_Files',filesep,'Base_RTC_Equation_Declarations.txt'];['MODEL_RULES',filesep,'GAMS_Model_Files',filesep,'Base_RTC_Files',filesep,'Base_RTC_Storage_Equation_Declarations.txt']};
     gamsFilesPaths_RTC.User_Defined_6={};
-    gamsFilesPaths_RTC.Define_Constraints={'MODEL_RULES\GAMS_Model_Files\Base_RTC_Files\Base_RTC_Contingency_Equations.txt';
-                                           'MODEL_RULES\GAMS_Model_Files\Base_RTC_Files\Base_RTC_Objective_Function.txt';
-                                           'MODEL_RULES\GAMS_Model_Files\Base_RTC_Files\Base_RTC_Gen_Reserve_Capabilities_Equations.txt';
-                                           'MODEL_RULES\GAMS_Model_Files\Base_RTC_Files\Base_RTC_Generator_Commitment_Equations.txt';
-                                           'MODEL_RULES\GAMS_Model_Files\Base_RTC_Files\Base_RTC_Load_Flow_Equations.txt';
-                                           'MODEL_RULES\GAMS_Model_Files\Base_RTC_Files\Base_RTC_Normal_Generator_Limits_Equations.txt';
-                                           'MODEL_RULES\GAMS_Model_Files\Base_RTC_Files\Base_RTC_Phase_Shifter_Equations.txt';
-                                           'MODEL_RULES\GAMS_Model_Files\Base_RTC_Files\Base_RTC_Storage_Commitment_Equations.txt';
-                                           'MODEL_RULES\GAMS_Model_Files\Base_RTC_Files\Base_RTC_Storage_Efficiency_Equations.txt';
-                                           'MODEL_RULES\GAMS_Model_Files\Base_RTC_Files\Base_RTC_Storage_Equations.txt';
-                                           'MODEL_RULES\GAMS_Model_Files\Base_RTC_Files\Base_RTC_System_Equations.txt';
-                                           'MODEL_RULES\GAMS_Model_Files\Base_RTC_Files\Base_RTC_Interval_1_Equations.txt';
-                                           'MODEL_RULES\GAMS_Model_Files\Base_RTC_Files\Base_RTC_SUSD_Trajectory_Equations.txt'};
+    gamsFilesPaths_RTC.Define_Constraints={['MODEL_RULES',filesep,'GAMS_Model_Files',filesep,'Base_RTC_Files',filesep,'Base_RTC_Contingency_Equations.txt'];
+                                           ['MODEL_RULES',filesep,'GAMS_Model_Files',filesep,'Base_RTC_Files',filesep,'Base_RTC_Objective_Function.txt'];
+                                           ['MODEL_RULES',filesep,'GAMS_Model_Files',filesep,'Base_RTC_Files',filesep,'Base_RTC_Gen_Reserve_Capabilities_Equations.txt'];
+                                           ['MODEL_RULES',filesep,'GAMS_Model_Files',filesep,'Base_RTC_Files',filesep,'Base_RTC_Generator_Commitment_Equations.txt'];
+                                           ['MODEL_RULES',filesep,'GAMS_Model_Files',filesep,'Base_RTC_Files',filesep,'Base_RTC_Load_Flow_Equations.txt'];
+                                           ['MODEL_RULES',filesep,'GAMS_Model_Files',filesep,'Base_RTC_Files',filesep,'Base_RTC_Normal_Generator_Limits_Equations.txt'];
+                                           ['MODEL_RULES',filesep,'GAMS_Model_Files',filesep,'Base_RTC_Files',filesep,'Base_RTC_Phase_Shifter_Equations.txt'];
+                                           ['MODEL_RULES',filesep,'GAMS_Model_Files',filesep,'Base_RTC_Files',filesep,'Base_RTC_Storage_Commitment_Equations.txt'];
+                                           ['MODEL_RULES',filesep,'GAMS_Model_Files',filesep,'Base_RTC_Files',filesep,'Base_RTC_Storage_Efficiency_Equations.txt'];
+                                           ['MODEL_RULES',filesep,'GAMS_Model_Files',filesep,'Base_RTC_Files',filesep,'Base_RTC_Storage_Equations.txt'];
+                                           ['MODEL_RULES',filesep,'GAMS_Model_Files',filesep,'Base_RTC_Files',filesep,'Base_RTC_System_Equations.txt'];
+                                           ['MODEL_RULES',filesep,'GAMS_Model_Files',filesep,'Base_RTC_Files',filesep,'Base_RTC_Interval_1_Equations.txt'];
+                                           ['MODEL_RULES',filesep,'GAMS_Model_Files',filesep,'Base_RTC_Files',filesep,'Base_RTC_SUSD_Trajectory_Equations.txt']};
     gamsFilesPaths_RTC.User_Defined_7={};
-    gamsFilesPaths_RTC.Model_Definition={'MODEL_RULES\GAMS_Model_Files\Base_RTC_Files\Base_RTC_Model_Definition.txt'};
+    gamsFilesPaths_RTC.Model_Definition={['MODEL_RULES',filesep,'GAMS_Model_Files',filesep,'Base_RTC_Files',filesep,'Base_RTC_Model_Definition.txt']};
     gamsFilesPaths_RTC.User_Defined_8={};
-    gamsFilesPaths_RTC.Solver_Options={'MODEL_RULES\GAMS_Model_Files\Base_RTC_Files\Base_RTC_Solver_Options.txt'};
+    gamsFilesPaths_RTC.Solver_Options={['MODEL_RULES',filesep,'GAMS_Model_Files',filesep,'Base_RTC_Files',filesep,'Base_RTC_Solver_Options.txt']};
     gamsFilesPaths_RTC.User_Defined_9={};
-    gamsFilesPaths_RTC.Solve_Statement={'MODEL_RULES\GAMS_Model_Files\Base_RTC_Files\Base_RTC_Solve_Statement.txt'};
+    gamsFilesPaths_RTC.Solve_Statement={['MODEL_RULES',filesep,'GAMS_Model_Files',filesep,'Base_RTC_Files',filesep,'Base_RTC_Solve_Statement.txt']};
     gamsFilesPaths_RTC.User_Defined_10={};
-    gamsFilesPaths_RTC.Post_Processing={'MODEL_RULES\GAMS_Model_Files\Base_RTC_Files\Base_RTC_Post_Processing.txt'};
+    gamsFilesPaths_RTC.Post_Processing={['MODEL_RULES',filesep,'GAMS_Model_Files',filesep,'Base_RTC_Files',filesep,'Base_RTC_Post_Processing.txt']};
     gamsFilesPaths_RTC.User_Defined_11={};
-    gamsFilesPaths_RTC.Footer={'MODEL_RULES\GAMS_Model_Files\Base_RTC_Files\Base_RTC_Footer.txt'};
+    gamsFilesPaths_RTC.Footer={['MODEL_RULES',filesep,'GAMS_Model_Files',filesep,'Base_RTC_Files',filesep,'Base_RTC_Footer.txt']};
     assignin('base','gamsFilesNames_RTC',gamsFilesNames_RTC);
     assignin('base','gamsFilesPaths_RTC',gamsFilesPaths_RTC);
     try
@@ -3606,40 +3607,40 @@ function rtd_default_checked(~,~)
     gamsFilesNames_RTD.User_Defined_11={};
     gamsFilesNames_RTD.Footer={'Base_RTD_Footer.txt'};
 
-    gamsFilesPaths_RTD.Header={'MODEL_RULES\GAMS_Model_Files\Base_RTD_Files\Base_RTD_Header.txt'};
+    gamsFilesPaths_RTD.Header={['MODEL_RULES',filesep,'GAMS_Model_Files',filesep,'Base_RTD_Files',filesep,'Base_RTD_Header.txt']};
     gamsFilesPaths_RTD.User_Defined_1={};
-    gamsFilesPaths_RTD.Load_Inputs={'MODEL_RULES\GAMS_Model_Files\Base_RTD_Files\Base_RTD_Scalar_Declarations.txt';
-                                    'MODEL_RULES\GAMS_Model_Files\Base_RTD_Files\Base_RTD_Set_Declarations.txt';
-                                    'MODEL_RULES\GAMS_Model_Files\Base_RTD_Files\Base_RTD_Parameter_Declarations.txt'};
+    gamsFilesPaths_RTD.Load_Inputs={['MODEL_RULES',filesep,'GAMS_Model_Files',filesep,'Base_RTD_Files',filesep,'Base_RTD_Scalar_Declarations.txt'];
+                                    ['MODEL_RULES',filesep,'GAMS_Model_Files',filesep,'Base_RTD_Files',filesep,'Base_RTD_Set_Declarations.txt'];
+                                    ['MODEL_RULES',filesep,'GAMS_Model_Files',filesep,'Base_RTD_Files',filesep,'Base_RTD_Parameter_Declarations.txt']};
     gamsFilesPaths_RTD.User_Defined_2={};
-    gamsFilesPaths_RTD.Define_Inputs={'MODEL_RULES\GAMS_Model_Files\Base_RTD_Files\Base_RTD_Set_Definitions.txt';
-                                      'MODEL_RULES\GAMS_Model_Files\Base_RTD_Files\Base_RTD_Parameter_Definitions.txt'};
+    gamsFilesPaths_RTD.Define_Inputs={['MODEL_RULES',filesep,'GAMS_Model_Files',filesep,'Base_RTD_Files',filesep,'Base_RTD_Set_Definitions.txt'];
+                                      ['MODEL_RULES',filesep,'GAMS_Model_Files',filesep,'Base_RTD_Files',filesep,'Base_RTD_Parameter_Definitions.txt']};
     gamsFilesPaths_RTD.User_Defined_3={};
-    gamsFilesPaths_RTD.Manipulate_Inputs={'MODEL_RULES\GAMS_Model_Files\Base_RTD_Files\Base_RTD_Convert_To_PU.txt'};
+    gamsFilesPaths_RTD.Manipulate_Inputs={['MODEL_RULES',filesep,'GAMS_Model_Files',filesep,'Base_RTD_Files',filesep,'Base_RTD_Convert_To_PU.txt']};
     gamsFilesPaths_RTD.User_Defined_4={};
-    gamsFilesPaths_RTD.Declare_Variables={'MODEL_RULES\GAMS_Model_Files\Base_RTD_Files\Base_RTD_Variable_Declarations.txt';'MODEL_RULES\GAMS_Model_Files\Base_RTD_Files\Base_RTD_Variable_Definitions.txt'};
+    gamsFilesPaths_RTD.Declare_Variables={['MODEL_RULES',filesep,'GAMS_Model_Files',filesep,'Base_RTD_Files',filesep,'Base_RTD_Variable_Declarations.txt'];['MODEL_RULES',filesep,'GAMS_Model_Files',filesep,'Base_RTD_Files',filesep,'Base_RTD_Variable_Definitions.txt']};
     gamsFilesPaths_RTD.User_Defined_5={};
-    gamsFilesPaths_RTD.Declare_Equations={'MODEL_RULES\GAMS_Model_Files\Base_RTD_Files\Base_RTD_Equation_Declarations.txt';'MODEL_RULES\GAMS_Model_Files\Base_RTD_Files\Base_RTD_Storage_Equation_Declarations.txt'};
+    gamsFilesPaths_RTD.Declare_Equations={['MODEL_RULES',filesep,'GAMS_Model_Files',filesep,'Base_RTD_Files',filesep,'Base_RTD_Equation_Declarations.txt'];['MODEL_RULES',filesep,'GAMS_Model_Files',filesep,'Base_RTD_Files',filesep,'Base_RTD_Storage_Equation_Declarations.txt']};
     gamsFilesPaths_RTD.User_Defined_6={};
-    gamsFilesPaths_RTD.Define_Constraints={'MODEL_RULES\GAMS_Model_Files\Base_RTD_Files\Base_RTD_Contingency_Equations.txt';
-                                           'MODEL_RULES\GAMS_Model_Files\Base_RTD_Files\Base_RTD_Objective_Function.txt';
-                                           'MODEL_RULES\GAMS_Model_Files\Base_RTD_Files\Base_RTD_Generator_Reserve_Capabilities_Equations.txt';
-                                           'MODEL_RULES\GAMS_Model_Files\Base_RTD_Files\Base_RTD_Load_Flow_Equations.txt';
-                                           'MODEL_RULES\GAMS_Model_Files\Base_RTD_Files\Base_RTD_Normal_Generator_Limits_Equations.txt';
-                                           'MODEL_RULES\GAMS_Model_Files\Base_RTD_Files\Base_RTD_Phase_Shifter_Equations.txt';
-                                           'MODEL_RULES\GAMS_Model_Files\Base_RTD_Files\Base_RTD_Storage_Equations.txt';
-                                           'MODEL_RULES\GAMS_Model_Files\Base_RTD_Files\Base_RTD_System_Equations.txt';
-                                           'MODEL_RULES\GAMS_Model_Files\Base_RTD_Files\Base_RTD_Interval_1_Equations.txt'};
+    gamsFilesPaths_RTD.Define_Constraints={['MODEL_RULES',filesep,'GAMS_Model_Files',filesep,'Base_RTD_Files',filesep,'Base_RTD_Contingency_Equations.txt'];
+                                           ['MODEL_RULES',filesep,'GAMS_Model_Files',filesep,'Base_RTD_Files',filesep,'Base_RTD_Objective_Function.txt'];
+                                           ['MODEL_RULES',filesep,'GAMS_Model_Files',filesep,'Base_RTD_Files',filesep,'Base_RTD_Generator_Reserve_Capabilities_Equations.txt'];
+                                           ['MODEL_RULES',filesep,'GAMS_Model_Files',filesep,'Base_RTD_Files',filesep,'Base_RTD_Load_Flow_Equations.txt'];
+                                           ['MODEL_RULES',filesep,'GAMS_Model_Files',filesep,'Base_RTD_Files',filesep,'Base_RTD_Normal_Generator_Limits_Equations.txt'];
+                                           ['MODEL_RULES',filesep,'GAMS_Model_Files',filesep,'Base_RTD_Files',filesep,'Base_RTD_Phase_Shifter_Equations.txt'];
+                                           ['MODEL_RULES',filesep,'GAMS_Model_Files',filesep,'Base_RTD_Files',filesep,'Base_RTD_Storage_Equations.txt'];
+                                           ['MODEL_RULES',filesep,'GAMS_Model_Files',filesep,'Base_RTD_Files',filesep,'Base_RTD_System_Equations.txt'];
+                                           ['MODEL_RULES',filesep,'GAMS_Model_Files',filesep,'Base_RTD_Files',filesep,'Base_RTD_Interval_1_Equations.txt']};
     gamsFilesPaths_RTD.User_Defined_7={};
-    gamsFilesPaths_RTD.Model_Definition={'MODEL_RULES\GAMS_Model_Files\Base_RTD_Files\Base_RTD_Model_Definition.txt'};
+    gamsFilesPaths_RTD.Model_Definition={['MODEL_RULES',filesep,'GAMS_Model_Files',filesep,'Base_RTD_Files',filesep,'Base_RTD_Model_Definition.txt']};
     gamsFilesPaths_RTD.User_Defined_8={};
-    gamsFilesPaths_RTD.Solver_Options={'MODEL_RULES\GAMS_Model_Files\Base_RTD_Files\Base_RTD_Solver_Options.txt'};
+    gamsFilesPaths_RTD.Solver_Options={['MODEL_RULES',filesep,'GAMS_Model_Files',filesep,'Base_RTD_Files',filesep,'Base_RTD_Solver_Options.txt']};
     gamsFilesPaths_RTD.User_Defined_9={};
-    gamsFilesPaths_RTD.Solve_Statement={'MODEL_RULES\GAMS_Model_Files\Base_RTD_Files\Base_RTD_Solve_Statement.txt'};
+    gamsFilesPaths_RTD.Solve_Statement={['MODEL_RULES',filesep,'GAMS_Model_Files',filesep,'Base_RTD_Files',filesep,'Base_RTD_Solve_Statement.txt']};
     gamsFilesPaths_RTD.User_Defined_10={};
-    gamsFilesPaths_RTD.Post_Processing={'MODEL_RULES\GAMS_Model_Files\Base_RTD_Files\Base_RTD_Post_Processing.txt'};
+    gamsFilesPaths_RTD.Post_Processing={['MODEL_RULES',filesep,'GAMS_Model_Files',filesep,'Base_RTD_Files',filesep,'Base_RTD_Post_Processing.txt']};
     gamsFilesPaths_RTD.User_Defined_11={};
-    gamsFilesPaths_RTD.Footer={'MODEL_RULES\GAMS_Model_Files\Base_RTD_Files\Base_RTD_Footer.txt'};
+    gamsFilesPaths_RTD.Footer={['MODEL_RULES',filesep,'GAMS_Model_Files',filesep,'Base_RTD_Files',filesep,'Base_RTD_Footer.txt']};
     assignin('base','gamsFilesNames_RTD',gamsFilesNames_RTD);
     assignin('base','gamsFilesPaths_RTD',gamsFilesPaths_RTD);
     try
@@ -3794,5 +3795,112 @@ function clear_rtd_gams(~,~)
     assignin('base','gamsFilesNames_RTD',gamsFilesNames_RTD);
     rtdSectionChange();
 end
+
+function save_rules_callback(~,~)
+    RPU_RULES_PRE_in=evalin('base','RPU_RULES_PRE_in');
+    RPU_RULES_POST_in=evalin('base','RPU_RULES_POST_in');
+    AGC_RULES_PRE_in=evalin('base','AGC_RULES_PRE_in');
+    AGC_RULES_POST_in=evalin('base','AGC_RULES_POST_in');
+    RTSCED_RULES_PRE_in=evalin('base','RTSCED_RULES_PRE_in');
+    RTSCED_RULES_POST_in=evalin('base','RTSCED_RULES_POST_in');
+    RTSCUC_RULES_PRE_in=evalin('base','RTSCUC_RULES_PRE_in');
+    RTSCUC_RULES_POST_in=evalin('base','RTSCUC_RULES_POST_in');
+    DASCUC_RULES_PRE_in=evalin('base','DASCUC_RULES_PRE_in');
+    DASCUC_RULES_POST_in=evalin('base','DASCUC_RULES_POST_in');
+    DATA_INITIALIZE_PRE_in=evalin('base','DATA_INITIALIZE_PRE_in');
+    DATA_INITIALIZE_POST_in=evalin('base','DATA_INITIALIZE_POST_in');
+    FORECASTING_PRE_in=evalin('base','FORECASTING_PRE_in');
+    FORECASTING_POST_in=evalin('base','FORECASTING_POST_in');
+    RT_LOOP_PRE_in=evalin('base','RT_LOOP_PRE_in');
+    RT_LOOP_POST_in=evalin('base','RT_LOOP_POST_in');
+    POST_PROCESSING_PRE_in=evalin('base','POST_PROCESSING_PRE_in');
+    POST_PROCESSING_POST_in=evalin('base','POST_PROCESSING_POST_in');
+    ACE_PRE_in=evalin('base','ACE_PRE_in');
+    ACE_POST_in=evalin('base','ACE_POST_in');
+    FORCED_OUTAGE_PRE_in=evalin('base','FORCED_OUTAGE_PRE_in');
+    FORCED_OUTAGE_POST_in=evalin('base','FORCED_OUTAGE_POST_in');
+    SHIFT_FACTOR_PRE_in=evalin('base','SHIFT_FACTOR_PRE_in');
+    SHIFT_FACTOR_POST_in=evalin('base','SHIFT_FACTOR_POST_in');
+    ACTUAL_OUTPUT_PRE_in=evalin('base','ACTUAL_OUTPUT_PRE_in');
+    ACTUAL_OUTPUT_POST_in=evalin('base','ACTUAL_OUTPUT_POST_in');
+    RELIABILITY_PRE_in=evalin('base','RELIABILITY_PRE_in');
+    RELIABILITY_POST_in=evalin('base','RELIABILITY_POST_in');
+    COST_PRE_in=evalin('base','COST_PRE_in');
+    COST_POST_in=evalin('base','COST_POST_in');
+    SAVING_PRE_in=evalin('base','SAVING_PRE_in');
+    SAVING_POST_in=evalin('base','SAVING_POST_in');
+    answer = inputdlg('Save name:');
+    save(cell2mat(['TEMP',filesep,answer]),...        
+    'RPU_RULES_PRE_in','RPU_RULES_POST_in','AGC_RULES_PRE_in','AGC_RULES_POST_in',...
+    'RTSCED_RULES_PRE_in','RTSCED_RULES_POST_in','RTSCUC_RULES_PRE_in','RTSCUC_RULES_POST_in',...
+    'DASCUC_RULES_PRE_in','DASCUC_RULES_POST_in','DATA_INITIALIZE_PRE_in','DATA_INITIALIZE_POST_in',...
+    'FORECASTING_PRE_in','FORECASTING_POST_in','RT_LOOP_PRE_in','RT_LOOP_POST_in','POST_PROCESSING_PRE_in',...
+    'POST_PROCESSING_POST_in','ACE_PRE_in','ACE_POST_in','FORCED_OUTAGE_PRE_in','FORCED_OUTAGE_POST_in',...
+    'SHIFT_FACTOR_PRE_in','SHIFT_FACTOR_POST_in','ACTUAL_OUTPUT_PRE_in','ACTUAL_OUTPUT_POST_in',...
+    'RELIABILITY_PRE_in','RELIABILITY_POST_in','COST_PRE_in','COST_POST_in','SAVING_PRE_in','SAVING_POST_in');
+end
+
+function load_rules_callback(~,~)
+    RPU_RULES_PRE_in=[];RPU_RULES_POST_in=[];AGC_RULES_PRE_in=[];AGC_RULES_POST_in=[];
+    RTSCED_RULES_PRE_in=[];RTSCED_RULES_POST_in=[];RTSCUC_RULES_PRE_in=[];RTSCUC_RULES_POST_in=[];
+    DASCUC_RULES_PRE_in=[];DASCUC_RULES_POST_in=[];DATA_INITIALIZE_PRE_in=[];DATA_INITIALIZE_POST_in=[];
+    FORECASTING_PRE_in=[];FORECASTING_POST_in=[];RT_LOOP_PRE_in=[];RT_LOOP_POST_in=[];
+    POST_PROCESSING_PRE_in=[];POST_PROCESSING_POST_in=[];ACE_PRE_in=[];ACE_POST_in=[];
+    FORCED_OUTAGE_PRE_in=[];FORCED_OUTAGE_POST_in=[];SHIFT_FACTOR_PRE_in=[];SHIFT_FACTOR_POST_in=[];
+    ACTUAL_OUTPUT_PRE_in=[];ACTUAL_OUTPUT_POST_in=[];RELIABILITY_PRE_in=[];RELIABILITY_POST_in=[];
+    COST_PRE_in=[];COST_POST_in=[];SAVING_PRE_in=[];SAVING_POST_in=[];
+    [RulesFileName,RulesPathName,~] = uigetfile(['TEMP',filesep,'*.mat']);
+    load_command=[RulesPathName,RulesFileName];
+    temp=load(load_command,...        
+    'RPU_RULES_PRE_in','RPU_RULES_POST_in','AGC_RULES_PRE_in','AGC_RULES_POST_in',...
+    'RTSCED_RULES_PRE_in','RTSCED_RULES_POST_in','RTSCUC_RULES_PRE_in','RTSCUC_RULES_POST_in',...
+    'DASCUC_RULES_PRE_in','DASCUC_RULES_POST_in','DATA_INITIALIZE_PRE_in','DATA_INITIALIZE_POST_in',...
+    'FORECASTING_PRE_in','FORECASTING_POST_in','RT_LOOP_PRE_in','RT_LOOP_POST_in','POST_PROCESSING_PRE_in',...
+    'POST_PROCESSING_POST_in','ACE_PRE_in','ACE_POST_in','FORCED_OUTAGE_PRE_in','FORCED_OUTAGE_POST_in',...
+    'SHIFT_FACTOR_PRE_in','SHIFT_FACTOR_POST_in','ACTUAL_OUTPUT_PRE_in','ACTUAL_OUTPUT_POST_in',...
+    'RELIABILITY_PRE_in','RELIABILITY_POST_in','COST_PRE_in','COST_POST_in','SAVING_PRE_in','SAVING_POST_in');
+    x=fieldnames(temp);
+    for i=1:size(x,1)
+        if ~isempty(temp.(sprintf('%s',x{i,1})))
+            eval_command_1=sprintf('%s=evalin(''base'',''%s'');',x{i,1},x{i,1});
+            eval_command_2=sprintf('%s=[%s;temp.%s];',x{i,1},x{i,1},x{i,1});
+            eval_command_3=sprintf('%s=unique(%s);',x{i,1},x{i,1});
+            eval(eval_command_1);eval(eval_command_2);eval(eval_command_3);
+        end
+    end
+    assignin('base','RPU_RULES_PRE_in',RPU_RULES_PRE_in);
+    assignin('base','RPU_RULES_POST_in',RPU_RULES_POST_in);
+    assignin('base','AGC_RULES_PRE_in',AGC_RULES_PRE_in);
+    assignin('base','AGC_RULES_POST_in',AGC_RULES_POST_in);
+    assignin('base','RTSCED_RULES_PRE_in',RTSCED_RULES_PRE_in);
+    assignin('base','RTSCED_RULES_POST_in',RTSCED_RULES_POST_in);
+    assignin('base','RTSCUC_RULES_PRE_in',RTSCUC_RULES_PRE_in);
+    assignin('base','RTSCUC_RULES_POST_in',RTSCUC_RULES_POST_in);
+    assignin('base','DASCUC_RULES_PRE_in',DASCUC_RULES_PRE_in);
+    assignin('base','DASCUC_RULES_POST_in',DASCUC_RULES_POST_in);
+    assignin('base','DATA_INITIALIZE_PRE_in',DATA_INITIALIZE_PRE_in);
+    assignin('base','DATA_INITIALIZE_POST_in',DATA_INITIALIZE_POST_in);
+    assignin('base','FORECASTING_PRE_in',FORECASTING_PRE_in);
+    assignin('base','FORECASTING_POST_in',FORECASTING_POST_in);
+    assignin('base','RT_LOOP_PRE_in',RT_LOOP_PRE_in);
+    assignin('base','RT_LOOP_POST_in',RT_LOOP_POST_in);
+    assignin('base','POST_PROCESSING_PRE_in',POST_PROCESSING_PRE_in);
+    assignin('base','POST_PROCESSING_POST_in',POST_PROCESSING_POST_in);
+    assignin('base','ACE_PRE_in',ACE_PRE_in);
+    assignin('base','ACE_POST_in',ACE_POST_in);
+    assignin('base','FORCED_OUTAGE_PRE_in',FORCED_OUTAGE_PRE_in);
+    assignin('base','FORCED_OUTAGE_POST_in',FORCED_OUTAGE_POST_in);
+    assignin('base','SHIFT_FACTOR_PRE_in',SHIFT_FACTOR_PRE_in);
+    assignin('base','SHIFT_FACTOR_POST_in',SHIFT_FACTOR_POST_in);
+    assignin('base','ACTUAL_OUTPUT_PRE_in',ACTUAL_OUTPUT_PRE_in);
+    assignin('base','ACTUAL_OUTPUT_POST_in',ACTUAL_OUTPUT_POST_in);
+    assignin('base','RELIABILITY_PRE_in',RELIABILITY_PRE_in);
+    assignin('base','RELIABILITY_POST_in',RELIABILITY_POST_in);
+    assignin('base','COST_PRE_in',COST_PRE_in);
+    assignin('base','COST_POST_in',COST_POST_in);
+    assignin('base','SAVING_PRE_in',SAVING_PRE_in);
+    assignin('base','SAVING_POST_in',SAVING_POST_in);
+end
+
 
 end

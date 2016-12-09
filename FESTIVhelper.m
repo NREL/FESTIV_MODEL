@@ -448,6 +448,7 @@ function plot_statuses(~,~)
     xlabel('Time [hr]');
     ylabel('Number of Units');
     legend('STEAM','CT','CC','HYDRO','NUCLEAR','PSH','WIND','CAES','LESR','PV','CSP','VAR PSH','VIRTUAL','TIE','OUTAGE','VCG');
+    text(0.65,0.92,sprintf('Average = %0.1f Units online',sum(Y1+Y2+Y3+Y4+Y5+Y6+Y7+Y8+Y9+Y10+Y11+Y12+Y13+Y14+Y15+Y16)/size(X,1)),'units','normalized')
 end
 
 % plot VG curtailment
@@ -457,24 +458,24 @@ function plot_vgcurtailment(~,~)
     z=evalin('base','GENVALUE');
     w=evalin('base','t_AGC');
     q=evalin('base','ACTUAL_VG_FIELD');
-    types=z.val(:,8);indicies=[];names=[];
+    types=z.val(:,8);indices=[];names=[];
     for i=1:size(types,1)
         if types(i) == 7 || types(i) == 10 
-            indicies=[indicies;i];
+            indices=[indices;i];
             names=[names;z.uels{1,1}(1,i)];
         end
     end
     vgtemp=[];actualtemp=[];
-    for i=1:size(indicies,1)
+    for i=1:size(indices,1)
         for vg=1:size(q,2)
             if strcmp(names{i},q{vg})
                 index=vg;
             end
         end
         actualtemp=[actualtemp y(:,index)];
-        vgtemp=[vgtemp x(:,indicies(i)+1)];
+        vgtemp=[vgtemp x(:,indices(i)+1)];
     end
-    vgcurtailment=actualtemp-vgtemp;
+    vgcurtailment=max(zeros(size(y,1),size(indices,1)),actualtemp-vgtemp);
     figure;plot(x(:,1),vgcurtailment);
     assignin('base','actual_vg_curtailment',vgcurtailment);
     hlegend=legend(names);
