@@ -65,7 +65,9 @@ else
 cancel=0;
 end
 %clc;
-finishedrunningFESTIV=0;numberofFESTIVrun=1;gamspath=getgamspath();
+finishedrunningFESTIV=0 ;numberofFESTIVrun=1; gamspath=getgamspath();
+
+%% Main while loop (for multiple scenarios)
 while(finishedrunningFESTIV ~= 1)
 if cancel==0
 festivBanner;
