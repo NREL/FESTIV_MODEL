@@ -25,6 +25,8 @@ Welcome to the FESTIV GitHub Repo!
 
 ### One Time Configuration
 
+*Note: these directions tested under Mac OSX*
+
 1. Make sure the MATLAB-GAMS link is in your MATLAB path
 
    1. Open MATLAB
@@ -57,9 +59,16 @@ Welcome to the FESTIV GitHub Repo!
           /Applications/GAMS25.0/sysdir/wgdx.mexmaci64
           ```
 
-2. Change to the FESTIV directory in MATLAB. e.g.: `cd ~/repos/FESTIV`
+2. Make sure that the GAMS executable is accessible to the MATLAB shell:
 
-3. Double check FESTIV is in the path (b/c it is local file):
+   * Try `system('gams')` at the MATLAB prompt
+     * If you get a bunch of text output, you are good to go
+     * If you get a Command not found error you need to add it to the path in the environment that MATLAB creates for its shells (which is different than your computer's shell setup) using `setenv('PATH', [getenv('PATH') ':' '$PATH_TO_GAMS/sysdir'])`
+     * Now recheck with `system('gams')`
+
+3. Change to the FESTIV directory in MATLAB. e.g.: `cd ~/repos/FESTIV`
+
+4. Double check FESTIV is in the path (b/c it is local file):
 
    ````
    >> which FESTIV
@@ -70,7 +79,7 @@ Welcome to the FESTIV GitHub Repo!
 
 2. run `FESTIV` at the MATLAB prompt. This will bring up a dialog box allowing you to select the input files and configure the simulation
    1. As an example, in the dialog select `Browse`
-   2. Slect the desired input file (in HDF5 format, **.h5*), such as $FESTIV_DIR/Input/PJM_5_BUS.h5$
+   2. Slect the desired input file (in HDF5 format, **.h5*), such as `FESTIV_DIR/Input/PJM_5_BUS.h5`
    3. Press the 'Go!' button
       * Contrary to the name, this simply creates all of the required variables to the local MALAB workshopace
 3. Actually Start
