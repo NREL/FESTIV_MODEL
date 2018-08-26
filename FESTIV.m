@@ -74,7 +74,7 @@ else
 end
 
 %% Input Prompt
-try load tempws;catch;end;
+try load tempws;catch;end
 if isunix
   hpc_convert_windows_paths;
 end
@@ -124,13 +124,13 @@ start_execution = char(inifile(['Input', filesep, 'FESTIV.inp'],'read',{'','','s
 if isempty(start_execution) == 0
     if start_execution == 1 && (mod(time*60,tRTC) - 0 < eps) || (tRTC - mod(time*60,tRTC) < eps)
         RTSCUC_binding_interval_index = RTSCUC_binding_interval_index - 1;
-    end;
+    end
 else
 %% Data and Inititialization
 
 for x=1:size(DATA_INITIALIZE_PRE_in,1)
-    try run(DATA_INITIALIZE_PRE_in{x,1});catch;end; 
-end;
+    try run(DATA_INITIALIZE_PRE_in{x,1});catch;end 
+end
 
 INITIALIZE_VARIABLES_FROM_GUI_INPUTS
 DECLARE_INDICES
@@ -138,8 +138,8 @@ READ_IN_SYSTEM_DATA_FROM_EXCEL
 INPUT_FILE_VALIDATION
 
 for x=1:size(DATA_INITIALIZE_POST_in,1)
-    try run(DATA_INITIALIZE_POST_in{x,1});catch;end; 
-end;
+    try run(DATA_INITIALIZE_POST_in{x,1});catch;end 
+end
 
 %% Forcast Inputs
 
@@ -164,8 +164,8 @@ if useHDF5==0
         else
             ACTUAL_VG_FIELD = [];
             ACTUAL_VG_FULL = [];
-        end;
-    end;
+        end
+    end
 end
 % Retrieve actual reactive load and bus distributions if possible
 try
@@ -174,9 +174,9 @@ try
         for b=1:size(Q_LOAD_DIST_VAL,2)
             if isfinite(Q_LOAD_DIST_VAL(a,b)) == 0
                 Q_LOAD_DIST_VAL(a,b) = 0;
-            end;
-        end;
-    end;
+            end
+        end
+    end
     ACTUAL_Q_LOAD_FULL=[];
     for d = 1:simulation_days % Get actual Q demand from 3rd column in actual load timesereies input sheets
         ACTUAL_Q_LOAD_FULL_TMP = xlsread(cell2mat(actual_load_input_file(d,1)),'Sheet1','A1:C30000');
@@ -185,7 +185,7 @@ try
         actual_load_multiplier_tmp(:,1) = d-1;
         ACTUAL_Q_LOAD_FULL_TMP = ACTUAL_Q_LOAD_FULL_TMP + actual_load_multiplier_tmp;
         ACTUAL_Q_LOAD_FULL = [ACTUAL_Q_LOAD_FULL; ACTUAL_Q_LOAD_FULL_TMP];
-    end;
+    end
 catch
 end
 
@@ -203,18 +203,18 @@ for w=1:nvg
         if(strcmp(GEN.uels(1,i),ACTUAL_VG_FIELD(1,1+w,1)))
             max_data(w,1) = GENVALUE.val(i,capacity); %To make sure that any forecasts are not higher than the max capacity.
             i=ngen;
-        end;
+        end
         i=i+1;
-    end;
-end;
+    end
+end
 
 if nvg==0
     max_data=0;
 end
 
 for x=1:size(FORECASTING_PRE_in,1)
-    try run(FORECASTING_PRE_in{x,1});catch;end; 
-end;
+    try run(FORECASTING_PRE_in{x,1});catch;end 
+end
 
 % Create Interchange forecasts if necessary
 DEFINE_INTERCHANGES
@@ -228,8 +228,8 @@ DAC_VG_FULL(DAC_VG_FULL<eps)=0;
 RTC_VG_FULL(RTC_VG_FULL<eps)=0;
 RTD_VG_FULL(RTD_VG_FULL<eps)=0;
 for x=1:size(FORECASTING_POST_in,1)
-    try run(FORECASTING_POST_in{x,1});catch;end; 
-end;
+    try run(FORECASTING_POST_in{x,1});catch;end 
+end
 DAC_VG_FULL(:,1:2)=DAC_LOAD_FULL(:,1:2); 
 hour = hour_beginning;
 minute = minute_beginning;
@@ -250,9 +250,9 @@ while tau <= size_ACTUAL_LOAD_FULL
     elseif(abs(ACTUAL_LOAD_FULL(tau,1).*24 - end_time)<eps)
         actual_end_index = tau;
         tau=size_ACTUAL_LOAD_FULL;
-    end;
+    end
     tau=tau+1;
-end;
+end
 size_ACTUAL_LOAD_FULL = size(ACTUAL_LOAD_FULL,1);
 
 %data size
@@ -269,9 +269,9 @@ while tau <= size_ACTUAL_VG_FULL
     elseif(abs(ACTUAL_VG_FULL(tau,1).*24 - end_time)<eps)
         actual_end_index = tau;
         k=size_ACTUAL_VG_FULL;
-    end;
+    end
     tau=tau+1;
-end;
+end
 size_ACTUAL_VG_FULL = size(ACTUAL_VG_FULL,1);
 
 size_DAC_RESERVE_FULL = size(DAC_RESERVE_FULL,1);
@@ -281,8 +281,8 @@ size_RTD_RESERVE_FULL = size(RTD_RESERVE_FULL,1);
 %% Shift Factor and other Calculations
 
 for x=1:size(SHIFT_FACTOR_PRE_in,1)
-    try run(SHIFT_FACTOR_PRE_in{x,1});catch;end;
-end;
+    try run(SHIFT_FACTOR_PRE_in{x,1});catch;end
+end
 
 CREATE_SHIFT_FACTORS
 
@@ -297,12 +297,12 @@ for r=1:nreserve
     if RESERVEVALUE.val(r,res_agc) == 1
         if RESERVEVALUE.val(r,res_dir) == 1 || RESERVEVALUE.val(r,res_dir) == 3
             regulation_up_index = r;
-        end;
+        end
         if RESERVEVALUE.val(r,res_dir) == 2 || RESERVEVALUE.val(r,res_dir) == 3
             regulation_down_index = r;
-        end;
-    end;
-end;
+        end
+    end
+end
 
 RTSCUC_binding_interval_index = 1;
 RTSCED_binding_interval_index = 1;
@@ -314,8 +314,8 @@ rpu_running = 0;
 
 
 for x=1:size(SHIFT_FACTOR_POST_in,1)
-    try run(SHIFT_FACTOR_POST_in{x,1});catch;end;
-end;
+    try run(SHIFT_FACTOR_POST_in{x,1});catch;end
+end
 
 use_Default_DASCUC = 'YES';
 use_Default_RTSCUC = 'YES';
@@ -341,12 +341,12 @@ if nvcr > 0
         if(abs(DAC_VG_FULL(t,1) - DASCUC_binding_interval_index) < eps)
             vg_forecast_tmp(dac_int,:) = DAC_VG_FULL(t,3:end);
             dac_int = dac_int+1;
-        end;
+        end
         t = t+1;
-    end;
+    end
 else
     vg_forecast_tmp = 0;
-end;
+end
 
 clear VG_FORECAST_VAL;
 VG_FORECAST_VAL=zeros(HDAC,ngen);
@@ -360,11 +360,11 @@ while(i<=ngen)
             w=DAC_Field_size;
         elseif(w==DAC_Field_size)        %gone through entire list of VG and gen is not included
             VG_FORECAST_VAL(1:HDAC,i) = zeros(HDAC,1);
-        end;
+        end
         w = w+1;
-    end;
+    end
     i = i+1;
-end;
+end
 
 UNIT_STATUS_ENFORCED_ON_VAL=zeros(ngen,HDAC);
 UNIT_STATUS_ENFORCED_OFF_VAL=ones(ngen,HDAC);
@@ -459,8 +459,8 @@ end
 CREATE_DAC_GAMS_VARIABLES
 
 for x=1:size(DASCUC_RULES_PRE_in,1)
-    try run(DASCUC_RULES_PRE_in{x,1});catch;end;
-end;
+    try run(DASCUC_RULES_PRE_in{x,1});catch;end
+end
 
 if strcmp(use_Default_DASCUC,'YES')
     per_unitize;
@@ -490,10 +490,10 @@ try
 DAModelSolutionStatus=[];
 DAModelSolutionStatus=[0 modelSolveStatus numberOfInfes solverStatus relativeGap];
 catch
-end;
+end
 for x=1:size(DASCUC_RULES_POST_in,1)
-    try run(DASCUC_RULES_POST_in{x,1});catch;end;
-end;
+    try run(DASCUC_RULES_POST_in{x,1});catch;end
+end
 
 DASCUCSCHEDULE((DASCUC_binding_interval_index-1)*HDAC+1:HDAC+(DASCUC_binding_interval_index-1)*HDAC,1) = (0:IDAC:HDAC*IDAC-IDAC)';
 DASCUCSCHEDULE((DASCUC_binding_interval_index-1)*HDAC+1:HDAC+(DASCUC_binding_interval_index-1)*HDAC,2:ngen+1) = (SCUCGENSCHEDULE.val)';
@@ -508,7 +508,7 @@ DASCUCCOMMITMENT=SCUCUNITSTATUS.val';
 for r=1:nreserve
     DASCUCRESERVE((DASCUC_binding_interval_index-1)*HDAC+1:HDAC+(DASCUC_binding_interval_index-1)*HDAC,1,r)=(0:IDAC:HDAC*IDAC-IDAC)';
     DASCUCRESERVE((DASCUC_binding_interval_index-1)*HDAC+1:HDAC+(DASCUC_binding_interval_index-1)*HDAC,2:ngen+1,r) = SCUCGENRESERVESCHEDULE.val(:,:,r)';
-end;
+end
 DASCUCRESERVEPRICE((DASCUC_binding_interval_index-1)*HDAC+1:HDAC+(DASCUC_binding_interval_index-1)*HDAC,:) = [(0:IDAC:HDAC*IDAC-IDAC)' SCUCRCP.val'];
 RESERVELEVELS((DASCUC_binding_interval_index-1)*HDAC+1:HDAC+(DASCUC_binding_interval_index-1)*HDAC,1) = (0:IDAC:HDAC*IDAC-IDAC)'; 
 RESERVELEVELS((DASCUC_binding_interval_index-1)*HDAC+1:HDAC+(DASCUC_binding_interval_index-1)*HDAC,2:nreserve+1) = SCUCRESERVELEVEL.val;
@@ -556,7 +556,7 @@ for h=1:NDACINTERVAL.val
             else
                 STATUS(rtscuc_commitment_multiplier*h-rtscuc_commitment_multiplier+1:rtscuc_commitment_multiplier*h-1+1,i) ...
                     = round(SCUCUNITSTATUS.val(i,h));
-            end;
+            end
             if round(SCUCPUMPING.val(i,min(NDACINTERVAL.val,h+1)))-round(SCUCPUMPING.val(i,h)) == 1
                 PUMPSTATUS(rtscuc_commitment_multiplier*h-rtscuc_commitment_multiplier+1,i) = round(SCUCPUMPING.val(i,h));
                 PUMPSTATUS(rtscuc_commitment_multiplier*h-rtscuc_commitment_multiplier+1+1:rtscuc_commitment_multiplier*h+1,i) ...
@@ -564,10 +564,10 @@ for h=1:NDACINTERVAL.val
             else
                 PUMPSTATUS(rtscuc_commitment_multiplier*h-rtscuc_commitment_multiplier+1:rtscuc_commitment_multiplier*h-1+1,i) ...
                     = round(SCUCPUMPING.val(i,h));
-            end;
-        end;
-    end;
-end;
+            end
+        end
+    end
+end
 
 time = start_time;
 
@@ -606,7 +606,7 @@ if nvcr > 0
     vg_forecast_tmp(1:HRTC,:) = RTC_VG_FULL(1:HRTC,3:end);
 else
     vg_forecast_tmp = RTC_VG_FULL;
-end;
+end
 
 i =1;
 %This fills in zeros for non-vg and ensures that the right order is set up. If
@@ -621,11 +621,11 @@ while(i<=ngen)
             w=RTC_Field_size;
         elseif(w==RTC_Field_size)        %gone through entire list of VG and gen is not included
             VG_FORECAST_VAL(1:HRTC,i) = zeros(HRTC,1);
-        end;
+        end
         w = w+1;
-    end;
+    end
     i = i+1;
-end;
+end
 
 rtscucinterval_index = round(time*rtscuc_I_perhour) + 1; %of the binding rtc interval. This is based on SCUC starting at hour 0!!!
 
@@ -642,29 +642,29 @@ for i=1:ngen
             UNIT_STATUS_ENFORCED_ON_VAL(i,t) = 0;
         else
             UNIT_STATUS_ENFORCED_ON_VAL(i,t) = STATUS(lookahead_index,i);
-        end;
+        end
         if RTSCUCSHUT_YES(i,1) == 1
             UNIT_STATUS_ENFORCED_OFF_VAL(i,t) = 1;
         else
             UNIT_STATUS_ENFORCED_OFF_VAL(i,t) = STATUS(lookahead_index,i);
-        end;
+        end
         if  RTSCUCPUMPSTART_YES(i,1) == 1
             PUMPING_ENFORCED_ON_VAL(i,t) = 0;
         else
             PUMPING_ENFORCED_ON_VAL(i,t) = PUMPSTATUS(lookahead_index,i);
-        end;
+        end
         if RTSCUCPUMPSHUT_YES(i,1) == 1
             PUMPING_ENFORCED_OFF_VAL(i,t) = 1;
         else
             PUMPING_ENFORCED_OFF_VAL(i,t) = PUMPSTATUS(lookahead_index,i);
-        end;
+        end
         if GENVALUE.val(i,gen_type)==15
             UNIT_STATUS_ENFORCED_ON_VAL(i,t) = 0;
             UNIT_STATUS_ENFORCED_OFF_VAL(i,t) = 0;
         end
         t = t+1;
-    end;
-end;
+    end
+end
 
 %This is for interval 0 initial ramping constraints
  ACTUAL_GEN_OUTPUT_VAL = GENVALUE.val(:,initial_MW); %placeholder for initial RTC
@@ -684,7 +684,7 @@ for i=1:ngen
         - (LAST_GEN_SCHEDULE_VAL(i,1) + tRTC*GENVALUE.val(i,ramp_rate)));
     RAMP_SLACK_DOWN_VAL(i,1) = max(0, LAST_GEN_SCHEDULE_VAL(i,1) - tRTC*GENVALUE.val(i,ramp_rate)...
         - (ACTUAL_GEN_OUTPUT_VAL(i,1) + (PRTC+IRTC)*GENVALUE.val(i,ramp_rate)));
-end;
+end
 
 %For su and sd trajectories
 %Right now this allows for units who have just started up before teh
@@ -700,8 +700,8 @@ for i=1:ngen
 %        if RTSCUCBINDINGSTARTUP(startup_period_check_time,1+i) == 1
 %            INTERVALS_STARTED_AGO_VAL(i,1) = RTSCUC_binding_interval_index - startup_period_check_time;
 %            STARTUP_MINGEN_HELPER_VAL(i,1) = GENVALUE.val(i,min_gen)*(time + IRTC/60 - RTSCUCBINDINGSTARTUP(startup_period_check_time,1))/GENVALUE.val(i,su_time);
-%        end;
-%    end;
+%        end
+%    end
     %if SCUCUNITSTARTUP.val(i,1) == 1 && RTSCUCSTART_YES(i,1)
         %INTERVALS_STARTED_AGO_VAL(i,1) = round(LAST_GEN_SCHEDULE_VAL(i,1)/GENVALUE.val(i,min_gen)*STARTUP_PERIOD_VAL(i,1)-1);
         %INITIAL_STARTUP_PERIODS_VAL(i,1) = 1;
@@ -711,7 +711,7 @@ for i=1:ngen
     %because of SCUC, but SCUC is the same interval as this. Needs to be
     %fixed. For now just assume that units are not in startup mode based on
     %initial conditions. either off and starting of on.
-end;
+end
 
 for i=1:ngen
    PUMPUP_PERIOD_VAL(i,1) = max(0,ceil(STORAGEVALUE.val(i,pump_su_time)*60/IRTC));
@@ -724,9 +724,9 @@ for i=1:ngen
        if PUMPSTATUS(startup_period_check_time,1+i)-PUMPSTATUS(startup_period_check_time-1,1+i) == 1
            INTERVALS_PUMPUP_AGO_VAL(i,1) = RTSCUC_binding_interval_index - pumpup_period_check_time;
            %PUMPUP_MINGEN_HELPER_VAL(i,1) = STORAGEVALUE.val(i,min_pump)*(time + IRTC/60 - PUMPSTATUS(pumpup_period_check_time,1))/STORAGEVALUE.val(i,pump_su_time);
-       end;
-   end;
-end;
+       end
+   end
+end
 
 %Storage value for RTC. Not currently working.
 %Basically, figure out the amount of money that the storage unit would
@@ -752,8 +752,8 @@ for i=1:ngen
             + sum(SCUCNCGENSCHEDULE.val(i,ceil(RTC_LOOKAHEAD_INTERVAL_VAL(HRTC,1)+1:HDAC)))+SCUCSTORAGELEVEL.val(i,HDAC));
     else
         RTSCUC_RESERVOIR_VALUE(i) = 0;
-    end;
-end;
+    end
+end
 
 %STORAGEVALUE.val(:,reservoir_value) = RTSCUC_RESERVOIR_VALUE;
 STORAGEVALUE.val(:,initial_storage) = RTSCUC_STORAGE_LEVEL;
@@ -795,7 +795,7 @@ UNIT_STATUS_ENFORCED_OFF_VAL(GENVALUE.val(:,gen_type)==7|GENVALUE.val(:,gen_type
 CREATE_RTC_GAMS_VARIABLES
 
 for x=1:size(RTSCUC_RULES_PRE_in,1)
-    try run(RTSCUC_RULES_PRE_in{x,1});catch;end;
+    try run(RTSCUC_RULES_PRE_in{x,1});catch;end
 end
 if strcmp(use_Default_RTSCUC,'YES')
     per_unitize;
@@ -828,10 +828,10 @@ RTCModelSolutionStatus=zeros(60/tRTC*24*daystosimulate+1,5);
 RTCModelSolutionStatus(rtcmodeltracker,:)=[time modelSolveStatus numberOfInfes solverStatus relativeGap];
 rtcmodeltracker=rtcmodeltracker+1;
 catch
-end;
+end
 for x=1:size(RTSCUC_RULES_POST_in,1)
-    try run(RTSCUC_RULES_POST_in{x,1});catch;end;
-end;
+    try run(RTSCUC_RULES_POST_in{x,1});catch;end
+end
 
 RTSCUCBINDINGCOMMITMENT(RTSCUC_binding_interval_index:RTSCUC_binding_interval_index + HRTC - 1,1) = RTC_LOOKAHEAD_INTERVAL_VAL ;
 RTSCUCBINDINGPUMPING(RTSCUC_binding_interval_index:RTSCUC_binding_interval_index + HRTC - 1,1) = RTC_LOOKAHEAD_INTERVAL_VAL ;
@@ -856,7 +856,7 @@ RTSCUCBINDINGOVERGENERATION(RTSCUC_binding_interval_index:RTSCUC_binding_interva
 RTSCUCMARGINALLOSS(RTSCUC_binding_interval_index:RTSCUC_binding_interval_index + HRTC - 1,1) = RTC_LOOKAHEAD_INTERVAL_VAL ;
 for r=1:nreserve
     RTSCUCBINDINGRESERVESCHEDULE(RTSCUC_binding_interval_index:RTSCUC_binding_interval_index + HRTC - 1,1:1+ngen,r) = [RTC_LOOKAHEAD_INTERVAL_VAL RTCGENRESERVESCHEDULE.val(:,:,r)'];
-end;
+end
 RTSCUCBINDINGRESERVEPRICE(RTSCUC_binding_interval_index:RTSCUC_binding_interval_index + HRTC - 1,2:nreserve+1) =  RTCRCP.val';
 RTSCUCBINDINGINSUFFICIENTRESERVE(RTSCUC_binding_interval_index:RTSCUC_binding_interval_index + HRTC - 1,2:nreserve+1) =  RTCINSUFFRESERVE.val;
 RTSCUCBINDINGLOSSLOAD(RTSCUC_binding_interval_index:RTSCUC_binding_interval_index + HRTC - 1,2) =  RTCLOSSLOAD.val;
@@ -867,14 +867,14 @@ RTSCUC_INITIAL_START_TIME = zeros(ngen,1);
 for i=1:ngen
     if RTSCUCBINDINGSTARTUP(RTSCUC_binding_interval_index,1+i) == 1;
         RTSCUC_INITIAL_START_TIME(i,1) = time - IRTC/60;
-    end;
-end;
+    end
+end
 RTSCUC_INITIAL_PUMPUP_TIME = zeros(ngen,1);
 for i=1:ngen
     if RTSCUCBINDINGPUMPING(RTSCUC_binding_interval_index,1+i) - SCUCSTORAGEVALUE.val(i,initial_pump_status) == 1;
         RTSCUC_INITIAL_PUMPUP_TIME(i,1) = time - IRTC/60;
-    end;
-end;
+    end
+end
 
 RTSCUCSTORAGELEVEL2(RTSCUC_binding_interval_index:HRTC+(RTSCUC_binding_interval_index-1),1)=RTC_LOOKAHEAD_INTERVAL_VAL;
 RTSCUCSTORAGELEVEL2(RTSCUC_binding_interval_index:HRTC+(RTSCUC_binding_interval_index-1),2:ngen+1)=RTCSTORAGELEVEL.val';
@@ -898,7 +898,7 @@ RTSCUC_binding_interval_index = RTSCUC_binding_interval_index + 1;
 
 if(RTCPrintResults == 1)
     saveRT('RTC',RTSCUC_binding_interval_index,PRTC,hour,minute,RTCPRODCOST.val,RTCGENSCHEDULE.val,RTCLMP.val,RTCUNITSTATUS.val,RTCLINEFLOW.val,RESERVETYPE.uels,nreserve,RTCGENRESERVESCHEDULE.val,RTCRCP.val,nbranch,BRANCHDATA.val,BRANCH.uels,HRTC,RTCLINEFLOWCTGC.val);
-end;
+end
 
 %END INITIAL RTSCUC
 
@@ -920,7 +920,7 @@ if nvcr > 0
     vg_forecast_tmp(1:HRTD,:) = RTD_VG_FULL(1:HRTD,3:end);
 else
     vg_forecast_tmp = RTD_VG_FULL;
-end;
+end
 
 i =1;
 clear VG_FORECAST_VAL;
@@ -934,26 +934,26 @@ while(i<=ngen)
             w=RTD_Field_size;
         elseif(w==RTD_Field_size)            %gone through entire list of vg gens and gen is not included
             VG_FORECAST_VAL(1:HRTD,i) = zeros(HRTD,1);
-        end;
+        end
         w = w+1;
-    end;
+    end
     i = i+1;
-end;
+end
 
 INTERVAL_MINUTES_VAL = zeros(HRTD,1);
 INTERVAL_MINUTES_VAL(1,1) = IRTD;
 for t=2:HRTD
     INTERVAL_MINUTES_VAL(t,1) = 60*(RTD_LOOKAHEAD_INTERVAL_VAL(t,1) - RTD_LOOKAHEAD_INTERVAL_VAL(t-1,1));
-end;
+end
 ACTUAL_START_TIME = inf.*ones(ngen,1);ACTUAL_PUMPUP_TIME = inf.*ones(ngen,1);
 for ast=1:ngen
     if RTSCUCBINDINGSCHEDULE(1,1+ast) > 0 && GENVALUE.val(ast,initial_MW) < eps
        ACTUAL_START_TIME(ast,1) = -1*IDAC; 
-    end;
+    end
     if RTSCUCBINDINGPUMPSCHEDULE(1,1+ast) > 0 && STORAGEVALUE.val(ast,initial_pump_mw) < eps
        ACTUAL_PUMPUP_TIME(ast,1) = -1*IDAC; 
-    end;
-end;        
+    end
+end        
 %commitment parameters for rtd, they cannot be adjusted in model
 for i=1:ngen
     t = 1;
@@ -967,8 +967,8 @@ for i=1:ngen
         %SU and SD trajectories
         [UNIT_STARTINGUP_VAL(i,t),UNIT_STARTUPMINGENHELP_VAL(i,t),UNIT_SHUTTINGDOWN_VAL(i,t)]=RTSCED_SUSD_Trajectories(STATUS,UNIT_STATUS_VAL,GENVALUE.val(:,gen_type),GENVALUE,ACTUAL_START_TIME,zeros(1,ngen+1),RTD_LOOKAHEAD_INTERVAL_VAL,INTERVAL_MINUTES_VAL,rtscuc_I_perhour,eps,su_time,sd_time,min_gen,initial_status,i,t,time,1);
         [UNIT_PUMPINGUP_VAL(i,t),UNIT_PUMPUPMINGENHELP_VAL(i,t),UNIT_PUMPINGDOWN_VAL(i,t)]=RTSCED_SUSD_Trajectories(PUMPSTATUS,PUMPING_VAL,GENVALUE.val(:,gen_type),STORAGEVALUE,ACTUAL_PUMPUP_TIME,zeros(1,ngen+1),RTD_LOOKAHEAD_INTERVAL_VAL,INTERVAL_MINUTES_VAL,rtscuc_I_perhour,eps,pump_su_time,pump_sd_time,min_pump,initial_pump_status,i,t,time,1);
-    end;
-end;
+    end
+end
 
 %This is for interval 0 initial ramping constraints
  ACTUAL_GEN_OUTPUT_VAL = GENVALUE.val(:,initial_MW); 
@@ -983,30 +983,30 @@ for i=1:ngen
         LAST_STATUS_VAL(i,1) = 1;
     else
         LAST_STATUS_VAL(i,1) = 0;
-    end;
+    end
     if ACTUAL_GEN_OUTPUT_VAL(i,1) > 0
         LAST_STATUS_ACTUAL_VAL(i,1) = 1;
     else
         LAST_STATUS_ACTUAL_VAL(i,1) = 0;
-    end;
+    end
     if LAST_PUMP_SCHEDULE_VAL(i,1) > 0
         LAST_PUMPSTATUS_VAL(i,1) = 1;
     else
         LAST_PUMPSTATUS_VAL(i,1) = 0;
-    end;
+    end
     if ACTUAL_PUMP_OUTPUT_VAL(i,1) > 0
         LAST_PUMPSTATUS_ACTUAL_VAL(i,1) = 1;
     else
         LAST_PUMPSTATUS_ACTUAL_VAL(i,1) = 0;
-    end;
-end;
+    end
+end
 
 for i=1:ngen
     RAMP_SLACK_UP_VAL(i,1) = max(0,ACTUAL_GEN_OUTPUT_VAL(i,1) - (PRTD+IRTD)*GENVALUE.val(i,ramp_rate) ...
         - (LAST_GEN_SCHEDULE_VAL(i,1) + tRTD*GENVALUE.val(i,ramp_rate)));
     RAMP_SLACK_DOWN_VAL(i,1) = max(0, LAST_GEN_SCHEDULE_VAL(i,1) - tRTD*GENVALUE.val(i,ramp_rate) ...
         - (ACTUAL_GEN_OUTPUT_VAL(i,1) + (PRTD+IRTD)*GENVALUE.val(i,ramp_rate)));
-end;
+end
 
 %Storage value for RTD. 
 %Basically, figure out the amount of money that the storage unit would
@@ -1032,8 +1032,8 @@ for i=1:ngen
             + sum(SCUCNCGENSCHEDULE.val(i,ceil(RTD_LOOKAHEAD_INTERVAL_VAL(HRTD,1)+1:HDAC)))+SCUCSTORAGELEVEL.val(i,HDAC));
     else
         RTSCED_RESERVOIR_VALUE(i) = 0;
-    end;
-end;
+    end
+end
 
 %STORAGEVALUE.val(:,reservoir_value) = RTSCED_RESERVOIR_VALUE;
 STORAGEVALUE.val(:,initial_storage) = RTSCED_STORAGE_LEVEL;
@@ -1091,8 +1091,8 @@ end
 CREATE_RTD_GAMS_VARIABLES
 
 for x=1:size(RTSCED_RULES_PRE_in,1)
-    try run(RTSCED_RULES_PRE_in{x,1});catch;end; 
-end;
+    try run(RTSCED_RULES_PRE_in{x,1});catch;end 
+end
 if strcmp(use_Default_RTSCED,'YES')
     per_unitize;
     wgdx(['TEMP', filesep, 'RTSCEDINPUT1'],PTDF,BRANCHDATA,PARTICIPATION_FACTORS,STORAGEPARAM,GEN,BUS,GENPARAM,RESERVEPARAM,...
@@ -1122,10 +1122,10 @@ RTDModelSolutionStatus=zeros(60/tRTD*24*daystosimulate+1,4);
 RTDModelSolutionStatus(rtdmodeltracker,:)=[time modelSolveStatus numberOfInfes solverStatus];
 rtdmodeltracker=rtdmodeltracker+1;
 catch
-end;
+end
 for x=1:size(RTSCED_RULES_POST_in,1)
-    try run(RTSCED_RULES_POST_in{x,1});catch;end;
-end;
+    try run(RTSCED_RULES_POST_in{x,1});catch;end
+end
 
 %assuming the solution started t minutes ago, and is directing
 %units dispatch schedules I minutes ahead for a H hour
@@ -1140,7 +1140,7 @@ RTSCEDBINDINGPUMPSCHEDULE(RTSCED_binding_interval_index,1:1+ngen) = [RTD_LOOKAHE
 
 for r=1:nreserve
     RTSCEDBINDINGRESERVE(RTSCED_binding_interval_index,1:1+ngen,r) = [RTD_LOOKAHEAD_INTERVAL_VAL(1,1) RTDGENRESERVESCHEDULE.val(:,1,r)'];
-end;
+end
 RTSCEDBINDINGRESERVEPRICE(RTSCED_binding_interval_index,:) = [RTD_LOOKAHEAD_INTERVAL_VAL(1,1) RTDRCP.val(:,1)'];
 RTSCEDBINDINGLOSSLOAD(RTSCED_binding_interval_index,:) = [RTD_LOOKAHEAD_INTERVAL_VAL(1,1) RTDLOSSLOAD.val(1,1)'];
 RTSCEDBINDINGINSUFFICIENTRESERVE(RTSCED_binding_interval_index,:) = [RTD_LOOKAHEAD_INTERVAL_VAL(1,1) RTDINSUFFRESERVE.val(1,:)];
@@ -1169,8 +1169,8 @@ for i=1:ngen
         binding_vg_curtailment(i,1) = 1;
     else
         binding_vg_curtailment(i,1) = 0;
-    end;
-end;
+    end
+end
 
 rtsced_running = 0;
 RTSCED_binding_interval_index = RTSCED_binding_interval_index + 1;
@@ -1179,7 +1179,7 @@ Solving_Initial_Models = 0;
 %Print results named after time optimziation started. 
 if(RTDPrintResults ==1)
     saveRT('RTD',RTSCED_binding_interval_index,PRTD,hour,minute,RTDPRODCOST.val,RTDGENSCHEDULE.val,RTDLMP.val,RTDUNITSTATUS.val,RTDLINEFLOW.val,RESERVETYPE.uels,nreserve,RTDGENRESERVESCHEDULE.val,RTDRCP.val,nbranch,BRANCHDATA.val,BRANCH.uels,HRTD,RTDLINEFLOWCTGC.val);
-end;
+end
 
 %% Data adjust for real-time loop
 
@@ -1192,19 +1192,19 @@ ACTUAL_PUMPUP_TIME = inf.*ones(ngen,1);
 if AGC_MODE ~= 5
     GENVALUE.val(:,gen_agc_mode) = AGC_MODE;
     DEFAULT_DATA.GENVALUE.val(:,gen_agc_mode) = AGC_MODE;
-end;
+end
 
 %Get rid of yesterday wind and load to avoid confusion
 RTC_LOAD_FULL = RTC_LOAD_FULL(HRTC+1:size_RTC_LOAD_FULL,:);
 RTC_RESERVE_FULL = RTC_RESERVE_FULL(HRTC+1:size_RTC_RESERVE_FULL,:);
 if nvcr > 0
     RTC_VG_FULL = RTC_VG_FULL(HRTC+1:size_RTC_VG_FULL,:);
-end;
+end
 RTD_LOAD_FULL = RTD_LOAD_FULL(HRTD+1:size_RTD_LOAD_FULL,:);
 RTD_RESERVE_FULL = RTD_RESERVE_FULL(HRTD+1:size_RTD_RESERVE_FULL,:);
 if nvcr > 0
     RTD_VG_FULL = RTD_VG_FULL(HRTD+1:size_RTD_VG_FULL,:);
-end;
+end
 if ninterchange > 0
     RTC_INTERCHANGE_FULL=RTC_INTERCHANGE_FULL(HRTC+1:end,:);
     RTD_INTERCHANGE_FULL=RTD_INTERCHANGE_FULL(HRTD+1:end,:);
@@ -1221,19 +1221,19 @@ finalvariablescounter=1;
 %% Forced Outages
 
 for x=1:size(FORCED_OUTAGE_PRE_in,1)
-    try run(FORCED_OUTAGE_PRE_in{x,1});catch;end;
-end;
+    try run(FORCED_OUTAGE_PRE_in{x,1});catch;end
+end
 
 DETERMINE_FORCED_GENERATOR_OUTAGES
 
 for x=1:size(FORCED_OUTAGE_POST_in,1)
-    try run(FORCED_OUTAGE_POST_in{x,1});catch;end;
-end;
+    try run(FORCED_OUTAGE_POST_in{x,1});catch;end
+end
 
 else
     time =end_time+1;
-end;
-end;
+end
+end
 
 % Updates
 dascuc_update = start_time + (24-GDAC); 
@@ -1250,8 +1250,8 @@ else
 end
 
 for x=1:size(RT_LOOP_PRE_in,1)
-    try run(RT_LOOP_PRE_in{x,1});catch;end; 
-end;
+    try run(RT_LOOP_PRE_in{x,1});catch;end 
+end
 
 while(time < end_time)
 %% Day-Ahead SCUC 
@@ -1277,7 +1277,7 @@ while(time < end_time)
             dascuc_start_horizon = time + (24-GDAC);
         else
             dascuc_start_horizon = 0;dascuc_end_horizon = 0;
-        end;
+        end
         
         if dascuc_end_horizon - eps > end_time
         else    
@@ -1293,9 +1293,9 @@ while(time < end_time)
             if(abs(DAC_RESERVE_FULL(t,1) - DASCUC_binding_interval_index) < eps)
                 RESERVELEVEL_VAL(dac_int,1:size(DAC_RESERVE_FIELD,2)-2) = DAC_RESERVE_FULL(t,3:end);
                 dac_int = dac_int+1;
-            end;
+            end
             t = t+1;
-        end;
+        end
         
         clear DA_INTERCHANGE_VAL
         dac_int=1;
@@ -1304,9 +1304,9 @@ while(time < end_time)
             if(abs(DAC_INTERCHANGE_FULL(t,1) - DASCUC_binding_interval_index) < eps)
                 DAC_INTERCHANGE_VAL(dac_int,1:size(DAC_INTERCHANGE_FIELD,2)-2) = DAC_INTERCHANGE_FULL(t,3:end);
                 dac_int = dac_int+1;
-            end;
+            end
             t = t+1;
-        end;
+        end
 
         clear vg_forecast_tmp;
         dac_int=1;
@@ -1316,12 +1316,12 @@ while(time < end_time)
                 if(abs(DAC_VG_FULL(t,1) - DASCUC_binding_interval_index) < eps)
                     vg_forecast_tmp(dac_int,:) = DAC_VG_FULL(t,3:end);
                     dac_int = dac_int+1;
-                end;
+                end
                 t = t+1;
-            end;
+            end
         else
             vg_forecast_tmp = 0;
-        end;
+        end
 
         clear VG_FORECAST_VAL;
         VG_FORECAST_VAL=zeros(NDACINTERVAL.val,ngen);
@@ -1334,11 +1334,11 @@ while(time < end_time)
                     w=DAC_Field_size;
                 elseif(w==DAC_Field_size)        %gone through entire list of VG and gen is not included
                     VG_FORECAST_VAL(1:NDACINTERVAL.val,i) = zeros(NDACINTERVAL.val,1);
-                end;
+                end
                 w = w+1;
-            end;
+            end
             i = i+1;
-        end;
+        end
 
         %INITIAL STATUSES
 %         GENVALUE              = DEFAULT_DATA.GENVALUE;
@@ -1356,8 +1356,8 @@ while(time < end_time)
                         h = h-1;
                     else
                         h = 0;
-                    end;
-                end;
+                    end
+                end
             else
                  while h>1
                     if STATUS(h,i) == 0
@@ -1365,9 +1365,9 @@ while(time < end_time)
                         h = h-1;
                     else
                         h = 0;
-                    end;
-                end;
-            end;
+                    end
+                end
+            end
             GENVALUE.val(i,initial_hour) = hr_cnt;
             h = (dascuc_start_horizon-IDAC)*rtscuc_I_perhour/IDAC+1;
             if (GENVALUE.val(i,gen_type) == 6 ||GENVALUE.val(i,gen_type) == 8 ||GENVALUE.val(i,gen_type) == 11)
@@ -1379,8 +1379,8 @@ while(time < end_time)
                             h = h-1;
                         else
                             h = 0;
-                        end;
-                    end;
+                        end
+                    end
                 else
                      while h>1
                         if PUMPSTATUS(h,i) == 0
@@ -1388,16 +1388,16 @@ while(time < end_time)
                             h = h-1;
                         else
                             h = 0;
-                        end;
-                    end;
-                end;
+                        end
+                    end
+                end
                 STORAGEVALUE.val(i,initial_pump_hour) = hr_cnt2;
                 STORAGEVALUE.val(i,reservoir_value) = SCUCSTORAGEVALUE.val(i,reservoir_value);
                 dascucstorage_now_index = floor(time/IDAC+eps)+1; %starting at 0
                 STORAGEVALUE.val(i,initial_storage) = max(0,DASCUCSTORAGELEVEL(dascuc_start_horizon/IDAC,1+i) + (ACTUAL_STORAGE_LEVEL(AGC_interval_index-1,1+i) - DASCUCSTORAGELEVEL(dascucstorage_now_index,1+i)));%
                 STORAGEVALUE.val(i,final_storage) = SCUCSTORAGEVALUE.val(i,final_storage);
-           end;
-        end;
+           end
+        end
         
         for i=1:ngen % round up to nearest IDAC interval
             GENVALUE.val(i,initial_hour)=ceil(GENVALUE.val(i,initial_hour)/IDAC)*IDAC;
@@ -1465,8 +1465,8 @@ while(time < end_time)
         CREATE_DAC_GAMS_VARIABLES
         
         for x=1:size(DASCUC_RULES_PRE_in,1)
-            try run(DASCUC_RULES_PRE_in{x,1});catch;end;
-        end;
+            try run(DASCUC_RULES_PRE_in{x,1});catch;end
+        end
         if strcmp(use_Default_DASCUC,'YES')
             per_unitize;
             wgdx(['TEMP', filesep, 'DASCUCINPUT2'],LOSS_BIAS,BUS_DELIVERY_FACTORS,GEN_DELIVERY_FACTORS,LOAD,UNIT_STATUS_ENFORCED_ON,UNIT_STATUS_ENFORCED_OFF,...
@@ -1490,15 +1490,15 @@ while(time < end_time)
         end
         if numberOfInfes ~= 0 
             DEBUG_DASCUC
-            try winopen('TEMP\DASCUC.lst');catch;end;
+            try winopen('TEMP\DASCUC.lst');catch;end
             warning('stophere:DACinfeasible', 'Infeasible DAC Solution');
         end
         catch
-        end;
+        end
 
         for x=1:size(DASCUC_RULES_POST_in,1)
-            try run(DASCUC_RULES_POST_in{x,1});catch;end;
-        end;
+            try run(DASCUC_RULES_POST_in{x,1});catch;end
+        end
         DASCUCSCHEDULE((DASCUC_binding_interval_index-1)*HDAC+1:HDAC+(DASCUC_binding_interval_index-1)*HDAC,1) = (dascuc_start_horizon:IDAC:dascuc_end_horizon-IDAC)';
         DASCUCSCHEDULE((DASCUC_binding_interval_index-1)*HDAC+1:HDAC+(DASCUC_binding_interval_index-1)*HDAC,2:ngen+1) = (SCUCGENSCHEDULE.val)';
         DASCUCMARGINALLOSS((DASCUC_binding_interval_index-1)*HDAC+1:HDAC+(DASCUC_binding_interval_index-1)*HDAC,1) = (dascuc_start_horizon:IDAC:dascuc_end_horizon-IDAC)';
@@ -1511,7 +1511,7 @@ while(time < end_time)
         for r=1:nreserve
             DASCUCRESERVE((DASCUC_binding_interval_index-1)*HDAC+1:HDAC+(DASCUC_binding_interval_index-1)*HDAC,1,r)=(dascuc_start_horizon:IDAC:dascuc_end_horizon-IDAC)';
             DASCUCRESERVE((DASCUC_binding_interval_index-1)*HDAC+1:HDAC+(DASCUC_binding_interval_index-1)*HDAC,2:ngen+1,r) = SCUCGENRESERVESCHEDULE.val(:,:,r)';
-        end;
+        end
         
         DASCUCRESERVEPRICE((DASCUC_binding_interval_index-1)*HDAC+1:HDAC+(DASCUC_binding_interval_index-1)*HDAC,:) = [(dascuc_start_horizon:IDAC:dascuc_end_horizon-IDAC)' SCUCRCP.val'];
         RESERVELEVELS((DASCUC_binding_interval_index-1)*HDAC+1:HDAC+(DASCUC_binding_interval_index-1)*HDAC,1) = (dascuc_start_horizon:IDAC:dascuc_end_horizon-IDAC)'; 
@@ -1528,8 +1528,8 @@ while(time < end_time)
                 PSHBIDCOST_VAL((DASCUC_binding_interval_index-1)*HDAC+1:HDAC+(DASCUC_binding_interval_index-1)*HDAC,i) = PSHBIDCOST_VAL((DASCUC_binding_interval_index-1)*HDAC,i);
             else
                 PSHBIDCOST_VAL((DASCUC_binding_interval_index-1)*HDAC+1:HDAC+(DASCUC_binding_interval_index-1)*HDAC,i) =  PSHBIDCOST.val(i,1);
-            end;
-        end;
+            end
+        end
         
         DASCUCSTORAGELEVEL((DASCUC_binding_interval_index-1)*HDAC+1:HDAC+(DASCUC_binding_interval_index-1)*HDAC,1)=(dascuc_start_horizon:IDAC:dascuc_end_horizon-IDAC)';
         DASCUCSTORAGELEVEL((DASCUC_binding_interval_index-1)*HDAC+1:HDAC+(DASCUC_binding_interval_index-1)*HDAC,2:ngen+1)=SCUCSTORAGELEVEL.val';
@@ -1552,7 +1552,7 @@ while(time < end_time)
                     else
                         STATUS(rtscuc_commitment_multiplier*(h+dascuc_start_horizon)-rtscuc_commitment_multiplier+1:rtscuc_commitment_multiplier*(h+dascuc_start_horizon)-1+1,i) ...
                             = round(SCUCUNITSTATUS.val(i,h));
-                    end;
+                    end
                     if round(SCUCPUMPING.val(i,min(NDACINTERVAL.val,h+1)))-round(SCUCPUMPING.val(i,h)) == 1
                         PUMPSTATUS(rtscuc_commitment_multiplier*(h+dascuc_start_horizon)-rtscuc_commitment_multiplier+1,i) = round(SCUCPUMPING.val(i,h));
                         PUMPSTATUS(rtscuc_commitment_multiplier*(h+dascuc_start_horizon)-rtscuc_commitment_multiplier+1+1:rtscuc_commitment_multiplier*(h+dascuc_start_horizon)+1,i) ...
@@ -1560,14 +1560,14 @@ while(time < end_time)
                     else
                         PUMPSTATUS(rtscuc_commitment_multiplier*(h+dascuc_start_horizon)-rtscuc_commitment_multiplier+1:rtscuc_commitment_multiplier*(h+dascuc_start_horizon)-1+1,i) ...
                             = round(SCUCPUMPING.val(i,h));
-                    end;
-                end;
-            end;
-        end;
+                    end
+                end
+            end
+        end
         dascuc_running = 0;
         DASCUC_binding_interval_index = DASCUC_binding_interval_index + 1;
-        end;
-    end;
+        end
+    end
 
 %%  Real-Time SCUC  
     if rtscuc_update + eps >= tRTC
@@ -1583,9 +1583,9 @@ while(time < end_time)
 %                 RTC_LOOKAHEAD_INTERVAL_VAL(rtc_int,1) = RTC_LOAD_FULL(t,2)*24;
 %                 LOAD.val(rtc_int,1) = RTC_LOAD_FULL(t,3);
 %                 rtc_int = rtc_int+1;
-%             end;
+%             end
 %             t = t+1;
-%         end;
+%         end
         RTC_LOOKAHEAD_INTERVAL_VAL=zeros(HRTC,1);
         RTC_LOOKAHEAD_INTERVAL_VAL(:,1) = RTC_LOAD_FULL(HRTC*(RTSCUC_binding_interval_index-2)+1:HRTC*(RTSCUC_binding_interval_index-2)+HRTC,2)*24;
         LOAD.val=zeros(HRTC,1);
@@ -1600,13 +1600,13 @@ while(time < end_time)
 %                 if(abs(RTC_VG_FULL(t,1) - time/24) < eps)
 %                     vg_forecast_tmp(rtc_int,:) = RTC_VG_FULL(t,3:end);
 %                     rtc_int = rtc_int+1;
-%                 end;
+%                 end
 %                 t = t+1;
-%             end;
+%             end
             vg_forecast_tmp=RTC_VG_FULL(HRTC*(RTSCUC_binding_interval_index-2)+1:HRTC*(RTSCUC_binding_interval_index-2)+HRTC,3:end);
         else
             vg_forecast_tmp = RTC_VG_FULL;
-        end;
+        end
         
         clear VG_FORECAST_VAL;
         VG_FORECAST_VAL=zeros(HRTC,ngen);
@@ -1619,11 +1619,11 @@ while(time < end_time)
                     w=RTC_Field_size;
                 elseif(w==RTC_Field_size)        %gone through entire list of VG and gen is not included
                     VG_FORECAST_VAL(1:HRTC,i) = zeros(HRTC,1);
-                end;
+                end
                 w = w+1;
-            end;
+            end
             i = i+1;
-        end;
+        end
        
         %Set up reserve levels 
         clear RESERVELEVEL_VAL
@@ -1633,9 +1633,9 @@ while(time < end_time)
 %             if(abs(RTC_RESERVE_FULL(t,1) - time/24) < eps)
 %                 RESERVELEVEL_VAL(rtc_int,1:size(RTC_RESERVE_FIELD,2)-2) = RTC_RESERVE_FULL(t,3:end);
 %                 rtc_int = rtc_int+1;
-%             end;
+%             end
 %             t = t+1;
-%         end;
+%         end
         RESERVELEVEL_VAL=zeros(HRTC,nreserve);
         RESERVELEVEL_VAL(:,:)=RTC_RESERVE_FULL(HRTC*(RTSCUC_binding_interval_index-2)+1:HRTC*(RTSCUC_binding_interval_index-2)+HRTC,3:end);
  
@@ -1648,16 +1648,16 @@ while(time < end_time)
 %             if(abs(RTC_INTERCHANGE_FULL(t,1) - time/24) < eps)
 %                 RTC_INTERCHANGE_VAL(rtc_int,1:size(RTC_INTERCHANGE_FIELD,2)-2) = RTC_INTERCHANGE_FULL(t,3:end);
 %                 rtc_int = rtc_int+1;
-%             end;
+%             end
 %             t = t+1;
-%         end;
+%         end
         RTC_INTERCHANGE_VAL(:,:)=RTC_INTERCHANGE_FULL(HRTC*(RTSCUC_binding_interval_index-2)+1:HRTC*(RTSCUC_binding_interval_index-2)+HRTC,3:end);
         
         if RTSCUC_binding_interval_index <=2
             INITIAL_DISPATCH_SLACK.val = [1;0];
         else
             INITIAL_DISPATCH_SLACK.val = [0;0];
-        end;
+        end
         
         rtscucinterval_index = round(time*rtscuc_I_perhour) + 1+1; %of the binding rtc interval. This is based on SCUC starting at hour 0!!!
         
@@ -1673,7 +1673,7 @@ while(time < end_time)
                 rtc_gen_forced_out(i,1) = 1;
             else
                 rtc_gen_forced_out(i,1) = 0;
-            end;
+            end
             t = 1;
             if rtc_gen_forced_out(i,1) == 1
                 GEN_FORCED_OUT_VAL(i,1) = 1;
@@ -1690,22 +1690,22 @@ while(time < end_time)
                         UNIT_STATUS_ENFORCED_ON_VAL(i,t) = 0;
                     else
                         UNIT_STATUS_ENFORCED_ON_VAL(i,t) = STATUS(lookahead_index,i);
-                    end;
+                    end
                     if RTSCUCSHUT_YES(i,t) == 1
                         UNIT_STATUS_ENFORCED_OFF_VAL(i,t) = 1;
                     else
                         UNIT_STATUS_ENFORCED_OFF_VAL(i,t) = STATUS(lookahead_index,i);
-                    end;
+                    end
                     if  RTSCUCPUMPSTART_YES(i,t) == 1
                         PUMPING_ENFORCED_ON_VAL(i,t) = 0;
                     else
                         PUMPING_ENFORCED_ON_VAL(i,t) = PUMPSTATUS(lookahead_index,i);
-                    end;
+                    end
                     if RTSCUCPUMPSHUT_YES(i,t) == 1
                         PUMPING_ENFORCED_OFF_VAL(i,t) = 1;
                     else
                         PUMPING_ENFORCED_OFF_VAL(i,t) = PUMPSTATUS(lookahead_index,i);
-                    end;
+                    end
 %                     if HRTC > 1 && t==HRTC && RTSCUCBINDINGSCHEDULE(lookahead_index-1,i+1) > eps*10 && RTSCUCBINDINGSCHEDULE(lookahead_index-1,i+1) + eps < GENVALUE.val(i,min_gen) && RTSCUCBINDINGSCHEDULE(lookahead_index-1,i+1)-RTSCUCBINDINGSCHEDULE(lookahead_index-2,i+1) > 0
 %                         UNIT_STATUS_ENFORCED_ON_VAL(i,t) = 1;
 %                         UNIT_STATUS_ENFORCED_OFF_VAL(i,t) = 1;
@@ -1715,10 +1715,10 @@ while(time < end_time)
 %                         PUMPING_ENFORCED_OFF_VAL(i,t) = 1;
 %                     end
                     t = t+1;
-                end;
-            end;
+                end
+            end
             i=i+1;
-        end;
+        end
         
         for i=1:ngen
             if RTSCUC_binding_interval_index > 2 && RTSCUCBINDINGSCHEDULE(RTSCUC_binding_interval_index-1,i+1) + eps < GENVALUE.val(i,min_gen) && RTSCUCBINDINGSCHEDULE(RTSCUC_binding_interval_index-2,i+1)-RTSCUCBINDINGSCHEDULE(RTSCUC_binding_interval_index-1,i+1) > eps && RTSCUCBINDINGSCHEDULE(RTSCUC_binding_interval_index-1,i+1) > eps
@@ -1745,20 +1745,20 @@ while(time < end_time)
                             mindown_last_status = SCUCGENVALUE.val(i,initial_status)+SCUCSTORAGEVALUE.val(i,initial_pump_status);
                         else
                             mindown_last_status = STATUS(min_down_check_time-1,i)+PUMPSTATUS(min_down_check_time-1,i);
-                        end;
+                        end
                         if mindown_last_status - (STATUS(max(1,min_down_check_time),i)+ PUMPSTATUS(max(1,min_down_check_time),i))== 1  
                             min_down_interval_enforced = GENVALUE.val(i,md_time)*rtscuc_I_perhour - (min_down_check_end_time - min_down_check_time)-1;
                             min_down_check_time = min_down_check_end_time + 1;
                         else
                             min_down_interval_enforced = 0;
                             min_down_check_time = min_down_check_time + 1;
-                        end;
-                    end;
+                        end
+                    end
                     if min_down_interval_enforced > 0
                         UNIT_STATUS_ENFORCED_OFF_VAL(i,1:min(HRTC,min_down_interval_enforced)) = 0;
                         PUMPING_ENFORCED_OFF_VAL(i,1:min(HRTC,min_down_interval_enforced)) = 0;
-                    end;
-                end;
+                    end
+                end
                 if RTSCUCSHUT_YES(i,1)
                     min_run_check_start_time = max(1,RTSCUC_binding_interval_index -GENVALUE.val(i,mr_time)*rtscuc_I_perhour+1);
                     min_run_check_end_time = RTSCUC_binding_interval_index - 1;
@@ -1769,19 +1769,19 @@ while(time < end_time)
                             minrun_last_status = SCUCGENVALUE.val(i,initial_status);
                         else
                             minrun_last_status = STATUS(min_run_check_time-1,i);
-                        end;
+                        end
                         if STATUS(min_run_check_time,i)-minrun_last_status == 1
                             min_run_interval_enforced = GENVALUE.val(i,mr_time)*rtscuc_I_perhour - (min_run_check_end_time - min_run_check_time)-1;
                             min_run_check_time = min_run_check_end_time + 1;
                         else
                             min_run_interval_enforced = 0;
                             min_run_check_time = min_run_check_time + 1;
-                        end;
-                    end;
+                        end
+                    end
                     if min_run_interval_enforced > 0 && rtc_gen_forced_out(i,1) ~= 1
                         UNIT_STATUS_ENFORCED_ON_VAL(i,1:min(HRTC,min_run_interval_enforced)) = 1;
-                    end;
-                end;
+                    end
+                end
                 if RTSCUCPUMPSHUT_YES(i,1)
                     min_pump_check_start_time = max(1,RTSCUC_binding_interval_index -STORAGEVALUE.val(i,min_pump_time)*rtscuc_I_perhour+1);
                     min_pump_check_end_time = RTSCUC_binding_interval_index - 1;
@@ -1792,21 +1792,21 @@ while(time < end_time)
                             minpump_last_status = SCUCSTORAGEVALUE.val(i,initial_pump_status);
                         else
                             minpump_last_status = PUMPSTATUS(min_pump_check_time-1,i);
-                        end;
+                        end
                         if PUMPSTATUS(min_pump_check_time,i)-minpump_last_status == 1
                             min_pump_interval_enforced = STORAGEVALUE.val(i,min_pump_time)*rtscuc_I_perhour - (min_pump_check_end_time - min_pump_check_time)-1;
                             min_pump_check_time = min_pump_check_end_time + 1;
                         else
                             min_pump_interval_enforced = 0;
                             min_pump_check_time = min_pump_check_time + 1;
-                        end;
-                    end;
+                        end
+                    end
                     if min_pump_interval_enforced > 0
                         PUMPING_ENFORCED_ON_VAL(i,1:min_pump_interval_enforced) = 1;
-                    end;
-                end;
-            end;
-        end;
+                    end
+                end
+            end
+        end
         
         rtcdelaytrack=[];
         if time > 0 && time < daystosimulate*24-IRTC*HRTC/60
@@ -1886,28 +1886,28 @@ while(time < end_time)
         else
             ACTUAL_PUMP_OUTPUT_VAL = ACTUAL_PUMP(AGC_interval_index-round(PRTC*60/t_AGC),2:ngen+1)';
             ACTUAL_GEN_OUTPUT_VAL = ACTUAL_GENERATION(AGC_interval_index-round(PRTC*60/t_AGC)+1,2:ngen+1)';
-        end;
+        end
         for i=1:ngen
             if abs(ACTUAL_GEN_OUTPUT_VAL(i,1)) > 0
                 LAST_STATUS_ACTUAL_VAL(i,1) = 1;
             else
                 LAST_STATUS_ACTUAL_VAL(i,1) = 0;
-            end;
-        end;
+            end
+        end
         for i=1:ngen
             if ACTUAL_PUMP_OUTPUT_VAL(i,1) > 0
                 LAST_PUMPSTATUS_ACTUAL_VAL(i,1) = 1;
             else
                 LAST_PUMPSTATUS_ACTUAL_VAL(i,1) = 0;
-            end;
-        end;
+            end
+        end
 
         for i=1:ngen
             RAMP_SLACK_UP_VAL(i,1) = max(0,ACTUAL_GEN_OUTPUT_VAL(i,1) - (PRTC+IRTC)*GENVALUE.val(i,ramp_rate)...
                 - (LAST_GEN_SCHEDULE_VAL(i,1) + tRTC*GENVALUE.val(i,ramp_rate)));
             RAMP_SLACK_DOWN_VAL(i,1) = max(0, LAST_GEN_SCHEDULE_VAL(i,1) - tRTC*GENVALUE.val(i,ramp_rate)...
                 - (ACTUAL_GEN_OUTPUT_VAL(i,1) + (PRTC+IRTC)*GENVALUE.val(i,ramp_rate)));
-        end;
+        end
 
        %For su and sd trajectories
        for i=1:ngen
@@ -1924,13 +1924,13 @@ while(time < end_time)
                    Initial_RTC_last_startup_check = GENVALUE.val(i,initial_status);
                else
                    Initial_RTC_last_startup_check = STATUS(startup_period_check_time-1,i);
-               end;
+               end
                if STATUS(startup_period_check_time,i)-Initial_RTC_last_startup_check == 1 
                    if  ACTUAL_GEN_OUTPUT_VAL(i,1) > 0
                        INITIAL_STARTUP_PERIODS_VAL(i,1) =  1;
                    else
                        INITIAL_STARTUP_PERIODS_VAL(i,1) =  0;
-                   end;
+                   end
                    if startup_period_check_time <=1
                        if GENVALUE.val(i,su_time) >= IDAC + time
                            INTERVALS_STARTED_AGO_VAL(i,1) = RTSCUC_binding_interval_index + IDAC*60/IRTC-2;
@@ -1939,14 +1939,14 @@ while(time < end_time)
                        else
                            INTERVALS_STARTED_AGO_VAL(i,1) = 0;
                            INITIAL_STARTUP_PERIODS_VAL(i,1) = 0;
-                       end;
+                       end
                    else
                        INTERVALS_STARTED_AGO_VAL(i,1) = RTSCUC_binding_interval_index - startup_period_check_time;
                        STARTUP_MINGEN_HELPER_VAL(i,1) = GENVALUE.val(i,min_gen)*(time + IRTC/60 - ...
                            RTSCUCBINDINGSTARTUP(startup_period_check_time,1))/GENVALUE.val(i,su_time);
-                   end;
-               end;
-           end;
+                   end
+               end
+           end
            INITIAL_PUMPUP_PERIODS_VAL(i,1) = 0;
            INTERVALS_PUMPUP_AGO_VAL(i,1) = 0;
 
@@ -1957,7 +1957,7 @@ while(time < end_time)
                    Initial_RTC_last_pumpup_check = STORAGEVALUE.val(i,initial_pump_status);
                else
                    Initial_RTC_last_pumpup_check = PUMPSTATUS(pumpup_period_check_time-1,i);
-               end;
+               end
                if (PUMPSTATUS(pumpup_period_check_time,i)-Initial_RTC_last_pumpup_check) == 1
                    INITIAL_PUMPUP_PERIODS_VAL(i,1) = 1;
                    if pumpup_period_check_time <=1
@@ -1968,16 +1968,16 @@ while(time < end_time)
                        else
                            INTERVALS_PUMPUP_AGO_VAL(i,1) = 0;
                            INITIAL_PUMPUP_PERIODS_VAL(i,1) = 0;
-                       end;
+                       end
                    else
                        INTERVALS_PUMPUP_AGO_VAL(i,1) = RTSCUC_binding_interval_index - pumpup_period_check_time;
                        PUMPUP_MINGEN_HELPER_VAL(i,1) = STORAGEVALUE.val(i,min_pump)*(time + IRTC/60 - ...
                            RTSCUCBINDINGPUMPSCHEDULE(pumpup_period_check_time,1))/STORAGEVALUE.val(i,pump_su_time);
-                   end;
-               end;
-           end;
+                   end
+               end
+           end
 
-       end;
+       end
 
         %Storage value for RTC
         %Basically, figure out the amount of money that the storage unit would
@@ -1991,7 +1991,7 @@ while(time < end_time)
                         + (PRTC/60)*LAST_PUMP_SCHEDULE_VAL(i,1)*STORAGEVALUE.val(i,efficiency);
                 else
                     RTSCUC_STORAGE_LEVEL(i,1) = ACTUAL_STORAGE_LEVEL(AGC_interval_index,1+i);
-                end;
+                end
                 if ceil(RTC_LOOKAHEAD_INTERVAL_VAL(HRTC,1)+1) > size(DASCUCLMP,1)
                     RTSCUC_RESERVOIR_VALUE(i,1) = SCUCSTORAGEVALUE.val(i,reservoir_value);
                 else
@@ -2004,7 +2004,7 @@ while(time < end_time)
                     /((1-mod(RTC_LOOKAHEAD_INTERVAL_VAL(HRTC,1)-eps,1))*SCUCGENSCHEDULE.val(i,floor(RTC_LOOKAHEAD_INTERVAL_VAL(HRTC,1)+1))...
                     + sum(SCUCGENSCHEDULE.val(i,ceil(RTC_LOOKAHEAD_INTERVAL_VAL(HRTC,1)+1:HDAC)))+SCUCSTORAGELEVEL.val(i,HDAC));
                 %}
-                end;
+                end
             elseif GENVALUE.val(i,gen_type) == 9 || GENVALUE.val(i,gen_type) == 11
                 RTSCUC_RESERVOIR_VALUE(i,1) = GENVALUE.val(i,efficiency)*((1-mod(RTC_LOOKAHEAD_INTERVAL_VAL(HRTC,1)-eps,1))*SCUCLMP.val(GENBUS(i,1),...
                     floor(RTC_LOOKAHEAD_INTERVAL_VAL(HRTC,1)+1))*SCUCNCGENSCHEDULE.val(i,floor(RTC_LOOKAHEAD_INTERVAL_VAL(HRTC,1)+1)) ...
@@ -2014,8 +2014,8 @@ while(time < end_time)
                     + sum(SCUCNCGENSCHEDULE.val(i,ceil(RTC_LOOKAHEAD_INTERVAL_VAL(HRTC,1)+1:HDAC)))+SCUCSTORAGELEVEL.val(i,HDAC));
             else
                 RTSCUC_RESERVOIR_VALUE(i) = 0;
-            end;
-        end;
+            end
+        end
         
         %STORAGEVALUE.val(:,reservoir_value) = RTSCUC_RESERVOIR_VALUE;
         STORAGEVALUE.val(:,initial_storage) = RTSCUC_STORAGE_LEVEL;
@@ -2051,8 +2051,8 @@ while(time < end_time)
         CREATE_RTC_GAMS_VARIABLES
         
         for x=1:size(RTSCUC_RULES_PRE_in,1)
-            try run(RTSCUC_RULES_PRE_in{x,1});catch; end; 
-        end;
+            try run(RTSCUC_RULES_PRE_in{x,1});catch; end 
+        end
         if strcmp(use_Default_RTSCUC,'YES')
             per_unitize;
             wgdx(['TEMP', filesep, 'RTSCUCINPUT2'],UNIT_STARTUP_ACTUAL,UNIT_PUMPUP_ACTUAL,LAST_STARTUP,LAST_SHUTDOWN,PUCOST_BLOCK_OFFSET,INTERCHANGE,LOSS_BIAS,...
@@ -2077,15 +2077,15 @@ while(time < end_time)
         end
         if numberOfInfes ~= 0 && (max(rpu_time) < time - PRTC/60 || max(rpu_time) > time)
             DEBUG_RTSCUC
-            try winopen('TEMP\RTSCUC.lst');catch;end;
+            try winopen('TEMP\RTSCUC.lst');catch;end
             warning('stophere:RTCinfeasible', 'Infeasible RTC Solution');
         end
         catch
-        end;
+        end
         
         for x=1:size(RTSCUC_RULES_POST_in,1)
-            try run(RTSCUC_RULES_POST_in{x,1});catch; end; 
-        end;
+            try run(RTSCUC_RULES_POST_in{x,1});catch; end 
+        end
 
         RTSCUCBINDINGCOMMITMENT(RTSCUC_binding_interval_index:RTSCUC_binding_interval_index + HRTC - 1,1) = RTC_LOOKAHEAD_INTERVAL_VAL ;
         RTSCUCBINDINGPUMPING(RTSCUC_binding_interval_index:RTSCUC_binding_interval_index + HRTC - 1,1) = RTC_LOOKAHEAD_INTERVAL_VAL ;
@@ -2110,13 +2110,13 @@ while(time < end_time)
         for i=1:ngen
             if RTSCUCBINDINGSTARTUP(RTSCUC_binding_interval_index,1+i) == 1;
                 RTSCUC_INITIAL_START_TIME(i,1) = time;
-            end;
-        end;
+            end
+        end
         for i=1:ngen
             if RTSCUCBINDINGPUMPING(RTSCUC_binding_interval_index,1+i) - PUMPSTATUS(RTSCUC_binding_interval_index-1,i) == 1;
                 RTSCUC_INITIAL_PUMPUP_TIME(i,1) = time;
-            end;
-        end;
+            end
+        end
         RTSCUCBINDINGRESERVESCHEDULE(RTSCUC_binding_interval_index:RTSCUC_binding_interval_index + HRTC - 1,1) = RTC_LOOKAHEAD_INTERVAL_VAL ;
         RTSCUCBINDINGRESERVEPRICE(RTSCUC_binding_interval_index:RTSCUC_binding_interval_index + HRTC - 1,1) = RTC_LOOKAHEAD_INTERVAL_VAL ;
         RTSCUCBINDINGINSUFFICIENTRESERVE(RTSCUC_binding_interval_index:RTSCUC_binding_interval_index + HRTC - 1,1) = RTC_LOOKAHEAD_INTERVAL_VAL ;
@@ -2125,7 +2125,7 @@ while(time < end_time)
         RTSCUCMARGINALLOSS(RTSCUC_binding_interval_index:RTSCUC_binding_interval_index + HRTC - 1,1) = RTC_LOOKAHEAD_INTERVAL_VAL ;
         for r=1:nreserve
             RTSCUCBINDINGRESERVESCHEDULE(RTSCUC_binding_interval_index:RTSCUC_binding_interval_index + HRTC - 1,1:1+ngen,r) = [RTC_LOOKAHEAD_INTERVAL_VAL RTCGENRESERVESCHEDULE.val(:,:,r)'];
-        end;
+        end
         RTSCUCBINDINGRESERVEPRICE(RTSCUC_binding_interval_index:RTSCUC_binding_interval_index + HRTC - 1,2:nreserve+1) =  RTCRCP.val';
         RTSCUCBINDINGINSUFFICIENTRESERVE(RTSCUC_binding_interval_index:RTSCUC_binding_interval_index + HRTC - 1,2:nreserve+1) =  RTCINSUFFRESERVE.val;
         RTSCUCBINDINGLOSSLOAD(RTSCUC_binding_interval_index:RTSCUC_binding_interval_index + HRTC - 1,2) =  RTCLOSSLOAD.val;
@@ -2149,7 +2149,7 @@ while(time < end_time)
 %         RTPSHBIDCOST_VAL((RTSCUC_binding_interval_index-1)*HRTC+1:HRTC+(RTSCUC_binding_interval_index-1)*HRTC,:) =  ones(HRTC,1)*RTPSHBIDCOST.val';
 %         RTPSHBIDCOST_VAL(RTSCUC_binding_interval_index:HRTC+(RTSCUC_binding_interval_index-1),:) =  ones(HRTC,1)*RTPSHBIDCOST.val';
         RTPSHBIDCOST_VAL(RTSCUC_binding_interval_index,2:ngen+1)=RTPSHBIDCOST.val';
-        end;
+        end
         rtscuc_running = 0;
         
         if ~isempty(rtcdelaytrack)
@@ -2160,8 +2160,8 @@ while(time < end_time)
         
         if(RTCPrintResults == 1)
             saveRT('RTC',RTSCUC_binding_interval_index,PRTC,hour,minute,RTCPRODCOST.val,RTCGENSCHEDULE.val,RTCLMP.val,RTCUNITSTATUS.val,RTCLINEFLOW.val,RESERVETYPE.uels,nreserve,RTCGENRESERVESCHEDULE.val,RTCRCP.val,nbranch,BRANCHDATA.val,BRANCH.uels,HRTC,RTCLINEFLOWCTGC.val);
-        end;
-    end;
+        end
+    end
     
 %% Real-Time SCED
     if rtsced_update + eps >= tRTD  
@@ -2181,9 +2181,9 @@ while(time < end_time)
 %                 RTD_LOOKAHEAD_INTERVAL_VAL(rtd_int,1) = RTD_LOAD_FULL(t,2)*24;
 %                 LOAD.val(rtd_int,1) = RTD_LOAD_FULL(t,3);
 %                 rtd_int = rtd_int+1;
-%             end;
+%             end
 %             t = t+1;
-%         end;
+%         end
         RTD_LOOKAHEAD_INTERVAL_VAL=zeros(HRTD,1);
         RTD_LOOKAHEAD_INTERVAL_VAL(:,1) = RTD_LOAD_FULL(HRTD*(RTSCED_binding_interval_index-2)+1:HRTD*(RTSCED_binding_interval_index-2)+HRTD,2)*24;
         LOAD.val=zeros(HRTD,1);
@@ -2197,13 +2197,13 @@ while(time < end_time)
 %                 if(abs(RTD_VG_FULL(t,1) - time/24) < eps)
 %                     vg_forecast_tmp(rtd_int,:) = RTD_VG_FULL(t,3:end);
 %                     rtd_int = rtd_int+1;
-%                 end;
+%                 end
 %                 t = t+1;
-%             end;
+%             end
             vg_forecast_tmp=RTD_VG_FULL(HRTD*(RTSCED_binding_interval_index-2)+1:HRTD*(RTSCED_binding_interval_index-2)+HRTD,3:end);
         else
             vg_forecast_tmp = RTD_VG_FULL;
-        end;
+        end
         
         i =1;
         clear VG_FORECAST_VAL;
@@ -2217,11 +2217,11 @@ while(time < end_time)
                     w=RTD_Field_size;
                 elseif(w==RTD_Field_size)            %gone through entire list of VG and gen is not included
                     VG_FORECAST_VAL(1:HRTD,i) = zeros(HRTD,1);
-                end;
+                end
                 w = w+1;
-            end;
+            end
             i = i+1;
-        end;
+        end
         
         %Set up reserve levels based on the hour
         %So far reserve values are the same in RTD as SCUC for all hours
@@ -2232,9 +2232,9 @@ while(time < end_time)
 %             if(abs(RTD_RESERVE_FULL(t,1) - time/24) < eps)
 %                 RESERVELEVEL_VAL(rtd_int,1:size(RTD_RESERVE_FIELD,2)-2) = RTD_RESERVE_FULL(t,3:end);
 %                 rtd_int = rtd_int+1;
-%             end;
+%             end
 %             t = t+1;
-%         end;
+%         end
         RESERVELEVEL_VAL=zeros(HRTD,nreserve);
         RESERVELEVEL_VAL(:,:)=RTD_RESERVE_FULL(HRTD*(RTSCED_binding_interval_index-2)+1:HRTD*(RTSCED_binding_interval_index-2)+HRTD,3:end);
         
@@ -2246,16 +2246,16 @@ while(time < end_time)
 %             if(abs(RTD_INTERCHANGE_FULL(t,1) - time/24) < eps)
 %                 RTD_INTERCHANGE_VAL(rtd_int,1:size(RTD_INTERCHANGE_FIELD,2)-2) = RTD_INTERCHANGE_FULL(t,3:end);
 %                 rtd_int = rtd_int+1;
-%             end;
+%             end
 %             t = t+1;
-%         end;
+%         end
         RTD_INTERCHANGE_VAL(:,:)=RTD_INTERCHANGE_FULL(HRTD*(RTSCED_binding_interval_index-2)+1:HRTD*(RTSCED_binding_interval_index-2)+HRTD,3:end);
                 
         if RTSCED_binding_interval_index <=2
             INITIAL_DISPATCH_SLACK.val = [1;0];
         else
             INITIAL_DISPATCH_SLACK.val = [0;0];
-        end;
+        end
         
         %for the ramping constraint between interval 1 and 2;
         INTERVAL_MINUTES_VAL = zeros(HRTD,1);
@@ -2263,7 +2263,7 @@ while(time < end_time)
         INTERVAL_MINUTES_VAL(2:end,1) = 60.*diff(RTD_LOOKAHEAD_INTERVAL_VAL);
 %         for t=2:HRTD
 %             INTERVAL_MINUTES_VAL(t,1) = 60*(RTD_LOOKAHEAD_INTERVAL_VAL(t,1) - RTD_LOOKAHEAD_INTERVAL_VAL(t-1,1));
-%         end;
+%         end
 
         
         %This is for interval 0 initial ramping constraints
@@ -2275,14 +2275,14 @@ while(time < end_time)
         else
             ACTUAL_GEN_OUTPUT_VAL = ACTUAL_GENERATION(AGC_interval_index-round(PRTD*60/t_AGC),2:ngen+1)'; %placeholder
             ACTUAL_PUMP_OUTPUT_VAL = ACTUAL_PUMP(AGC_interval_index-round(PRTD*60/t_AGC),2:ngen+1)'; %placeholder
-        end;
+        end
 
 %         for i=1:ngen
 %             RAMP_SLACK_UP_VAL(i,1) = max(0,ACTUAL_GEN_OUTPUT_VAL(i,1) - (PRTD+IRTD)*GENVALUE.val(i,ramp_rate) ...
 %                 - (LAST_GEN_SCHEDULE_VAL(i,1) + tRTD*GENVALUE.val(i,ramp_rate)));
 %             RAMP_SLACK_DOWN_VAL(i,1) = max(0, LAST_GEN_SCHEDULE_VAL(i,1) - tRTD*GENVALUE.val(i,ramp_rate) ...
 %                 - (ACTUAL_GEN_OUTPUT_VAL(i,1) + (PRTD+IRTD)*GENVALUE.val(i,ramp_rate)));
-%         end;
+%         end
         RAMP_SLACK_UP_VAL(:,1) = max(0,ACTUAL_GEN_OUTPUT_VAL-(PRTD+IRTD).*GENVALUE.val(:,ramp_rate)-(LAST_GEN_SCHEDULE_VAL+tRTD.*GENVALUE.val(:,ramp_rate)));
         RAMP_SLACK_DOWN_VAL(:,1) = max(0,LAST_GEN_SCHEDULE_VAL-tRTD.*GENVALUE.val(:,ramp_rate)-(ACTUAL_GEN_OUTPUT_VAL+(PRTD+IRTD).*GENVALUE.val(:,ramp_rate)));
 
@@ -2294,36 +2294,36 @@ while(time < end_time)
                 LAST_STATUS_VAL(i,1) = 1;
             else
                 LAST_STATUS_VAL(i,1) = 0;
-            end;
+            end
             if abs(ACTUAL_GEN_OUTPUT_VAL(i,1)) > 0
                 LAST_STATUS_ACTUAL_VAL(i,1) = 1;
             else
                 LAST_STATUS_ACTUAL_VAL(i,1) = 0;
-            end;
+            end
             if LAST_PUMP_SCHEDULE_VAL(i,1) > 0
                 LAST_PUMPSTATUS_VAL(i,1) = 1;
             else
                 LAST_PUMPSTATUS_VAL(i,1) = 0;
-            end;
+            end
             if ACTUAL_PUMP_OUTPUT_VAL(i,1) > 0
                 LAST_PUMPSTATUS_ACTUAL_VAL(i,1) = 1;
             else
                 LAST_PUMPSTATUS_ACTUAL_VAL(i,1) = 0;
-            end;
+            end
             if  gen_outage_time(i,1) <= time - PRTD/60 && gen_repair_time(i,1) >= time - PRTD/60
                 rtd_gen_forced_out(i,1) = 1;
             else
                 rtd_gen_forced_out(i,1) = 0;
-            end;
+            end
             if time==0
                 for ast=1:ngen
                     if RTSCUCBINDINGSCHEDULE(1,1+ast) > 0 && GENVALUE.val(ast,initial_MW) < eps
                        ACTUAL_START_TIME(ast,1) = -1*IDAC; 
-                    end;
+                    end
                     if RTSCUCBINDINGPUMPSCHEDULE(1,1+ast) > 0 && STORAGEVALUE.val(ast,initial_pump_mw) < eps
                        ACTUAL_PUMPUP_TIME(ast,1) = -1*IDAC; 
-                    end;
-                end;
+                    end
+                end
             end
             if(rtd_gen_forced_out(i,1) == 1)
                GEN_FORCED_OUT_VAL(i,1) = 1;
@@ -2355,10 +2355,10 @@ while(time < end_time)
                             UNIT_STATUS_VAL(i,t) = 1;
                         else
                             UNIT_STATUS_VAL(i,t) = 0;
-                        end;
+                        end
                     elseif STATUS(lookahead_interval_index_ceil,i) == 0
                         UNIT_STATUS_VAL(i,t) = 1;
-                    end;
+                    end
                     if PUMPSTATUS(lookahead_interval_index_ceil,i) == PUMPSTATUS(lookahead_interval_index_floor,i)
                         PUMPING_VAL(i,t) = PUMPSTATUS(lookahead_interval_index_ceil,i);
                     elseif PUMPSTATUS(lookahead_interval_index_ceil,i) == 1
@@ -2366,35 +2366,35 @@ while(time < end_time)
                             PUMPING_VAL(i,t) = 1;
                         else
                             PUMPING_VAL(i,t) = 0;
-                        end;
+                        end
                     elseif PUMPSTATUS(lookahead_interval_index_ceil,i) == 0
                         PUMPING_VAL(i,t) = 1;
-                    end;
+                    end
                     %SU and SD trajectories
                     [UNIT_STARTINGUP_VAL(i,t),UNIT_STARTUPMINGENHELP_VAL(i,t),UNIT_SHUTTINGDOWN_VAL(i,t)]=RTSCED_SUSD_Trajectories(STATUS,UNIT_STATUS_VAL,GENVALUE.val(:,gen_type),GENVALUE,ACTUAL_START_TIME,RTSCEDBINDINGSCHEDULE(RTSCED_binding_interval_index-1,:),RTD_LOOKAHEAD_INTERVAL_VAL,INTERVAL_MINUTES_VAL,rtscuc_I_perhour,eps,su_time,sd_time,min_gen,initial_status,i,t,time,0);
                     [UNIT_PUMPINGUP_VAL(i,t),UNIT_PUMPUPMINGENHELP_VAL(i,t),UNIT_PUMPINGDOWN_VAL(i,t)]=RTSCED_SUSD_Trajectories(PUMPSTATUS,PUMPING_VAL,GENVALUE.val(:,gen_type),STORAGEVALUE,ACTUAL_PUMPUP_TIME,RTSCEDBINDINGPUMPSCHEDULE(RTSCED_binding_interval_index-1,:),RTD_LOOKAHEAD_INTERVAL_VAL,INTERVAL_MINUTES_VAL,rtscuc_I_perhour,eps,pump_su_time,pump_sd_time,min_pump,initial_pump_status,i,t,time,0);
                     t = t+1;
-                end;
-            end;
+                end
+            end
             i = i+1;
-        end;
+        end
         
         if RTSCED_binding_interval_index == 1
             for ast=1:ngen
                 if RTSCUCBINDINGSCHEDULE(1,1+ast) > 0 && GENVALUE.val(ast,initial_MW) < eps
                    ACTUAL_START_TIME(ast,1) = time-1*IDAC; 
-                end;
+                end
                 if RTSCUCBINDINGPUMPSCHEDULE(1,1+ast) > 0 && STORAGEVALUE.val(ast,initial_pump_mw) < eps
                    ACTUAL_PUMPUP_TIME(ast,1) = time-1*IDAC; 
-                end;
+                end
                 UNIT_STARTUPMINGENHELP_VAL(ast,1) = (GENVALUE.val(ast,min_gen)*(time-ACTUAL_START_TIME(ast,1))/GENVALUE.val(ast,su_time));%+(GENVALUE.val(ast,min_gen)/((60*IDAC/IRTD)*GENVALUE.val(ast,su_time)));
                 UNIT_STARTUPMINGENHELP_VAL(UNIT_STARTUPMINGENHELP_VAL==-inf)=0;
                 UNIT_STARTUPMINGENHELP_VAL(isnan(UNIT_STARTUPMINGENHELP_VAL))=0;
                 if UNIT_STARTUPMINGENHELP_VAL(ast,1) >= GENVALUE.val(ast,min_gen)
                     UNIT_STARTUPMINGENHELP_VAL(ast,1) = 0;
                     UNIT_STARTINGUP_VAL(ast,1:HRTD) = 0;
-                end;  
-            end;
+                end  
+            end
         end
     
         % Check if a unit shutting down needs to be delayed
@@ -2434,10 +2434,10 @@ while(time < end_time)
                             UNIT_STATUS_VAL(i,t) = 1;
                         else
                             UNIT_STATUS_VAL(i,t) = 0;
-                        end;
+                        end
                     elseif STATUS(lookahead_interval_index_ceil,i) == 0
                         UNIT_STATUS_VAL(i,t) = 1;
-                    end;
+                    end
                     % update unit startingup for units with Toff < HRTD 
                     temp=find(not(UNIT_STATUS_VAL(i,:)),1,'first');
                     if isempty(temp)
@@ -2454,7 +2454,7 @@ while(time < end_time)
                                 Initial_RTD_last_startup_check = GENVALUE.val(i,initial_status);
                             else
                                 Initial_RTD_last_startup_check = STATUS(startup_time_check_index-1,i);
-                            end;
+                            end
                             if STATUS(startup_time_check_index,i)-Initial_RTD_last_startup_check == 1 && UNIT_STATUS_VAL(i,t) == 1 && (time - ACTUAL_START_TIME(i,1) - GENVALUE.val(i,su_time) < eps)
                                 UNIT_STARTINGUP_VAL(i,t) = 1;
                                 if ACTUAL_START_TIME(i,1) < time && t==1
@@ -2462,12 +2462,12 @@ while(time < end_time)
                                     if UNIT_STARTUPMINGENHELP_VAL(i,1) >= GENVALUE.val(i,min_gen)
                                         UNIT_STARTUPMINGENHELP_VAL(i,1) = 0;
                                         UNIT_STARTINGUP_VAL(i,1:HRTD) = 0;
-                                    end;
-                                end;
-                            end;
+                                    end
+                                end
+                            end
                             startup_time_check_index = startup_time_check_index - 1;
-                        end;
-                    end;
+                        end
+                    end
                     t=t+1;
                 end
             end
@@ -2498,7 +2498,7 @@ while(time < end_time)
                         + (PRTD/60)*LAST_PUMP_SCHEDULE_VAL(i,1)*STORAGEVALUE.val(i,efficiency); %only works for constant efficiency
                 else
                     RTSCED_STORAGE_LEVEL(i,1) = ACTUAL_STORAGE_LEVEL(AGC_interval_index,i+1);
-                end;
+                end
                 if ceil(RTD_LOOKAHEAD_INTERVAL_VAL(HRTD,1)+1) > size(DASCUCLMP,1)
                     RTSCED_RESERVOIR_VALUE(i,1) = SCUCSTORAGEVALUE.val(i,reservoir_value);
                 else
@@ -2511,7 +2511,7 @@ while(time < end_time)
                     /((1-mod(RTC_LOOKAHEAD_INTERVAL_VAL(HRTC,1)-eps,1))*SCUCGENSCHEDULE.val(i,floor(RTC_LOOKAHEAD_INTERVAL_VAL(HRTC,1)+1))...
                     + sum(SCUCGENSCHEDULE.val(i,ceil(RTC_LOOKAHEAD_INTERVAL_VAL(HRTC,1)+1:HDAC)))+SCUCSTORAGELEVEL.val(i,HDAC));
                 %}
-                end;
+                end
             elseif GENVALUE.val(i,gen_type) == 9 || GENVALUE.val(i,gen_type) == 11
                 RTSCED_RESERVOIR_VALUE(i,1) = GENVALUE.val(i,efficiency)*((1-mod(RTD_LOOKAHEAD_INTERVAL_VAL(HRTD,1)-eps,1))*SCUCLMP.val(GENBUS(i,1),...
                     floor(RTD_LOOKAHEAD_INTERVAL_VAL(HRTD,1)+1))*SCUCNCGENSCHEDULE.val(i,floor(RTD_LOOKAHEAD_INTERVAL_VAL(HRTD,1)+1)) ...
@@ -2521,8 +2521,8 @@ while(time < end_time)
                     + sum(SCUCNCGENSCHEDULE.val(i,ceil(RTD_LOOKAHEAD_INTERVAL_VAL(HRTD,1)+1:HDAC)))+SCUCSTORAGELEVEL.val(i,HDAC));
             else
                 RTSCED_RESERVOIR_VALUE(i) = 0;
-            end;
-        end;
+            end
+        end
         
         %STORAGEVALUE.val(:,reservoir_value) = RTSCED_RESERVOIR_VALUE;
         
@@ -2576,8 +2576,8 @@ while(time < end_time)
         CREATE_RTD_GAMS_VARIABLES
 
         for x=1:size(RTSCED_RULES_PRE_in,1)
-            try run(RTSCED_RULES_PRE_in{x,1});catch;end; 
-        end;
+            try run(RTSCED_RULES_PRE_in{x,1});catch;end 
+        end
         if strcmp(use_Default_RTSCED,'YES')
             per_unitize;
             wgdx(['TEMP', filesep, 'RTSCEDINPUT2'],RESERVELEVEL,VG_FORECAST,UNIT_STATUS,UNIT_STARTINGUP,UNIT_STARTUPMINGENHELP,...
@@ -2603,15 +2603,15 @@ while(time < end_time)
           dbstop if warning stophere:RTDinfeasible;
         end
         if numberOfInfes ~= 0 && max(rpu_time) < time - PRTD/60 && max(rpu_time) < time
-            try winopen('TEMP\RTSCED.lst');catch;end;
+            try winopen('TEMP\RTSCED.lst');catch;end
             warning('stophere:RTDinfeasible', 'Infeasible RTD Solution');
         end
         catch
-        end;
+        end
         
         for x=1:size(RTSCED_RULES_POST_in,1)
-            try run(RTSCED_RULES_POST_in{x,1});catch;end;
-        end;
+            try run(RTSCED_RULES_POST_in{x,1});catch;end
+        end
 
         %assuming the solution started P minutes ago, and is directing
         %units dispatch schedules I minutes ahead for a H minute
@@ -2632,7 +2632,7 @@ while(time < end_time)
         
         for r=1:nreserve
             RTSCEDBINDINGRESERVE(RTSCED_binding_interval_index,1:1+ngen,r) = [RTD_LOOKAHEAD_INTERVAL_VAL(1,1) RTDGENRESERVESCHEDULE.val(:,1,r)'];
-        end;
+        end
         RTSCEDBINDINGRESERVEPRICE(RTSCED_binding_interval_index,:) = [RTD_LOOKAHEAD_INTERVAL_VAL(1,1) RTDRCP.val(:,1)'];
         RTSCEDBINDINGLOSSLOAD(RTSCED_binding_interval_index,:) = [RTD_LOOKAHEAD_INTERVAL_VAL(1,1) RTDLOSSLOAD.val(1,1)'];
         RTSCEDBINDINGINSUFFICIENTRESERVE(RTSCED_binding_interval_index,:) = [RTD_LOOKAHEAD_INTERVAL_VAL(1,1) RTDINSUFFRESERVE.val(1,:)];
@@ -2647,7 +2647,7 @@ while(time < end_time)
             DISPATCH(RTSCED_binding_interval_index,:) = RTSCEDBINDINGSCHEDULE(RTSCED_binding_interval_index,:);
             RESERVE(RTSCED_binding_interval_index,:,:) = RTSCEDBINDINGRESERVE(RTSCED_binding_interval_index,:,:);
             RESERVEPRICE(RTSCED_binding_interval_index,:) = RTSCEDBINDINGRESERVEPRICE(RTSCED_binding_interval_index,:);
-        end;
+        end
         
         RTSCEDSTORAGELEVEL(RTSCED_binding_interval_index,1:ngen)=RTDSTORAGELEVEL.val(:,1)';
         for i=1:ngen
@@ -2677,25 +2677,25 @@ while(time < end_time)
                 binding_vg_curtailment(i,1) = 1;
             else
                 binding_vg_curtailment(i,1) = 0;
-            end;
-        end;
+            end
+        end
         rtsced_running = 0;
 
         RTSCED_binding_interval_index = RTSCED_binding_interval_index + 1;
         
         if(RTDPrintResults ==1 )
             saveRT('RTD',RTSCED_binding_interval_index,PRTD,hour,minute,RTDPRODCOST.val,RTDGENSCHEDULE.val,RTDLMP.val,RTDUNITSTATUS.val,RTDLINEFLOW.val,RESERVETYPE.uels,nreserve,RTDGENRESERVESCHEDULE.val,RTDRCP.val,nbranch,BRANCHDATA.val,BRANCH.uels,HRTD,RTDLINEFLOWCTGC.val);
-        end;
+        end
         
-    end;
+    end
 
 %% Actual Generation
 
 
         
     for x=1:size(ACTUAL_OUTPUT_PRE_in,1)
-        try run(ACTUAL_OUTPUT_PRE_in{x,1});catch;end;
-    end;
+        try run(ACTUAL_OUTPUT_PRE_in{x,1});catch;end
+    end
     GEN_AGC_MODES=GENVALUE.val(:,gen_agc_mode);
     ACTUAL_GENERATION(AGC_interval_index,1) = time;
     ACTUAL_PUMP(AGC_interval_index,1) = time;
@@ -2721,13 +2721,13 @@ while(time < end_time)
                             else
                                 ACTUAL_GENERATION(AGC_interval_index,1+i) = ACTUAL_VG_FULL(AGC_interval_index,1+w);
 %                                 ACTUAL_GENERATION(AGC_interval_index,1+i) = min(ACTUAL_GENERATION(AGC_interval_index-1,1+i)+5,ACTUAL_VG_FULL(AGC_interval_index,1+w));
-                            end;
+                            end
                                 w=size(ACTUAL_VG_FIELD,2);
                             elseif(w==size(ACTUAL_VG_FIELD,2)-1)        %gone through entire list of VG and gen is not included
                                  ACTUAL_GENERATION(AGC_interval_index,1+i) = 0;
-                            end;
+                            end
                             w = w+1;
-                        end;
+                        end
                     elseif GENVALUE.val(i,gen_type) == 6 || GENVALUE.val(i,gen_type) == 8 || GENVALUE.val(i,gen_type) == 12
                         if PUMPING_VAL(i,1) == 1 || UNIT_PUMPINGDOWN_VAL(i,1) == 1 || (ACTUAL_PUMP(AGC_interval_index-1,1+i) > eps*10000)
                             ACTUAL_PUMP(AGC_interval_index,1+i) = min(STORAGEVALUE.val(i,max_pump),...
@@ -2741,7 +2741,7 @@ while(time < end_time)
                                 AGC_SCHEDULE(AGC_interval_index-1,1+i)*(1+(1-GENVALUE.val(i,behavior_rate))*randn(1)) ...
                                 + ((1-GENVALUE.val(i,behavior_rate))*randn(1))*(ACTUAL_GENERATION(AGC_interval_index-1,1+i)...
                                 - AGC_SCHEDULE(AGC_interval_index-2,1+i))));
-                        end;
+                        end
                         ACTUAL_STORAGE_LEVEL(AGC_interval_index,1+i) = min(STORAGEVALUE.val(i,storage_max),ACTUAL_STORAGE_LEVEL(AGC_interval_index-1,1+i) ...
                             - (t_AGC/60/60)*ACTUAL_GENERATION(AGC_interval_index,1+i) + (t_AGC/60/60)*ACTUAL_PUMP(AGC_interval_index,1+i)*STORAGEVALUE.val(i,efficiency));
                         %only works for constant efficiency.
@@ -2762,7 +2762,7 @@ while(time < end_time)
                             AGC_SCHEDULE(AGC_interval_index-1,1+i)*(1+(1-GENVALUE.val(i,behavior_rate))*randn(1)) ...
                             + ((1-GENVALUE.val(i,behavior_rate))*randn(1))*(ACTUAL_GENERATION(AGC_interval_index-1,1+i)...
                             - AGC_SCHEDULE(AGC_interval_index-2,1+i))));
-                    end;
+                    end
                 elseif AGC_interval_index ==2
                     if((GENVALUE.val(i,gen_type) == 10 || GENVALUE.val(i,gen_type) == 7)  )
                         w = 1;
@@ -2774,13 +2774,13 @@ while(time < end_time)
                                     AGC_SCHEDULE(AGC_interval_index-1,1+i)*(1+(1-GENVALUE.val(i,behavior_rate))*randn(1)))));
                             else
                                 ACTUAL_GENERATION(AGC_interval_index,1+i) = ACTUAL_VG_FULL(AGC_interval_index,1+w);
-                            end;
+                            end
                             w=nvg;
                             elseif(w==nvg)        %gone through entire list of VG and gen is not included
                                  ACTUAL_GENERATION(AGC_interval_index,1+i) = 0;
-                            end;
+                            end
                             w = w+1;
-                        end;
+                        end
                     elseif GENVALUE.val(i,gen_type) == 6 || GENVALUE.val(i,gen_type) == 8 || GENVALUE.val(i,gen_type) == 12
                         if PUMPING_VAL(i,1) == 1 || UNIT_PUMPINGDOWN_VAL(i,1) == 1
                             ACTUAL_PUMP(AGC_interval_index,1+i) = min(STORAGEVALUE.val(i,max_pump),...
@@ -2790,7 +2790,7 @@ while(time < end_time)
                             ACTUAL_GENERATION(AGC_interval_index,1+i) = min(GENVALUE.val(i,capacity),...
                                 max((UNIT_STATUS_VAL(i,1)-UNIT_STARTINGUP_VAL(i,1)-UNIT_SHUTTINGDOWN_VAL(i,1))*GENVALUE.val(i,min_gen),...
                                 AGC_SCHEDULE(AGC_interval_index-1,1+i)*(1+(1-GENVALUE.val(i,behavior_rate))*randn(1)))); 
-                        end;
+                        end
                         ACTUAL_STORAGE_LEVEL(AGC_interval_index,1+i) = min(STORAGEVALUE.val(i,storage_max),ACTUAL_STORAGE_LEVEL(AGC_interval_index-1,1+i) ...
                             - (t_AGC/60/60)*ACTUAL_GENERATION(AGC_interval_index,1+i) + (t_AGC/60/60)*ACTUAL_PUMP(AGC_interval_index,1+i)*STORAGEVALUE.val(i,efficiency));
                         %Only works for constant efficiency.
@@ -2809,49 +2809,49 @@ while(time < end_time)
                         ACTUAL_GENERATION(AGC_interval_index,1+i) = min(GENVALUE.val(i,capacity),...
                             max((UNIT_STATUS_VAL(i,1)-UNIT_STARTINGUP_VAL(i,1)-UNIT_SHUTTINGDOWN_VAL(i,1))*GENVALUE.val(i,min_gen),...
                             AGC_SCHEDULE(AGC_interval_index-1,1+i)*(1+(1-GENVALUE.val(i,behavior_rate))*randn(1)))); 
-                    end;
-                end;
-            end;
+                    end
+                end
+            end
             if ACTUAL_GENERATION(AGC_interval_index,1+i) < eps && GENVALUE.val(i,gen_type) ~= 14 && GENVALUE.val(i,gen_type) ~= 16
                 ACTUAL_GENERATION(AGC_interval_index,1+i) = 0;
             end
-        end;
+        end
         AGC_LAST = AGC_SCHEDULE(AGC_interval_index-1,:);
     else
         AGC_LAST = 0;
         ACE(1,:) = [time 0 0 0 0 0];
         Max_Reg_Limit_Hit=[0 0];
         Min_Reg_Limit_Hit=[0 0];
-    end;
+    end
         
     for x=1:size(ACTUAL_OUTPUT_POST_in,1)
-        try run(ACTUAL_OUTPUT_POST_in{x,1});catch;end;
-    end;
+        try run(ACTUAL_OUTPUT_POST_in{x,1});catch;end
+    end
     if AGC_interval_index > 1
         for i=1:ngen
             if ACTUAL_GENERATION(AGC_interval_index,1+i) > 0 && ACTUAL_GENERATION(AGC_interval_index-1,1+i) < eps
                 ACTUAL_START_TIME(i,1) = ACTUAL_GENERATION(AGC_interval_index-1,1);
-            end;
+            end
             if ACTUAL_GENERATION(AGC_interval_index,1+i) < eps || ACTUAL_GENERATION(AGC_interval_index,1+i) >= GENVALUE.val(i,min_gen)
                 ACTUAL_START_TIME(i,1) = inf;
-            end;
+            end
             if ACTUAL_PUMP(AGC_interval_index,1+i) > 0 && ACTUAL_PUMP(AGC_interval_index-1,1+i) < eps
                 ACTUAL_PUMPUP_TIME(i,1) = ACTUAL_PUMP(AGC_interval_index-1,1);
-            end;           
+            end           
             if ACTUAL_PUMP(AGC_interval_index,1+i) < eps
                 ACTUAL_PUMPUP_TIME(i,1) = inf;
-            end;
-        end;
+            end
+        end
     else
         for i=1:ngen
             if ACTUAL_GENERATION(AGC_interval_index,1+i) > 0 && GENVALUE.val(i,initial_MW) < eps
                ACTUAL_START_TIME(i,1) = -1*IDAC; 
-            end;
+            end
             if ACTUAL_PUMP(AGC_interval_index,1+i) > 0 && STORAGEVALUE.val(i,initial_pump_mw) < eps
                ACTUAL_PUMPUP_TIME(i,1) = -1*IDAC; 
-            end;
-        end;
-    end;
+            end
+        end
+    end
 
     
 %% AGC
@@ -2866,23 +2866,23 @@ while(time < end_time)
                 j=0;
             else
                 j=j-1;
-            end;
-        end;
+            end
+        end
     else
         next_RTD = DISPATCH(RTSCED_binding_interval_index-1,:);
         previous_RTD = DISPATCH(max(1,j),:);
         next_pump_RTD = PUMPDISPATCH(RTSCED_binding_interval_index-1,:);
-    end;
+    end
     if regulation_up_index == 0
         REGULATION_UP = zeros(1,ngen+1);
     else
         REGULATION_UP = RESERVE(RTSCED_binding_interval_index-1,:,regulation_up_index);
-    end;
+    end
     if regulation_down_index == 0
         REGULATION_DOWN = zeros(1,ngen+1);
     else
         REGULATION_DOWN = RESERVE(RTSCED_binding_interval_index-1,:,regulation_down_index);
-    end;
+    end
     
     % transmission losses = flow^2 * R
     bus_injection=-1*fullLoadDist*ACTUAL_LOAD_FULL(AGC_interval_index,2);
@@ -2916,21 +2916,21 @@ while(time < end_time)
             previous_CPS2_ACE = 0;
         else
             previous_CPS2_ACE = ACE(AGC_interval_index - 1,CPS2_ACE_index);
-        end;
+        end
         previous_SACE = ACE(max(1,AGC_interval_index - Type3_integral/t_AGC):AGC_interval_index-1, raw_ACE_index);
         previous_ACE_ABS = ACE(AGC_interval_index - 1,AACEE_index);
-    end;
+    end
     
     for x=1:size(ACE_PRE_in,1)
-        try run(ACE_PRE_in{x,1});catch;end; 
-    end;
+        try run(ACE_PRE_in{x,1});catch;end 
+    end
     
     [ACE_raw,ACE_int,AACEE,ACE_CPS2, SACE] = ACE_calculator(previous_ACE_int,previous_CPS2_ACE,previous_SACE,previous_ACE_ABS,current_gen_agc,current_load_agc,current_pump_agc,...
         CPS2_interval,K1,K2,t_AGC,ngen,losses);
 
     for x=1:size(ACE_POST_in,1)
-        try run(ACE_POST_in{x,1});catch;end; 
-    end;
+        try run(ACE_POST_in{x,1});catch;end 
+    end
 
     ACE(AGC_interval_index,ACE_time_index) = time; 
     ACE(AGC_interval_index,raw_ACE_index) = ACE_raw; 
@@ -2959,18 +2959,18 @@ while(time < end_time)
             ramp_agc(i,1) = STORAGEVALUE.val(i,pump_ramp_rate);
         else
             ramp_agc(i,1) = GENVALUE.val(i,ramp_rate);
-        end;
-    end;
+        end
+    end
     
     for x=1:size(AGC_RULES_PRE_in,1)
-        try run(AGC_RULES_PRE_in{x,1});catch;end;
-    end;
+        try run(AGC_RULES_PRE_in{x,1});catch;end
+    end
     
     AGC;
     
     for x=1:size(AGC_RULES_POST_in,1)
-        try run(AGC_RULES_POST_in{x,1});catch;end;
-    end;
+        try run(AGC_RULES_POST_in{x,1});catch;end
+    end
     
     
     % CTGC RPU
@@ -2979,12 +2979,12 @@ while(time < end_time)
             if actual_gen_forced_out(i,1) == 0
                 ctgc_start = 1;
                 ctgc_start_time = time;
-            end;
+            end
             actual_gen_forced_out(i,1) = 1;
         else
             actual_gen_forced_out(i,1) = 0;
-        end;
-    end;
+        end
+    end
     
     
 %% RPU
@@ -3004,7 +3004,7 @@ while(time < end_time)
         rpu_running = 1;
         for rpu_int = 1:HRPU
             RPU_LOOKAHEAD_INTERVAL_VAL(rpu_int,1) = time + rpu_int*IRPU/60;
-        end;
+        end
 
         clear LOAD
         t = 1; 
@@ -3018,7 +3018,7 @@ while(time < end_time)
                     + (1 - RPU_data_create_weighting)*RTD_LOAD_FULL(t,3);
                 rpu_int = rpu_int+1;
                 t=size_RTD_LOAD_FULL;
-            end;
+            end
             else
             if(time/24 - RTD_LOAD_FULL(t,1) >= 0)
                 RPU_data_create_weighting = max(0,(RTD_LOAD_FULL(t,2) - (time/24+IRPU/24/60))/(tRTD/60/24));
@@ -3026,18 +3026,18 @@ while(time < end_time)
                     + (1 - RPU_data_create_weighting)*RTD_LOAD_FULL(t,3);
                 rpu_int = rpu_int+1;
                 t=size_RTD_LOAD_FULL;
-            end;
-            end;
+            end
+            end
             t = t+1;
-        end;
+        end
         elseif rtd_load_data_create == 2 %perfect RPU forecast
             for rpu_int=1:HRPU
                 LOAD.val(rpu_int,1) = mean(ACTUAL_LOAD_FULL(min(size_ACTUAL_LOAD_FULL,max(1,AGC_interval_index + ...
                 rpu_int*IRPU*(60/t_AGC)-ceil(IRPU*(60/t_AGC)/2))):min(size_ACTUAL_LOAD_FULL,max(1,AGC_interval_index + rpu_int*IRPU*(60/t_AGC)+ceil(IRPU*(60/t_AGC)/2))),2));
-            end;
+            end
         elseif rtd_load_data_create ==3 %persistence RPU forecast
             LOAD.val = ones(HRPU,1).*ACTUAL_LOAD_FULL(AGC_interval_index-round(PRPU*60/t_AGC)-1,2);
-        end;
+        end
 
         t=1;
         rpu_int=1;
@@ -3051,7 +3051,7 @@ while(time < end_time)
                         + (1 - RPU_data_create_weighting).*RTD_VG_FULL(t,3:3+nvg-1));
                     rpu_int = rpu_int+1;
                     t=size_RTD_VG_FULL;
-                end;
+                end
                 else
                 if(time/24 - RTD_VG_FULL(t,1) >= 0 )
                     RPU_data_create_weighting = max(0,(RTD_VG_FULL(t,2) - (time/24+IRPU/24/60))/(tRTD/60/24));
@@ -3059,19 +3059,19 @@ while(time < end_time)
                         + (1 - RPU_data_create_weighting).*RTD_VG_FULL(t,3:3+nvg-1));
                     rpu_int = rpu_int+1;
                     t=size_RTD_VG_FULL;
-                end;
-                end;
+                end
+                end
                 t = t+1;
-            end;
+            end
             elseif rtd_vg_data_create == 2%perfect RPU forecast
                 for rpu_int=1:HRPU
                     vg_forecast_tmp(rpu_int,:) = mean(max(0,ACTUAL_VG_FULL(min(size_ACTUAL_VG_FULL,max(1,round(AGC_interval_index + ...
                     rpu_int*IRPU*(60/t_AGC)-IRPU*(60/t_AGC)/2))):min(size_ACTUAL_VG_FULL,max(1,AGC_interval_index + round(rpu_int*IRPU*(60/t_AGC)+IRPU*(60/t_AGC)/2))),2:end)));
-                end;
+                end
             elseif rtd_vg_data_create ==3%persistence RPU forecast
                  vg_forecast_tmp = ones(HRPU,1)*max(0,ACTUAL_VG_FULL(max(1,AGC_interval_index-round(PRPU*60/t_AGC)-1),2:end));
-            end;
-        end;
+            end
+        end
         clear VG_FORECAST_VAL;
         VG_FORECAST_VAL=zeros(HRPU,ngen);
         i=1;
@@ -3083,11 +3083,11 @@ while(time < end_time)
                     w=nvg;
                 elseif(w==nvg)            %gone through entire list of VG and gen is not included
                     VG_FORECAST_VAL(1:HRPU,i) = zeros(HRPU,1);
-                end;
+                end
                 w = w+1;
-            end;
+            end
             i = i+1;
-        end;
+        end
 
         clear RESERVELEVEL_VAL
         t = 1;
@@ -3096,14 +3096,14 @@ while(time < end_time)
             if(abs(RTD_RESERVE_FULL(t,1) - time/24) < IRTD/(60*24))
                 RESERVELEVEL_VAL(rpu_int,1:size(RTD_RESERVE_FIELD,2)-2) = RTD_RESERVE_FULL(t,3:end);
                 rpu_int = rpu_int+1;
-            end;
+            end
             t = t+1;
-        end;
+        end
         if rpu_int <= HRPU
             for t=rpu_int:HRPU
                 RESERVELEVEL_VAL = [RESERVELEVEL_VAL; RESERVELEVEL_VAL(rpu_int-1,:)];
-            end;
-        end;
+            end
+        end
         
         clear RPU_INTERCHANGE_VAL;
         RPU_INTERCHANGE_VAL=zeros(HRPU,max(1,ninterchange));
@@ -3113,15 +3113,15 @@ while(time < end_time)
             if(abs(RTD_INTERCHANGE_FULL(t,1) - time/24) < IRTD/(60*24))
                 RPU_INTERCHANGE_VAL(rpu_int,1:size(RTD_INTERCHANGE_FIELD,2)-2) = RTD_INTERCHANGE_FULL(t,3:end);
                 rpu_int = rpu_int+1;
-            end;
+            end
             t = t+1;
-        end;
+        end
         
         if RTSCUC_binding_interval_index <=2
             INITIAL_DISPATCH_SLACK.val = [1;0];
         else
             INITIAL_DISPATCH_SLACK.val = [0;0];
-        end;
+        end
         
         rpuinterval_index = round(time*rtscuc_I_perhour) + 1+1; %of the binding rtc interval. This is based on SCUC starting at hour 0!!!
         
@@ -3137,7 +3137,7 @@ while(time < end_time)
                 rpu_gen_forced_out(i,1) = 1;
             else
                 rpu_gen_forced_out(i,1) = 0;
-            end;
+            end
             if rpu_gen_forced_out(i,1) == 1
                 GEN_FORCED_OUT_VAL(i,1) = 1;
                 UNIT_STATUS_ENFORCED_ON_VAL(i,1:HRPU) = 0;
@@ -3152,29 +3152,29 @@ while(time < end_time)
                         UNIT_STATUS_ENFORCED_ON_VAL(i,t) = 0;
                     else
                         UNIT_STATUS_ENFORCED_ON_VAL(i,t) = STATUS(lookahead_index,i);
-                    end;
+                    end
                     if RTSCUCSHUT_YES(i,t) == 1
                         UNIT_STATUS_ENFORCED_OFF_VAL(i,t) = 1;
                     else
                         UNIT_STATUS_ENFORCED_ON_VAL(i,t) = ceil(STATUS(lookahead_index,i)-.01);
                         UNIT_STATUS_ENFORCED_OFF_VAL(i,t) = floor(STATUS(lookahead_index,i)+.01);
-                    end;
+                    end
                     if  RTSCUCPUMPSTART_YES(i,t) == 1
                         PUMPING_ENFORCED_ON_VAL(i,t) = 0;
                     else
                         PUMPING_ENFORCED_ON_VAL(i,t) = PUMPSTATUS(lookahead_index,i);
-                    end;
+                    end
                     if RTSCUCPUMPSHUT_YES(i,t) == 1
                         PUMPING_ENFORCED_OFF_VAL(i,t) = 1;
                     else
                         PUMPING_ENFORCED_OFF_VAL(i,t) = PUMPSTATUS(lookahead_index,i);
-                    end;
+                    end
 
                     t = t+1;
-                end;
-            end;
+                end
+            end
             i=i+1;
-        end;
+        end
         
         %For initial minimum on and down time constraints
         %min run time.
@@ -3192,13 +3192,13 @@ while(time < end_time)
                         else
                             min_down_interval_enforced = 0;
                             min_down_check_time = min_down_check_time + 1;
-                        end;
-                    end;
+                        end
+                    end
                     if min_down_interval_enforced > 0
                         UNIT_STATUS_ENFORCED_OFF_VAL(i,1:min_down_interval_enforced) = 0;
                         PUMPING_ENFORCED_OFF_VAL(i,1:min_down_interval_enforced) = 0;
-                    end;
-                end;
+                    end
+                end
                 if RTSCUCSHUT_YES(i,1)
                     min_run_check_start_time = max(1,RTSCUC_binding_interval_index -GENVALUE.val(i,mr_time)*rtscuc_I_perhour+1);
                     min_run_check_end_time = RTSCUC_binding_interval_index - 1;
@@ -3209,19 +3209,19 @@ while(time < end_time)
                             minrun_last_status = SCUCGENVALUE.val(i,initial_status);
                         else
                             minrun_last_status = STATUS(min_run_check_time-1,i);
-                        end;
+                        end
                         if STATUS(min_run_check_time,i)-minrun_last_status == 1
                             min_run_interval_enforced = GENVALUE.val(i,mr_time)*rtscuc_I_perhour - (min_run_check_end_time - min_run_check_time)-1;
                             min_run_check_time = min_run_check_end_time + 1;
                         else
                             min_run_interval_enforced = 0;
                             min_run_check_time = min_run_check_time + 1;
-                        end;
-                    end;
+                        end
+                    end
                     if min_run_interval_enforced > 0
                         UNIT_STATUS_ENFORCED_ON_VAL(i,1:min(HRPU,min_run_interval_enforced)) = 1;
-                    end;
-                end;
+                    end
+                end
                 if RTSCUCPUMPSHUT_YES(i,1)
                     min_pump_check_start_time = max(1,RTSCUC_binding_interval_index -STORAGEVALUE.val(i,min_pump_time)*rtscuc_I_perhour+1);
                     min_pump_check_end_time = RTSCUC_binding_interval_index - 1;
@@ -3232,38 +3232,38 @@ while(time < end_time)
                             minpump_last_status = SCUCSTORAGEVALUE.val(i,initial_pump_status);
                         else
                             minpump_last_status = PUMPSTATUS(min_pump_check_time-1,i);
-                        end;
+                        end
                         if PUMPSTATUS(min_pump_check_time,i)-minpump_last_status == 1
                             min_pump_interval_enforced = STORAGEVALUE.val(i,min_pump_time)*rtscuc_I_perhour - (min_pump_check_end_time - min_pump_check_time)-1;
                             min_pump_check_time = min_pump_check_end_time + 1;
                         else
                             min_pump_interval_enforced = 0;
                             min_pump_check_time = min_pump_check_time + 1;
-                        end;
-                    end;
+                        end
+                    end
                     while min_down_check_time <= min_down_check_end_time
                         if min_down_check_time == 1
                             mindown_last_status = SCUCGENVALUE.val(i,initial_status)+SCUCSTORAGEVALUE.val(i,initial_pump_status);
                         else
                             mindown_last_status = STATUS(min_down_check_time-1,i)+PUMPSTATUS(min_down_check_time-1,i);
-                        end;
+                        end
                         if mindown_last_status - (STATUS(max(1,min_down_check_time),i)+ PUMPSTATUS(max(1,min_down_check_time),i))== 1  
                             min_down_interval_enforced = GENVALUE.val(i,md_time)*rtscuc_I_perhour - (min_down_check_end_time - min_down_check_time)-1;
                             min_down_check_time = min_down_check_end_time + 1;
                         else
                             min_down_interval_enforced = 0;
                             min_down_check_time = min_down_check_time + 1;
-                        end;
-                    end;
+                        end
+                    end
                     if min_run_interval_enforced > 0
                         UNIT_STATUS_ENFORCED_ON_VAL(i,1:min(HRPU,min_run_interval_enforced)) = 1;
-                    end;
+                    end
                     if min_pump_interval_enforced > 0
                         PUMPING_ENFORCED_ON_VAL(i,1:min_pump_interval_enforced) = 1;
-                    end;
-                end;
-            end;
-        end;
+                    end
+                end
+            end
+        end
         
         %This is for interval 0 initial ramping constraints
         if (exist('DISPATCH','var') && RTSCED_binding_interval_index > 2)   
@@ -3276,23 +3276,23 @@ while(time < end_time)
                     LAST_STATUS_VAL(i,1) = 1;
                 else
                     LAST_STATUS_VAL(i,1) = 0;
-                end;
+                end
                 if LAST_PUMP_SCHEDULE_VAL(i,1) > 0
                     LAST_PUMPSTATUS_VAL (i,1) = 1;
                 else
                     LAST_PUMPSTATUS_VAL (i,1) = 0;
-                end;
+                end
                 if abs(ACTUAL_GEN_OUTPUT_VAL(i,1)) > 0
                     LAST_STATUS_ACTUAL_VAL(i,1) = 1;
                 else
                     LAST_STATUS_ACTUAL_VAL(i,1) = 0;
-                end;
+                end
                 if ACTUAL_PUMP_OUTPUT_VAL(i,1) > 0
                     LAST_PUMPSTATUS_ACTUAL_VAL(i,1) = 1;
                 else
                     LAST_PUMPSTATUS_ACTUAL_VAL(i,1) = 0;
-                end;
-            end;
+                end
+            end
         elseif(exist('DISPATCH','var') && RTSCED_binding_interval_index > 1)
             ACTUAL_GEN_OUTPUT_VAL = SCUCGENSCHEDULE.val(:,1); 
             LAST_GEN_SCHEDULE_VAL = DISPATCH(RTSCED_binding_interval_index-1,2:ngen+1)';
@@ -3303,23 +3303,23 @@ while(time < end_time)
                     LAST_STATUS_VAL(i,1) = 1;
                 else
                     LAST_STATUS_VAL(i,1) = 0;
-                end;
+                end
                 if LAST_PUMP_SCHEDULE_VAL(i,1) > 0
                     LAST_PUMPSTATUS_VAL (i,1) = 1;
                 else
                     LAST_PUMPSTATUS_VAL (i,1) = 0;
-                end;
+                end
                 if abs(ACTUAL_GEN_OUTPUT_VAL(i,1)) > 0
                     LAST_STATUS_ACTUAL_VAL(i,1) = 1;
                 else
                     LAST_STATUS_ACTUAL_VAL(i,1) = 0;
-                end;
+                end
                 if ACTUAL_PUMP_OUTPUT_VAL(i,1) > 0
                     LAST_PUMPSTATUS_ACTUAL_VAL(i,1) = 1;
                 else
                     LAST_PUMPSTATUS_ACTUAL_VAL(i,1) = 0;
-                end;
-            end;
+                end
+            end
         else
             ACTUAL_GEN_OUTPUT_VAL = SCUCGENSCHEDULE.val(:,1); 
             LAST_GEN_SCHEDULE_VAL = SCUCGENSCHEDULE.val(:,1);      
@@ -3332,20 +3332,20 @@ while(time < end_time)
                     LAST_STATUS_ACTUAL_VAL(i,1) = 1;
                 else
                     LAST_STATUS_ACTUAL_VAL(i,1) = 0;
-                end;
+                end
                 if ACTUAL_PUMP_OUTPUT_VAL(i,1) > 0
                     LAST_PUMPSTATUS_ACTUAL_VAL(i,1) = 1;
                 else
                     LAST_PUMPSTATUS_ACTUAL_VAL(i,1) = 0;
-                end;
-            end;
-        end;
+                end
+            end
+        end
         for i=1:ngen
             RAMP_SLACK_UP_VAL(i,1) = max(0,ACTUAL_GEN_OUTPUT_VAL(i,1) - (PRPU+IRPU)*GENVALUE.val(i,ramp_rate)...
                 - (LAST_GEN_SCHEDULE_VAL(i,1) + mod(time,tRTD)*GENVALUE.val(i,ramp_rate)));
             RAMP_SLACK_DOWN_VAL(i,1) = max(0, LAST_GEN_SCHEDULE_VAL(i,1) -  mod(time,tRTD)*GENVALUE.val(i,ramp_rate)...
                 - (ACTUAL_GEN_OUTPUT_VAL(i,1) + (PRPU+IRPU)*GENVALUE.val(i,ramp_rate)));
-        end;
+        end
         
         if time > 0 && time < daystosimulate*24-IRTC*HRTC/60
             indexofunitsSD=zeros(ngen,1);
@@ -3413,7 +3413,7 @@ while(time < end_time)
                    Initial_RPU_last_startup_check = GENVALUE.val(i,initial_status);
                else
                    Initial_RPU_last_startup_check = STATUS(startup_period_check_time-1,i);
-               end;
+               end
                if (STATUS(startup_period_check_time,i)-Initial_RPU_last_startup_check) == 1
                    INITIAL_STARTUP_PERIODS_VAL(i,1) = 1;
                    if startup_period_check_time <=1
@@ -3424,14 +3424,14 @@ while(time < end_time)
                        else
                            INTERVALS_STARTED_AGO_VAL(i,1) = 0;
                            INITIAL_STARTUP_PERIODS_VAL(i,1) = 0;
-                       end;
+                       end
                    else
                        INTERVALS_STARTED_AGO_VAL(i,1) = RTSCUC_binding_interval_index - startup_period_check_time;
                        STARTUP_MINGEN_HELPER_VAL(i,1) = GENVALUE.val(i,min_gen)*(time + IRPU/60 - ...
                            RTSCUCBINDINGSTARTUP(startup_period_check_time,1))/GENVALUE.val(i,su_time);
-                   end;
-               end;
-           end;
+                   end
+               end
+           end
            INITIAL_PUMPUP_PERIODS_VAL(i,1) = 0;
            INTERVALS_PUMPUP_AGO_VAL(i,1) = 0;
 
@@ -3442,7 +3442,7 @@ while(time < end_time)
                    Initial_RPU_last_pumpup_check = STORAGEVALUE.val(i,initial_pump_status);
                else
                    Initial_RPU_last_pumpup_check = PUMPSTATUS(pumpup_period_check_time-1,i);
-               end;
+               end
                if (PUMPSTATUS(pumpup_period_check_time,i)-Initial_RPU_last_pumpup_check) == 1
                    INITIAL_PUMPUP_PERIODS_VAL(i,1) = 1;
                    if pumpup_period_check_time <=1
@@ -3453,15 +3453,15 @@ while(time < end_time)
                        else
                            INTERVALS_PUMPUP_AGO_VAL(i,1) = 0;
                            INITIAL_STARTUP_PERIODS_VAL(i,1) = 0;
-                       end;
+                       end
                    else
                        INTERVALS_PUMPUP_AGO_VAL(i,1) = RTSCUC_binding_interval_index - pumpup_period_check_time;
                        %PUMPUP_MINGEN_HELPER_VAL(i,1) = STORAGEVALUE.val(i,min_pump)*(time + IRPU/60 - ...
                            %RTSCUCBINDINGPUMPSCHEDULE(pumpup_period_check_time,1))/STORAGEVALUE.val(i,pump_su_time);
-                   end;
-               end;
-           end;
-       end;
+                   end
+               end
+           end
+       end
         
         %Storage value for RTC
         %Basically, figure out the amount of money that the storage unit would
@@ -3475,7 +3475,7 @@ while(time < end_time)
                 else
                     RPU_STORAGE_LEVEL(i,1) = STORAGEVALUE.val(i,initial_storage)- (PRPU/60)*LAST_GEN_SCHEDULE_VAL(i,1) ...
                         + (PRPU/60)*LAST_PUMP_SCHEDULE_VAL(i,1)*STORAGEVALUE.val(i,efficiency);
-                end;
+                end
                 if ceil(RTC_LOOKAHEAD_INTERVAL_VAL(HRTC,1)+1) > size(DASCUCLMP,1)
                     RPU_RESERVOIR_VALUE(i,1) = SCUCSTORAGEVALUE.val(i,reservoir_value);
                 else
@@ -3488,7 +3488,7 @@ while(time < end_time)
                     /((1-mod(RTC_LOOKAHEAD_INTERVAL_VAL(HRTC,1)-eps,1))*SCUCGENSCHEDULE.val(i,floor(RTC_LOOKAHEAD_INTERVAL_VAL(HRTC,1)+1))...
                     + sum(SCUCGENSCHEDULE.val(i,ceil(RTC_LOOKAHEAD_INTERVAL_VAL(HRTC,1)+1:HDAC)))+SCUCSTORAGELEVEL.val(i,HDAC));
                 %}
-                end;
+                end
             elseif GENVALUE.val(i,gen_type) == 9 || GENVALUE.val(i,gen_type) == 11
                 %TBD
                 RPU_RESERVOIR_VALUE(i,1) = GENVALUE.val(i,efficiency)*((1-mod(RTC_LOOKAHEAD_INTERVAL_VAL(HRTC,1)-eps,1))*SCUCLMP.val(GENBUS(i,1),...
@@ -3500,8 +3500,8 @@ while(time < end_time)
             else
                 RPU_RESERVOIR_VALUE(i,1) = 0;
                 RPU_STORAGE_LEVEL(i,1)=0;
-            end;
-        end;
+            end
+        end
         
         STORAGEVALUE.val(:,reservoir_value) = RPU_RESERVOIR_VALUE;
         STORAGEVALUE.val(:,initial_storage) = RPU_STORAGE_LEVEL;
@@ -3512,7 +3512,7 @@ while(time < end_time)
         CREATE_RPU_GAMS_VARIABLES
         
         for x=1:size(RPU_RULES_PRE_in,1)
-            try run(RPU_RULES_PRE_in{x,1});catch;end; 
+            try run(RPU_RULES_PRE_in{x,1});catch;end 
         end
         if strcmp(use_Default_SCRPU,'YES')
             per_unitize;
@@ -3539,12 +3539,12 @@ while(time < end_time)
               dbstop if warning stophere:RPUinfeasible;
             end
             warning('stophere:RPUinfeasible', 'Infeasible RPU Solution');
-        end;
+        end
         catch
-        end;
+        end
         
         for x=1:size(RPU_RULES_POST_in,1)
-            try run(RPU_RULES_POST_in{x,1});catch;end; 
+            try run(RPU_RULES_POST_in{x,1});catch;end 
         end
         
         RPUBINDINGCOMMITMENT(RPU_binding_interval_index,1) = RPU_LOOKAHEAD_INTERVAL_VAL(1,1) ;
@@ -3560,7 +3560,7 @@ while(time < end_time)
         for rpu_int=1:HRPU
             STATUS(ceil(RPU_LOOKAHEAD_INTERVAL_VAL(rpu_int,1)*rtscuc_I_perhour) + 1,:) = round(RPUUNITSTATUS.val(:,rpu_int)');
             PUMPSTATUS(ceil(RPU_LOOKAHEAD_INTERVAL_VAL(rpu_int,1)*rtscuc_I_perhour) + 1,:) = round(RPUPUMPING.val(:,rpu_int)');
-        end;
+        end
         RPUBINDINGSHUTDOWN(RPU_binding_interval_index:RPU_binding_interval_index + HRPU - 1,2:1+ngen) = round(RPUUNITSHUTDOWN.val(:,:)');
         RPUBINDINGSCHEDULE(RPU_binding_interval_index:RPU_binding_interval_index + HRPU - 1,2:1+ngen) = RPUGENSCHEDULE.val(:,:)';
         RPUBINDINGPUMPSCHEDULE(RPU_binding_interval_index:RPU_binding_interval_index + HRPU - 1,2:1+ngen) = RPUPUMPSCHEDULE.val(:,:)';
@@ -3570,22 +3570,22 @@ while(time < end_time)
         for i=1:ngen
             if INITIAL_STARTUP_PERIODS_VAL(i,1) == 1
                 UNIT_STARTINGUP_VAL(i,1) = 1;
-            end;
+            end
             if RPUBINDINGSTARTUP(RPU_binding_interval_index,1+i) == 1;
                 RTSCUC_INITIAL_START_TIME(i,1) = time;
                 UNIT_STARTINGUP_VAL(i,1) = 1;
-            end;
+            end
             if RPUBINDINGSHUTDOWN(RPU_binding_interval_index,1+i) == 1;
                 UNIT_SHUTTINGDOWN_VAL(i,1) = 1;
-            end;
+            end
             if RPUBINDINGPUMPING(RPU_binding_interval_index,1+i) - PUMPSTATUS(RTSCUC_binding_interval_index-1,i) == 1;
                 RTSCUC_INITIAL_PUMPUP_TIME(i,1) = time;
-            end;
-        end;
+            end
+        end
         
         for r=1:nreserve
             RPUBINDINGRESERVE(RPU_binding_interval_index,1:1+ngen,r) = [RPU_LOOKAHEAD_INTERVAL_VAL(1,1) RPUGENRESERVESCHEDULE.val(:,1,r)'];
-        end;
+        end
         RPUBINDINGRESERVEPRICE(RTSCED_binding_interval_index,:) = [RPU_LOOKAHEAD_INTERVAL_VAL(1,1) RPURCP.val(:,1)'];
 
         %Need to save whether a wind/PV is directed to curtail so it can
@@ -3595,8 +3595,8 @@ while(time < end_time)
                 binding_vg_curtailment(i,1) = 1;
             else
                 binding_vg_curtailment(i,1) = 0;
-            end;
-        end;
+            end
+        end
         DISPATCH(RTSCED_binding_interval_index-1,:) = RPUBINDINGSCHEDULE(RPU_binding_interval_index,:);
         PUMPDISPATCH(RTSCED_binding_interval_index-1,:) = RPUBINDINGPUMPSCHEDULE(RPU_binding_interval_index,:);
         RESERVE(RTSCED_binding_interval_index-1,:,:) = RPUBINDINGRESERVE(RPU_binding_interval_index,:,:);
@@ -3607,9 +3607,9 @@ while(time < end_time)
         
         if(RTCPrintResults == 1)
             saveRT('RPU',RTSCUC_binding_interval_index,PRPU,hour,minute,RTCPRODCOST.val,RTCGENSCHEDULE.val,RTCLMP.val,RTCUNITSTATUS.val,RTCLINEFLOW.val,RESERVETYPE.uels,nreserve,RTCGENRESERVESCHEDULE.val,RTCRCP.val,nbranch,BRANCHDATA.val,BRANCH.uels,HRPU,RTCLINEFLOWCTGC.val);
-        end;
-    end;
-    end;
+        end
+    end
+    end
 
     %{
     HOW TO DO A RESTORATION OR USE OF REPLACEMENT RESERVES
@@ -3626,8 +3626,8 @@ while(time < end_time)
            stopcommand=sprintf('dbstop in FESTIV.m at %d',stoppingpoint);
            eval(stopcommand);
            time;
-        end;
-    end;
+        end
+    end
     Stop_FESTIV
     if stop == 1 && ~isdeployed
         Stack2  = dbstack;
@@ -3643,15 +3643,15 @@ while(time < end_time)
     if(second >= 60)
         second = floor(mod(second+eps,60));
         minute = minute + 1;
-    end;
+    end
     if(minute >= 60)
         minute = 0;
         hour = hour + 1;
-    end;
+    end
     if(hour >= 24)
         hour = 0;
         day = day+1;
-    end;
+    end
     if festiv.use_gui
       fprintf(1,'\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b %03d days %02d hrs %02d min %02d sec',day,hour,minute,second);
     end
@@ -3660,10 +3660,10 @@ while(time < end_time)
     rtsced_update = rtsced_update + t_AGC/60;
     dascuc_update = dascuc_update + t_AGC/(60*60);
     for x=1:size(RT_LOOP_POST_in,1)
-        try run(RT_LOOP_POST_in{x,1});catch;end; 
-    end;
+        try run(RT_LOOP_POST_in{x,1});catch;end 
+    end
     
-end;
+end
 fprintf('\n')
 tEnd = toc(tStart);
 fprintf('Simulation Complete! (%02.0f min, %05.2f s)\n',floor(tEnd/60),rem(tEnd,60));
@@ -3671,18 +3671,18 @@ fprintf('\nOutputs\n-------\n')
 
 %% Post Processing
 for x=1:size(POST_PROCESSING_PRE_in,1)
-    try run(POST_PROCESSING_PRE_in{x,1});catch;end; 
+    try run(POST_PROCESSING_PRE_in{x,1});catch;end 
 end
 
 CALCULATE_COSTS_AND_RELIABILITY_METRICS
 
 for x=1:size(POST_PROCESSING_POST_in,1)
-    try run(POST_PROCESSING_POST_in{x,1});catch;end; 
+    try run(POST_PROCESSING_POST_in{x,1});catch;end 
 end
 
 for x=1:size(SAVING_PRE_in,1)
-    try run(SAVING_PRE_in{x,1});catch;end;
-end;
+    try run(SAVING_PRE_in{x,1});catch;end
+end
 
 if ~ispc
   try
@@ -3701,11 +3701,11 @@ if strcmp(suppress_plots_in,'NO')
 end
 
 for x=1:size(SAVING_POST_in,1)
-    try run(SAVING_POST_in{x,1});catch;end;
-end;
+    try run(SAVING_POST_in{x,1});catch;end
+end
 
 %% Check For FESTIV End
-try numberofFESTIVrun=numberofFESTIVrun+1;catch;end;
+try numberofFESTIVrun=numberofFESTIVrun+1;catch;end
 if exist('multiplefilecheck')==1
     if multiplefilecheck == 0
         finishedrunningFESTIV=1;
@@ -3724,5 +3724,5 @@ end
 else
     finishedrunningFESTIV=1;
 end
-end;
+end
 %End program
