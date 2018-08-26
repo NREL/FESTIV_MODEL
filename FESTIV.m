@@ -33,7 +33,7 @@
 % is not cleared.
 
 %Set defaults when items not specified
-if not(exists('festiv', 'var'))
+if not(exist('festiv', 'var'))
     clear;
     festiv = struct;
     festiv.clear_for_restart = true;    %Remove this option struct at end of run
@@ -1242,7 +1242,7 @@ rtsced_update = tRTD + 1;
 
 fprintf('Complete! \n');
 fprintf('Beginning FESTIV Simulation...\n');
-if use_gui
+if festiv.use_gui
   fprintf(1,'Study Period: %03d days %02d hours %02d minutes %02d seconds\n',simulation_days+floor((hour_end+eps)/24),rem(hour_end,24),minute_end,second_end);
   fprintf(1,'Simulation Time = %03d days %02d hrs %02d min %02d sec',day,hour,minute,second);
 else
@@ -2168,7 +2168,7 @@ while(time < end_time)
         rtsced_update = 0;
         rtsced_running = 1;
         
-        if ~use_gui
+        if ~festiv.use_gui
           fprintf('Simulation Time = %02d days %02d hrs %02d min %02d sec\n', day, hour, minute, second);
         end
         
@@ -3652,7 +3652,7 @@ while(time < end_time)
         hour = 0;
         day = day+1;
     end;
-    if use_gui
+    if festiv.use_gui
       fprintf(1,'\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b %03d days %02d hrs %02d min %02d sec',day,hour,minute,second);
     end
     time = day*24 + hour + minute/60 + second/(60*60);
