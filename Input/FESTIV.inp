@@ -1,0 +1,6 @@
+inputPath = /Users/bpalmint/repos/FESTIV/Input/5_Bus_Tutorial/PJM_5_BUS.h5
+start_execution = 
+delete_old_files = Yes
+unit_out_num = 0
+simulation_days = 1
+rtc_vg_data_create = 9.00439

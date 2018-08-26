@@ -11,38 +11,63 @@
 % web('http://www.nrel.gov/electricity/transmission/festiv.html')">the FESTIV homepage</a>.
 %
 % To get started, just run 'FESTIV'
+% 
+%
+% Usage notes: FESTIV was developed as a script with an interactive front
+% end. As such it is not practical to have command line options through a
+% function call. But, this version does make it possible to configure things
+% without changing the code by defining variables in the mablab workspace
+% before running FESTIV. Specific options:
+%    festiv.run_path  Specify the directory to use for the run. This will
+%                      be the root folder for the scenario inputs (in
+%                      $run_path/Input, temp files (in $run_path/TEMP), and
+%                      outputs--you guessed it--in $run_path/OUTPUT.
+%                      (default = FESTIV directory) 
+%    festiv.use_gui   Start the FESTIV front end. if False, assumes a 
+%                      valid tempws.mat and tempws.txt exists in the input 
+%                      directory (default = true)
+%    festiv.solver    Specify MILP solver and configure options accordingly.
+%                      Options: 'cplex', 'gurobi' (default='cplex')
+% Note: if the festiv option structure does not exist, FESTIV will revert
+% to clearing the workspace before running. If it does exist, the workspace
+% is not cleared.
 
-%% Detect peregrine so you can set no-gui mode, set gams solver flags, and 
-%  modify workspace paths
-clear;
+%Set defaults when items not specified
+if not(exists('festiv', 'var'))
+    clear;
+    festiv = struct;
+    festiv.clear_for_restart = true;    %Remove this option struct at end of run
+end
+if not(isfield(festiv, 'clear_for_restart'))
+        festiv.clear_for_restart = false;
+end
 
-% these can now be set to any combination (on-hpc does not imply no-gui)
-use_gui = 1;    % default is use gui
-on_hpc  = 0;    % default is no hpc
-
-% running on hpc?
-[~,sysout] = system('dnsdomainname'); 
-sysout = strtrim(sysout);
-if strcmp(sysout, 'hpc.nrel.gov')
-  fprintf('Detected host hpc.nrel.gov\n')
-  on_hpc = 1;  % hpc flag
+if not(isfield(festiv, 'run_path'))
+    festiv.run_path = mfilename('fullpath');
+    festiv.run_path = fileparts(festiv.run_path); %First return is path, don't need others
+end
+if not(isfield(festiv, 'use_gui'))
+    festiv.use_gui = true;    % default is use gui
+end
+if not(isfield(festiv, 'solver'))
+    festiv.solver = 'cplex';
 end
 
 % is it even an option to use the gui?
-if use_gui && ~feature('ShowFigureWindows')
-  fprintf('Warning: use_gui was set to 1 but cannot open figure windows.\n')
-  use_gui = 0;
+if festiv.use_gui && ~feature('ShowFigureWindows')
+  fprintf('Warning: festiv.use_gui=true but cannot open figure windows.\n')
+  festiv.use_gui = false;
 end
-if ~use_gui
-  fprintf('No-gui mode enabled (use_gui = 0).\n')
+if ~festiv.use_gui
+  fprintf('No-gui mode enabled (festiv.use_gui = false).\n')
 end
 
 % set gams solver flags
-if on_hpc
-  gams_mip_flag = ' mip=gurobi ';
-  fprintf(['Set gams MIP flag : ', gams_mip_flag, '\n'])
-  gams_lp_flag = ' lp=gurobi ';
-  fprintf(['Set gams LP flag : ', gams_lp_flag, '\n'])
+if strcmpi(festiv.solver, 'gurobi')
+    gams_mip_flag = ' mip=gurobi ';
+    fprintf('Set gams MIP flag : %s\n', gams_mip_flag)
+    gams_lp_flag = ' lp=gurobi ';
+    fprintf('Set gams LP flag : %s\n', gams_lp_flag)
 else
   gams_mip_flag = ' ';
   gams_lp_flag = ' ';
@@ -54,16 +79,17 @@ if isunix
   hpc_convert_windows_paths;
 end
 
-if feature('ShowFigureWindows') && use_gui
-cancel=1;
-FESTIV_GUI 
-uiwait(gcf)
-pause on
-pause(0.1)
-pause off
+if feature('ShowFigureWindows') && festiv.use_gui
+    cancel=1;
+    FESTIV_GUI 
+    uiwait(gcf)
+    pause on
+    pause(0.1)
+    pause off
 else
-cancel=0;
+    cancel=0;
 end
+
 %clc;
 finishedrunningFESTIV=0 ;numberofFESTIVrun=1; gamspath=getgamspath();
 
@@ -3686,7 +3712,7 @@ if exist('multiplefilecheck')==1
     else
         if numberofFESTIVrun <= numofinputfiles
             finishedrunningFESTIV=0;
-            clearvars -except 'cancel' 'numberofFESTIVrun' 'finishedrunningFESTIV' 'multiplefilecheck' 'numofinputfiles' 'gamspath' 'on_hpc' 'use_gui' 'gams_mip_flag' 'gams_lp_flag';
+            clearvars -except 'cancel' 'numberofFESTIVrun' 'finishedrunningFESTIV' 'multiplefilecheck' 'numofinputfiles' 'gamspath' 'gams_mip_flag' 'gams_lp_flag';
         else
             finishedrunningFESTIV=1;
         end

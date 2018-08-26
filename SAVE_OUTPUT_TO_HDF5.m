@@ -3,8 +3,14 @@ if exist('multiplefilecheck')==1
         if autosavecheck==1
             print_final_results = outputname;
         else
-            print_final_results = input('Please type a filename to save the final results. Otherwise press enter.\n             (NOTE: Only open figures will be saved)\n','s');
-            outputname = print_final_results;
+            if festiv.use_gui
+                print_final_results = input('Please type a filename to save the final results. Otherwise press enter.\n             (NOTE: Only open figures will be saved)\n','s');
+                outputname = print_final_results;
+            else
+                c=clock;
+                print_final_results = sprintf('%s_%d_%d_%d_at_%02d_%02d',inputfilename,c(2),c(3),c(1),c(4),c(5));
+                outputname = print_final_results;
+            end
         end
     else
         print_final_results = outputname;       
