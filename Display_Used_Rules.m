@@ -1,4 +1,6 @@
-% Display all the rules that were used in the simulation
+% Display all the model rules currently configured in the simulation
+% Note: some model rules may be live configured, so be careful with
+% interpreting results
 try
     if ~isempty(DASCUC_RULES_PRE_in)
         fprintf('\nThe following rules were used before the DASCUC:\n');

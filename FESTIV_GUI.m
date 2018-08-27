@@ -25,7 +25,7 @@ try
         assignin('base','useHDF5',0);
     end
 catch
-end;
+end
 
 % create DASCUC information request
 uipanel('parent',mainFigure,'Title','DASCUC','units','normalized','Position', [.03 .24 .30 .5],'fontunits','normalized','fontsize',0.040,'BackgroundColor',get(mainFigure,'color'));
@@ -305,193 +305,193 @@ try
 catch
     assignin('base','DASCUC_RULES_PRE_in',[]);
     DASCUC_RULES_PRE_in=evalin('base','DASCUC_RULES_PRE_in');
-end;
+end
 try
     DASCUC_RULES_POST_in=evalin('base','DASCUC_RULES_POST_in');
 catch
     assignin('base','DASCUC_RULES_POST_in',[]);
     DASCUC_RULES_POST_in=evalin('base','DASCUC_RULES_POST_in');
-end;
+end
 try
     RTSCUC_RULES_PRE_in=evalin('base','RTSCUC_RULES_PRE_in');
 catch
     assignin('base','RTSCUC_RULES_PRE_in',[]);
     RTSCUC_RULES_PRE_in=evalin('base','RTSCUC_RULES_PRE_in');
-end;
+end
 try
     RTSCUC_RULES_POST_in=evalin('base','RTSCUC_RULES_POST_in');
 catch
     assignin('base','RTSCUC_RULES_POST_in',[]);
     RTSCUC_RULES_POST_in=evalin('base','RTSCUC_RULES_POST_in');
-end;
+end
 try
     RTSCED_RULES_PRE_in=evalin('base','RTSCED_RULES_PRE_in');
 catch
     assignin('base','RTSCED_RULES_PRE_in',[]);
     RTSCED_RULES_PRE_in=evalin('base','RTSCED_RULES_PRE_in');
-end;
+end
 try
     RTSCED_RULES_POST_in=evalin('base','RTSCED_RULES_POST_in');
 catch
     assignin('base','RTSCED_RULES_POST_in',[]);
     RTSCED_RULES_POST_in=evalin('base','RTSCED_RULES_POST_in');
-end;
+end
 try
     AGC_RULES_PRE_in=evalin('base','AGC_RULES_PRE_in');
 catch
     assignin('base','AGC_RULES_PRE_in',[]);
     AGC_RULES_PRE_in=evalin('base','AGC_RULES_PRE_in');
-end;
+end
 try
     AGC_RULES_POST_in=evalin('base','AGC_RULES_POST_in');
 catch
     assignin('base','AGC_RULES_POST_in',[]);
     AGC_RULES_POST_in=evalin('base','AGC_RULES_POST_in');
-end;
+end
 try
     RPU_RULES_PRE_in=evalin('base','RPU_RULES_PRE_in');
 catch
     assignin('base','RPU_RULES_PRE_in',[]);
     RPU_RULES_PRE_in=evalin('base','RPU_RULES_PRE_in');
-end;
+end
 try
     RPU_RULES_POST_in=evalin('base','RPU_RULES_POST_in');
 catch
     assignin('base','RPU_RULES_POST_in',[]);
     RPU_RULES_POST_in=evalin('base','RPU_RULES_POST_in');
-end;
+end
 try
     DATA_INITIALIZE_PRE_in=evalin('base','DATA_INITIALIZE_PRE_in');
 catch
     assignin('base','DATA_INITIALIZE_PRE_in',[]);
     DATA_INITIALIZE_PRE_in=evalin('base','DATA_INITIALIZE_PRE_in');
-end;
+end
 try
     DATA_INITIALIZE_POST_in=evalin('base','DATA_INITIALIZE_POST_in');
 catch
     assignin('base','DATA_INITIALIZE_POST_in',[]);
     DATA_INITIALIZE_POST_in=evalin('base','DATA_INITIALIZE_POST_in');
-end;
+end
 try
     FORECASTING_PRE_in=evalin('base','FORECASTING_PRE_in');
 catch
     assignin('base','FORECASTING_PRE_in',[]);
     FORECASTING_PRE_in=evalin('base','FORECASTING_PRE_in');
-end;
+end
 try
     FORECASTING_POST_in=evalin('base','FORECASTING_POST_in');
 catch
     assignin('base','FORECASTING_POST_in',[]);
     FORECASTING_POST_in=evalin('base','FORECASTING_POST_in');
-end;
+end
 try
     POST_PROCESSING_PRE_in=evalin('base','POST_PROCESSING_PRE_in');
 catch
     assignin('base','POST_PROCESSING_PRE_in',[]);
     POST_PROCESSING_PRE_in=evalin('base','POST_PROCESSING_PRE_in');
-end;
+end
 try
     POST_PROCESSING_POST_in=evalin('base','POST_PROCESSING_POST_in');
 catch
     assignin('base','POST_PROCESSING_POST_in',[]);
     POST_PROCESSING_POST_in=evalin('base','POST_PROCESSING_POST_in');
-end;
+end
 try
     RT_LOOP_PRE_in=evalin('base','RT_LOOP_PRE_in');
 catch
     assignin('base','RT_LOOP_PRE_in',[]);
     RT_LOOP_PRE_in=evalin('base','RT_LOOP_PRE_in');
-end;
+end
 try
     RT_LOOP_POST_in=evalin('base','RT_LOOP_POST_in');
 catch
     assignin('base','RT_LOOP_POST_in',[]);
     RT_LOOP_POST_in=evalin('base','RT_LOOP_POST_in');
-end;
+end
 try
     ACE_PRE_in=evalin('base','ACE_PRE_in');
 catch
     assignin('base','ACE_PRE_in',[]);
     ACE_PRE_in=evalin('base','ACE_PRE_in');
-end;
+end
 try
     ACE_POST_in=evalin('base','ACE_POST_in');
 catch
     assignin('base','ACE_POST_in',[]);
     ACE_POST_in=evalin('base','ACE_POST_in');
-end;
+end
 try
     FORCED_OUTAGE_PRE_in=evalin('base','FORCED_OUTAGE_PRE_in');
 catch
     assignin('base','FORCED_OUTAGE_PRE_in',[]);
     FORCED_OUTAGE_PRE_in=evalin('base','FORCED_OUTAGE_PRE_in');
-end;
+end
 try
     FORCED_OUTAGE_POST_in=evalin('base','FORCED_OUTAGE_POST_in');
 catch
     assignin('base','FORCED_OUTAGE_POST_in',[]);
     FORCED_OUTAGE_POST_in=evalin('base','FORCED_OUTAGE_POST_in');
-end;
+end
 try
     SHIFT_FACTOR_PRE_in=evalin('base','SHIFT_FACTOR_PRE_in');
 catch
     assignin('base','SHIFT_FACTOR_PRE_in',[]);
     SHIFT_FACTOR_PRE_in=evalin('base','SHIFT_FACTOR_PRE_in');
-end;
+end
 try
     SHIFT_FACTOR_POST_in=evalin('base','SHIFT_FACTOR_POST_in');
 catch
     assignin('base','SHIFT_FACTOR_POST_in',[]);
     SHIFT_FACTOR_POST_in=evalin('base','SHIFT_FACTOR_POST_in');
-end;
+end
 try
     ACTUAL_OUTPUT_PRE_in=evalin('base','ACTUAL_OUTPUT_PRE_in');
 catch
     assignin('base','ACTUAL_OUTPUT_PRE_in',[]);
     ACTUAL_OUTPUT_PRE_in=evalin('base','ACTUAL_OUTPUT_PRE_in');
-end;
+end
 try
     ACTUAL_OUTPUT_POST_in=evalin('base','ACTUAL_OUTPUT_POST_in');
 catch
     assignin('base','ACTUAL_OUTPUT_POST_in',[]);
     ACTUAL_OUTPUT_POST_in=evalin('base','ACTUAL_OUTPUT_POST_in');
-end;
+end
 try
     RELIABILITY_PRE_in=evalin('base','RELIABILITY_PRE_in');
 catch
     assignin('base','RELIABILITY_PRE_in',[]);
     RELIABILITY_PRE_in=evalin('base','RELIABILITY_PRE_in');
-end;
+end
 try
     RELIABILITY_POST_in=evalin('base','RELIABILITY_POST_in');
 catch
     assignin('base','RELIABILITY_POST_in',[]);
     RELIABILITY_POST_in=evalin('base','RELIABILITY_POST_in');
-end;
+end
 try
     COST_PRE_in=evalin('base','COST_PRE_in');
 catch
     assignin('base','COST_PRE_in',[]);
     COST_PRE_in=evalin('base','COST_PRE_in');
-end;
+end
 try
     COST_POST_in=evalin('base','COST_POST_in');
 catch
     assignin('base','COST_POST_in',[]);
     COST_POST_in=evalin('base','COST_POST_in');
-end;
+end
 try
     SAVING_PRE_in=evalin('base','SAVING_PRE_in');
 catch
     assignin('base','SAVING_PRE_in',[]);
     SAVING_PRE_in=evalin('base','SAVING_PRE_in');
-end;
+end
 try
     SAVING_POST_in=evalin('base','SAVING_POST_in');
 catch
     assignin('base','SAVING_POST_in',[]);
     SAVING_POST_in=evalin('base','SAVING_POST_in');
-end;
+end
 autoSaveName_edit=[];
 dac_modelinputFolderEditBox=[];
 dac_modelinputLocationListBox=[];
@@ -528,166 +528,166 @@ try
     a=evalin('base','HDAC_in');
     set(HDAC_in_edit,'string',num2str(a));
 catch
-end;
+end
 try
     a=evalin('base','IDAC_in');
     set(IDAC_in_edit,'string',num2str(a))
 catch
-end;
+end
 try 
     a=evalin('base','tDAC_in');
     set(tDAC_in_edit,'string',num2str(a));
 catch
-end;
+end
 try 
     a=evalin('base','GDAC_in');
     set(GDAC_in_edit,'string',num2str(a));
 catch
-end;
+end
 try 
     a=evalin('base','PDAC_in');
     set(PDAC_in_edit,'string',num2str(a));
 catch
-end;
+end
 try 
     a=evalin('base','DAHORIZONTYPE_in');
     set(DAHORIZONTYPE_in_edit,'value',a);
 catch
-end;
+end
 try 
     a=evalin('base','HRTC_in');
     set(HRTC_in_edit,'string',num2str(a));
 catch
-end;
+end
 try 
     a=evalin('base','IRTC_in');
     set(IRTC_in_edit,'string',num2str(a));
 catch
-end;
+end
 try 
     a=evalin('base','tRTC_in');
     set(tRTC_in_edit,'string',num2str(a));
 catch
-end;
+end
 try a=evalin('base','HRTD_in');
     set(HRTD_in_edit,'string',num2str(a));
 catch
-end;
+end
 try 
     a=evalin('base','IRTD_in');
     set(IRTD_in_edit,'string',num2str(a));
 catch
-end;
+end
 try 
     a=evalin('base','tRTD_in');
     set(tRTD_in_edit,'string',num2str(a));
 catch
-end;
+end
 try 
     a=evalin('base','daystosimulate');
     set(days_to_simulate_edit,'string',num2str(a));
 catch
-end;
+end
 
 
 try 
     a=evalin('base','hours_to_simulate_in');
     set(hours_to_simulate_edit,'string',num2str(a));
 catch
-end;
+end
 try 
     a=evalin('base','minutes_to_simulate_in');
     set(minutes_to_simulate_edit,'string',num2str(a));
 catch
-end;
+end
 try 
     a=evalin('base','seconds_to_simulate_in');
     set(seconds_to_simulate_edit,'string',num2str(a));
 catch
-end;
+end
 try 
     a=evalin('base','checkthenetwork');
     if strcmp(a,'YES')
     set(radiobutton1,'value',1)
     else
     set(radiobutton2,'value',1)
-    end;
+    end
 catch
-end;
+end
 try 
     a=evalin('base','contingencycheck');
     if strcmp(a,'YES')
     set(radiobutton4,'value',1)
     else
     set(radiobutton3,'value',1)
-    end;
+    end
 catch
-end;
+end
 try 
     a=evalin('base','PRTC_in');
     set(PRTC_in_edit,'string',num2str(a));
 catch
-end;
+end
 try 
     a=evalin('base','tRTCSTART_in');
     set(tRTCSTART_in_edit,'string',num2str(a));
 catch
-end;
+end
 try 
     a=evalin('base','PRTD_in');
     set(PRTD_in_edit,'string',num2str(a));
 catch
-end;
+end
 try 
     a=evalin('base','IRTDADV_in');
     set(IRTDADV_in_edit,'string',num2str(a));
 catch
-end;
+end
 try 
     a=evalin('base','DAC_load_forecast_data_create_in');
     set(DASCUCLF,'value',a);
 catch
-end;
+end
 try 
     a=evalin('base','DAC_vg_forecast_data_create_in');
     set(DASCUCVGF,'value',a);
 catch
-end;
+end
 try 
     a=evalin('base','RTC_load_forecast_data_create_in');
     set(RTSCUCLF,'value',a);
 catch
-end;
+end
 try 
     a=evalin('base','RTC_vg_forecast_data_create_in');
     set(RTSCUCVGF,'value',a);
 catch
-end;
+end
 try 
     a=evalin('base','RTD_load_forecast_data_create_in');
     set(RTSCEDLF,'value',a);
 catch
-end;
+end
 try
     a=evalin('base','RTD_vg_forecast_data_create_in');
     set(RTSCEDVGF,'value',a);
 catch
-end;
+end
 try
     a=evalin('base','DAC_RESERVE_FORECAST_MODE_in');
     set(DAC_RESERVE_FORECAST_MODE_in_GUI,'value',a);
 catch
-end;
+end
 try 
     a=evalin('base','RTC_RESERVE_FORECAST_MODE_in');
     set(RTC_RESERVE_FORECAST_MODE_in_GUI,'value',a);
 catch
-end;
+end
 try
     a=evalin('base','RTD_RESERVE_FORECAST_MODE_in');
     set(RTD_RESERVE_FORECAST_MODE_in_GUI,'value',a);
 catch
-end;
+end
 set(autosavecheck_in,'value',0);
 dac_default_checked();
 rtc_default_checked();
@@ -747,7 +747,7 @@ function MultipleRuns_callback(~,~)
     browseformultiple=uicontrol('parent',multipleRuns_figure,'units','normalized','position',[.855 .86 .10 .05],'string','Browse','style','pushbutton','fontunits','normalized','fontsize',0.4,'callback',{@browseformultiplefiles}); 
     uicontrol('parent',multipleRuns_figure,'units','normalized','position',[.87 .01 .10 .1],'string','Done','style','pushbutton','fontunits','normalized','fontsize',0.3,'callback',{@donemultiplefiles}); 
     uicontrol('parent',multipleRuns_figure,'units','normalized','position',[.03 .01 .10 .1],'string','Remove','style','pushbutton','fontunits','normalized','fontsize',0.3,'callback',{@removemultiplefiles}); 
-    try set(inputfilenamesformultiple,'string',get(inputFileEditBox,'string'));catch;end;
+    try set(inputfilenamesformultiple,'string',get(inputFileEditBox,'string'));catch;end
     x=evalin('base','MRcheck');
     set(multiplerunscheck,'value',x)
     if get(multiplerunscheck,'value')==1
@@ -768,8 +768,8 @@ function MultipleRuns_callback(~,~)
        set(inputfilenamesformultiple,'enable','off');
        set(browseformultiple,'enable','off');
     end
-    try inputfiles=evalin('base','tabledata');catch;end;
-    try set(simulationQueue,'data',inputfiles);catch;end;
+    try inputfiles=evalin('base','tabledata');catch;end
+    try set(simulationQueue,'data',inputfiles);catch;end
 end
 
 %% Remove run from multiple runs dialog box
@@ -1147,8 +1147,8 @@ function runFESTIV(~,~)
         assignin('base','multiplefilecheck',multiplefilecheck);
         useHDF5=evalin('base','useHDF5');
         close(gcf);
-        save tempws;
-        save tempws1;
+        save('tempws', '-regexp', '^((?!button).)*$'); %Save without any button objects
+%BP not needed?        save('tempws1', '-regexp', '^((?!button).)*$'); %Save without any button objects
     else
         if numberoffiles-1 <= 1
             warndlg(sprintf('''Multiple Runs'' checked but there are less than two runs in the queue.\nPlease uncheck ''Multiple Runs'' or add more runs to the queue.'),'!! Warning !!')
@@ -1196,12 +1196,12 @@ function dascuc_model_rules(~,~)
         temp1=evalin('base','DASCUC_RULES_PRE_in');
         set(dascucmodel_pre_list,'data',temp1);
     catch
-    end;
+    end
     try
         temp2=evalin('base','DASCUC_RULES_POST_in');
         set(dascucmodel_post_list,'data',temp2);
     catch
-    end;
+    end
     
     
 end
@@ -1230,12 +1230,12 @@ function rtscuc_model_rules(~,~)
         temp1=evalin('base','RTSCUC_RULES_PRE_in');
         set(rtscucmodel_pre_list,'data',temp1);
     catch
-    end;
+    end
     try
         temp2=evalin('base','RTSCUC_RULES_POST_in');
         set(rtscucmodel_post_list,'data',temp2);
     catch
-    end;
+    end
 end
 
 %% Create additional RTSCED Model Rules dialog box
@@ -1262,7 +1262,7 @@ function rtsced_model_rules(~,~)
         temp1=evalin('base','RTSCED_RULES_PRE_in');
         set(rtscedmodel_pre_list,'data',temp1);
     catch
-    end;
+    end
     try
         temp2=evalin('base','RTSCED_RULES_POST_in');
         set(rtscedmodel_post_list,'data',temp2);
@@ -2410,37 +2410,37 @@ function agc_input(~,~)
         a=evalin('base','CPS2_interval_in');
     	set(CPS2_interval_in_edit,'string',num2str(a));
     catch
-    end;
+    end
     try 
         a=evalin('base','L10_in');
     	set(L10_in_edit,'string',num2str(a));
     catch
-    end;
+    end
     try 
         a=evalin('base','Type3_integral_in');
     	set(Type3_integral_in_edit,'string',num2str(a));
     catch
-    end;
+    end
     try 
         a=evalin('base','K1_in');
     	set(K1_in_edit,'string',num2str(a));
     catch
-    end;
+    end
     try 
         a=evalin('base','K2_in');
     	set(K2_in_edit,'string',num2str(a));
     catch
-    end;
+    end
     try 
         a=evalin('base','agcmode');
     	set(agcmodes,'value',a);
     catch
-    end;
+    end
     try
         a=evalin('base','agc_deadband_in');
         set(agc_deadband_in_edit,'string',num2str(a));
     catch
-    end;
+    end
 end
 
 %% Gather the AGC parameters
@@ -2508,38 +2508,38 @@ function rpu_callback(~,~)
         a=evalin('base','HRPU_in');
         set(HRPU_in_edit,'string',num2str(a));
     catch
-    end;
+    end
     try 
         a=evalin('base','IRPU_in');
     	set(IRPU_in_edit,'string',num2str(a));
     catch
-    end;
+    end
     try 
         a=evalin('base','PRPU_in');
     	set(PRPU_in_edit,'string',num2str(a));
     catch
-    end;
+    end
     try 
         a=evalin('base','ACE_RPU_THRESHOLD_MW_in');
     	set(ACE_RPU_THRESHOLD_MW_in_edit,'string',num2str(a));
     catch
-    end;
+    end
     try 
         a=evalin('base','ACE_RPU_THRESHOLD_T_in');
     	set(ACE_RPU_THRESHOLD_T_in_edit,'string',num2str(a));
     catch
-    end;
+    end
     try 
         a=evalin('base','restrict_multiple_rpu_time_in');
     	set(restrict_multiple_rpu_time_in_edit,'string',num2str(a));
     catch
-    end;
+    end
     try
         if strcmp(evalin('base','ALLOW_RPU_in'),'YES')
             set(radiobutton5,'value',1)
         end
     catch
-    end;
+    end
 end
 
 %% Gather the RPU parameters
@@ -2879,7 +2879,7 @@ function build_gams_models_callback(~,~)
     set(tgroup,'SelectionChangeFcn',{@tab_changed_fcn});
     else
     set(tgroup,'SelectionChange',{@tab_changed_fcn});
-    end;
+    end
     assignin('base','tgroup',tgroup);
     tab1 = uitab('Parent', tgroup, 'Title', 'DASCUC');
     tab2 = uitab('Parent', tgroup, 'Title', 'RTSCUC');

@@ -3,7 +3,7 @@ if exist('multiplefilecheck')==1
         if autosavecheck==1
             print_final_results = outputname;
         else
-            if festiv.use_gui
+            if fopt.use_gui
                 print_final_results = input('Please type a filename to save the final results. Otherwise press enter.\n             (NOTE: Only open figures will be saved)\n','s');
                 outputname = print_final_results;
             else

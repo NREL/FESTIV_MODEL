@@ -18,52 +18,43 @@
 % function call. But, this version does make it possible to configure things
 % without changing the code by defining variables in the mablab workspace
 % before running FESTIV. Specific options:
-%    festiv.run_path  Specify the directory to use for the run. This will
+%    fopt.run_path  Specify the directory to use for the run. This will
 %                      be the root folder for the scenario inputs (in
 %                      $run_path/Input, temp files (in $run_path/TEMP), and
 %                      outputs--you guessed it--in $run_path/OUTPUT.
 %                      (default = FESTIV directory) 
-%    festiv.use_gui   Start the FESTIV front end. if False, assumes a 
+%    fopt.use_gui   Start the FESTIV front end. if False, assumes a 
 %                      valid tempws.mat and tempws.txt exists in the input 
 %                      directory (default = true)
-%    festiv.solver    Specify MILP solver and configure options accordingly.
+%    fopt.solver    Specify MILP solver and configure options accordingly.
 %                      Options: 'cplex', 'gurobi' (default='cplex')
-% Note: if the festiv option structure does not exist, FESTIV will revert
+% Note: if the fopt option structure does not exist, FESTIV will revert
 % to clearing the workspace before running. If it does exist, the workspace
 % is not cleared.
 
 %Set defaults when items not specified
-if not(exist('festiv', 'var'))
+if not(exist('fopt', 'var'))
     clear;
-    festiv = struct;
-    festiv.clear_for_restart = true;    %Remove this option struct at end of run
+    fopt = struct;
+    fopt.clear_for_restart = true;    %Remove this option struct at end of run
 end
-if not(isfield(festiv, 'clear_for_restart'))
-        festiv.clear_for_restart = false;
-end
+fopt = festivSetDefault(fopt, 'clear_for_restart', false);
+fopt = festivSetDefault(fopt, 'use_gui', true);
+fopt = festivSetDefault(fopt, 'solver','cplex');
 
-if not(isfield(festiv, 'run_path'))
-    festiv.run_path = mfilename('fullpath');
-    festiv.run_path = fileparts(festiv.run_path); %First return is path, don't need others
-end
-if not(isfield(festiv, 'use_gui'))
-    festiv.use_gui = true;    % default is use gui
-end
-if not(isfield(festiv, 'solver'))
-    festiv.solver = 'cplex';
-end
+fopt = festivSetDefault(fopt, 'run_path', [pwd filesep]); %Default to current directory for backwards compatability
 
 % is it even an option to use the gui?
-if festiv.use_gui && ~feature('ShowFigureWindows')
-  fprintf('Warning: festiv.use_gui=true but cannot open figure windows.\n')
-  festiv.use_gui = false;
+if fopt.use_gui && ~feature('ShowFigureWindows')
+  fprintf('Warning:fopt.use_gui=true but cannot open figure windows.\n')
+  fopt.use_gui = false;
 end
-if ~festiv.use_gui
-  fprintf('No-gui mode enabled (festiv.use_gui = false).\n')
+if ~fopt.use_gui
+  fprintf('No-gui mode enabled (fopt.use_gui = false).\n')
 end
 
 % set gams solver flags
-if strcmpi(festiv.solver, 'gurobi')
+if strcmpi(fopt.solver, 'gurobi')
     gams_mip_flag = ' mip=gurobi ';
     fprintf('Set gams MIP flag : %s\n', gams_mip_flag)
     gams_lp_flag = ' lp=gurobi ';
@@ -74,12 +65,16 @@ else
 end
 
 %% Input Prompt
-try load tempws;catch;end
+try 
+	load tempws;
+catch
+	disp('tempws.mat not loaded');
+end
 if isunix
   hpc_convert_windows_paths;
 end
 
-if feature('ShowFigureWindows') && festiv.use_gui
+if feature('ShowFigureWindows') && fopt.use_gui
     cancel=1;
     FESTIV_GUI 
     uiwait(gcf)
@@ -93,7 +88,7 @@ end
 %clc;
 finishedrunningFESTIV=0 ;numberofFESTIVrun=1; gamspath=getgamspath();
 
-%% Main while loop (for multiple scenarios)
+%% Multi-scenario outer loop
 while(finishedrunningFESTIV ~= 1)
 if cancel==0
 festivBanner;
@@ -141,6 +136,8 @@ for x=1:size(DATA_INITIALIZE_POST_in,1)
     try run(DATA_INITIALIZE_POST_in{x,1});catch;end 
 end
 
+Display_Used_Rules
+
 %% Forcast Inputs
 
 ACTUAL_LOAD_FULL = [];
@@ -187,15 +184,17 @@ try
         ACTUAL_Q_LOAD_FULL = [ACTUAL_Q_LOAD_FULL; ACTUAL_Q_LOAD_FULL_TMP];
     end
 catch
+    warning('FESTIV:Q_load_error', 'Unable to fully load reactive power data')
 end
 
 if useHDF5 == 1
     CREATE_HDF5_FORECAST_DATA
 end
 
-%Declare tAGC
+%Compute time interval for AGC (tAGC) in seconds based on actual load time interval 
 t_AGC=round((ACTUAL_LOAD_FULL(2,1)-ACTUAL_LOAD_FULL(1,1))*60*60*24);
 
+%Manage variable generation time series
 ACTUAL_VG_FULL(:,3:end)=ACTUAL_VG_FULL(:,3:end);
 for w=1:nvg
     i = 1;
@@ -286,8 +285,6 @@ end
 
 CREATE_SHIFT_FACTORS
 
-
-
 %RESERVE TYPES USED THROUGHOUT
 %Currently only one regulation, or a regup and regdown. nothing else is
 %distinguished throughout the code.
@@ -328,6 +325,10 @@ INITIALIZE_VARIABLES_FOR_RT
 
 tNow = toc(tStart);
 fprintf('Complete! (%02.0f min, %05.2f s)\n',floor(tNow/60),rem(tNow,60));
+% Print data modes
+disp('FESTIV Data modes. (1= From File, 2 = Perfect, 3 = Persistant, 4 = Predefined with NDE)')
+disp({'Modes', 'Load' ,'VG', 'Reserve';'DAC',dac_load_data_create,dac_vg_data_create,DAC_RESERVE_FORECAST_MODE;'RTC',rtc_load_data_create,rtc_vg_data_create,RTC_RESERVE_FORECAST_MODE;'RTD',rtd_load_data_create,rtd_vg_data_create,RTD_RESERVE_FORECAST_MODE})
+
 fprintf('Modeling Initial Day-Ahead Unit Commitment...')
 
 DASCUC_binding_interval_index = 1;
@@ -459,7 +460,11 @@ end
 CREATE_DAC_GAMS_VARIABLES
 
 for x=1:size(DASCUC_RULES_PRE_in,1)
-    try run(DASCUC_RULES_PRE_in{x,1});catch;end
+    try 
+        run(DASCUC_RULES_PRE_in{x,1});
+    catch
+        warning('FESTIV:MODEL_RULE_ERROR', 'Error running DASCUC_RULES_PRE_in rule #%d', x)
+    end
 end
 
 if strcmp(use_Default_DASCUC,'YES')
@@ -475,9 +480,12 @@ if strcmp(use_Default_DASCUC,'YES')
         GEN_FORCED_OUT,MAX_OFFLINE_TIME,INITIAL_STARTUP_COST_HELPER,INITIAL_STARTUP_PERIODS,INTERVALS_STARTED_AGO,INITIAL_PUMPUP_PERIODS,INTERVALS_PUMPUP_AGO,...
         INITIAL_SHUTDOWN_PERIODS,INTERVALS_SHUTDOWN_AGO,INITIAL_PUMPDOWN_PERIODS,INTERVALS_PUMPDOWN_AGO);
 
-    DASCUC_GAMS_CALL = ['gams ..', filesep, 'DASCUC.gms Lo=2 Cdir="',DIRECTORY,'TEMP" --DIRECTORY="',DIRECTORY,'" --INPUT_FILE="',inputPath,'" --NETWORK_CHECK="',NETWORK_CHECK,'" --CONTINGENCY_CHECK="',CONTINGENCY_CHECK,'" --USE_INTEGER="',USE_INTEGER,'" --USE_DEFAULT="',use_Default_DASCUC,'" --USEGAMS="',USEGAMS,'"', gams_mip_flag];
+    DASCUC_GAMS_CALL = ['gams ..', filesep, 'DASCUC.gms Lo=4 Cdir="',DIRECTORY,'TEMP" --DIRECTORY="',DIRECTORY,'" --INPUT_FILE="',inputPath,'" --NETWORK_CHECK="',NETWORK_CHECK,'" --CONTINGENCY_CHECK="',CONTINGENCY_CHECK,'" --USE_INTEGER="',USE_INTEGER,'" --USE_DEFAULT="',use_Default_DASCUC,'" --USEGAMS="',USEGAMS,'"', gams_mip_flag];
 
-    system(DASCUC_GAMS_CALL);
+    [status, gamsout] = system(DASCUC_GAMS_CALL);
+    if status ~= 0
+        error('FESTIV:GAMS_ERROR', 'Error running DASCUC in gams. See gamsout for system call output')
+    end
 
     [SCUCPRODCOST,SCUCGENSCHEDULE,SCUCLMP,SCUCUNITSTATUS,SCUCUNITSTARTUP,SCUCUNITSHUTDOWN,SCUCGENRESERVESCHEDULE,...
         SCUCRCP,SCUCLOADDIST,SCUCGENVALUE,SCUCSTORAGEVALUE,SCUCVGCURTAILMENT,SCUCLOAD,SCUCRESERVEVALUE,SCUCRESERVELEVEL,SCUCBRANCHDATA,...
@@ -573,7 +581,7 @@ time = start_time;
 
 %% Real-Time Set up
 delete_old_files = char(inifile(['Input', filesep, 'FESTIV.inp'],'read',{'','','delete_old_files',''}));
-if (strcmp(delete_old_files,'Yes') ==1 || strcmp(delete_old_files,'yes') ==1 || strcmp(delete_old_files,'YES') ==1)
+if strcmpi(delete_old_files,'Yes')
 %Real Time Set up
 %{
 The unit commitment solution will now be used as an input to the real-time
@@ -812,9 +820,13 @@ if strcmp(use_Default_RTSCUC,'YES')
         INTERVAL,NRTCINTERVAL,RTCINTERVAL_LENGTH,RTC_PROCESS_TIME,RTCINTERVAL_UPDATE,RTCSTART,RTCSHUT,RTCPUMPSTART,RTCPUMPSHUT,...
         LAST_STATUS,UNIT_STATUS_ENFORCED_ON,UNIT_STATUS_ENFORCED_OFF,RESERVELEVEL,VG_FORECAST,GENVALUE,STORAGEVALUE);
 
-    RTSCUC_GAMS_CALL = ['gams ..', filesep, 'RTSCUC.gms Lo=2 Cdir="',DIRECTORY,'TEMP" --DIRECTORY="',DIRECTORY,'" --INPUT_FILE="',inputPath,'" --NETWORK_CHECK="',NETWORK_CHECK,'" --CONTINGENCY_CHECK="',CONTINGENCY_CHECK,'" --USE_INTEGER="',USE_INTEGER,'" --USEGAMS="',USEGAMS,'"', gams_mip_flag];
+    RTSCUC_GAMS_CALL = ['gams ..', filesep, 'RTSCUC.gms Lo=4 Cdir="',DIRECTORY,'TEMP" --DIRECTORY="',DIRECTORY,'" --INPUT_FILE="',inputPath,'" --NETWORK_CHECK="',NETWORK_CHECK,'" --CONTINGENCY_CHECK="',CONTINGENCY_CHECK,'" --USE_INTEGER="',USE_INTEGER,'" --USEGAMS="',USEGAMS,'"', gams_mip_flag];
 
-    system(RTSCUC_GAMS_CALL);
+    [status, gamsout] = system(RTSCUC_GAMS_CALL);
+    if status ~= 0
+        error('FESTIV:GAMS_ERROR', 'Error running RTSCUC in gams. See gamsout for system call output')
+    end
+
     [RTCPRODCOST,RTCGENSCHEDULE,RTCLMP,RTCUNITSTATUS,RTCUNITSTARTUP,RTCUNITSHUTDOWN,RTCGENRESERVESCHEDULE,...
         RTCRCP,RTCLOADDIST,RTCGENVALUE,RTCSTORAGEVALUE,RTCVGCURTAILMENT,RTCLOAD,RTCRESERVEVALUE,RTCRESERVELEVEL,RTCBRANCHDATA,...
         RTCBLOCKCOST,RTCBLOCKMW,RTCBPRIME,RTCBGAMMA,RTCLOSSLOAD,RTCINSUFFRESERVE,RTCGEN,RTCBUS,RTCHOUR,...
@@ -1108,8 +1120,13 @@ if strcmp(use_Default_RTSCED,'YES')
          INTERVAL,NRTDINTERVAL,RTD_PROCESS_TIME,RTDINTERVAL_LENGTH,RTDINTERVAL_ADVISORY_LENGTH,RTDINTERVAL_UPDATE,...
          UNIT_PUMPINGDOWN_ACTUAL,UNIT_STARTINGUP_ACTUAL,UNIT_PUMPINGUP_ACTUAL,PUCOST_BLOCK_OFFSET,GENVALUE,STORAGEVALUE);
 
-    RTSCED_GAMS_CALL = ['gams ..', filesep, 'RTSCED.gms Lo=2 Cdir="',DIRECTORY,'TEMP" --DIRECTORY="',DIRECTORY,'" --INPUT_FILE="',inputPath,'" --NETWORK_CHECK="',NETWORK_CHECK,'" --CONTINGENCY_CHECK="',CONTINGENCY_CHECK,'" --USEGAMS="',USEGAMS,'"', gams_lp_flag];
-    system(RTSCED_GAMS_CALL);
+    RTSCED_GAMS_CALL = ['gams ..', filesep, 'RTSCED.gms Lo=4 Cdir="',DIRECTORY,'TEMP" --DIRECTORY="',DIRECTORY,'" --INPUT_FILE="',inputPath,'" --NETWORK_CHECK="',NETWORK_CHECK,'" --CONTINGENCY_CHECK="',CONTINGENCY_CHECK,'" --USEGAMS="',USEGAMS,'"', gams_lp_flag];
+
+    [status, gamsout] = system(RTSCED_GAMS_CALL);
+    if status ~= 0
+        error('FESTIV:GAMS_ERROR', 'Error running RTSCED in gams. See gamsout for system call output')
+    end
+    
     [RTDPRODCOST,RTDGENSCHEDULE,RTDLMP,RTDUNITSTATUS,RTDUNITSTARTUP,RTDUNITSHUTDOWN,RTDGENRESERVESCHEDULE,...
         RTDRCP,RTDLOADDIST,RTDGENVALUE,RTDSTORAGEVALUE,RTDVGCURTAILMENT,RTDLOAD,RTDRESERVEVALUE,RTDRESERVELEVEL,RTDBRANCHDATA,...
         RTDBLOCKCOST,RTDBLOCKMW,RTDBPRIME,RTDBGAMMA,RTDLOSSLOAD,RTDINSUFFRESERVE,RTDGEN,RTDBUS,RTDHOUR,...
@@ -1126,6 +1143,7 @@ end
 for x=1:size(RTSCED_RULES_POST_in,1)
     try run(RTSCED_RULES_POST_in{x,1});catch;end
 end
+
 
 %assuming the solution started t minutes ago, and is directing
 %units dispatch schedules I minutes ahead for a H hour
@@ -1242,16 +1260,24 @@ rtsced_update = tRTD + 1;
 
 fprintf('Complete! \n');
 fprintf('Beginning FESTIV Simulation...\n');
-if festiv.use_gui
-  fprintf(1,'Study Period: %03d days %02d hours %02d minutes %02d seconds\n',simulation_days+floor((hour_end+eps)/24),rem(hour_end,24),minute_end,second_end);
-  fprintf(1,'Simulation Time = %03d days %02d hrs %02d min %02d sec',day,hour,minute,second);
+fprintf('Study Period: %03d days %02d hours %02d minutes %02d seconds\n\n',simulation_days+floor((hour_end+eps)/24),rem(hour_end,24),minute_end,second_end);
+
+status_msg = sprintf('Simulation Time = %03d days %02d hrs %02d min %02d sec',day,hour,minute,second);
+if fopt.use_gui
+    progress_window = waitbar(time/end_time, status_msg);
 else
-  fprintf('Study Period: %03d days %02d hours %02d minutes %02d seconds\n',simulation_days+floor((hour_end+eps)/24),rem(hour_end,24),minute_end,second_end);
+    fprintf('%s\n', status_msg);
 end
 
 for x=1:size(RT_LOOP_PRE_in,1)
     try run(RT_LOOP_PRE_in{x,1});catch;end 
 end
+
+
+%=================================================================
+%                      Main FESTIV Loop
+%=================================================================
+
 
 while(time < end_time)
 %% Day-Ahead SCUC 
@@ -1474,7 +1500,10 @@ while(time < end_time)
                 GEN_FORCED_OUT,MAX_OFFLINE_TIME,INITIAL_STARTUP_COST_HELPER,INITIAL_STARTUP_PERIODS,INTERVALS_STARTED_AGO,INITIAL_PUMPUP_PERIODS,INTERVALS_PUMPUP_AGO,...
                 INITIAL_SHUTDOWN_PERIODS,INTERVALS_SHUTDOWN_AGO,INITIAL_PUMPDOWN_PERIODS,INTERVALS_PUMPDOWN_AGO,GENVALUE,STORAGEVALUE);
 
-            system(DASCUC_GAMS_CALL);
+            [status, gamsout] = system(DASCUC_GAMS_CALL);
+            if status ~= 0
+                error('FESTIV:GAMS_ERROR', 'Error running DASCUC in gams. See gamsout for system call output')
+            end
          
             [SCUCPRODCOST,SCUCGENSCHEDULE,SCUCLMP,SCUCUNITSTATUS,SCUCUNITSTARTUP,SCUCUNITSHUTDOWN,SCUCGENRESERVESCHEDULE,...
                 SCUCRCP,SCUCLOADDIST,SCUCGENVALUE,SCUCSTORAGEVALUE,SCUCVGCURTAILMENT,SCUCLOAD,SCUCRESERVEVALUE,SCUCRESERVELEVEL,SCUCBRANCHDATA,...
@@ -2062,7 +2091,11 @@ while(time < end_time)
                 INTERVAL,NRTCINTERVAL,RTCINTERVAL_LENGTH,RTC_PROCESS_TIME,RTCINTERVAL_UPDATE,RTCSTART,RTCSHUT,RTCPUMPSTART,RTCPUMPSHUT,...
                 LAST_STATUS,UNIT_STATUS_ENFORCED_ON,UNIT_STATUS_ENFORCED_OFF,RESERVELEVEL,VG_FORECAST,GENVALUE,STORAGEVALUE);
 
-            system(RTSCUC_GAMS_CALL);
+            [status, gamsout] = system(RTSCUC_GAMS_CALL);
+            if status ~= 0
+                error('FESTIV:GAMS_ERROR', 'Error running RTSCUC in gams. See gamsout for system call output')
+            end
+
             [RTCPRODCOST,RTCGENSCHEDULE,RTCLMP,RTCUNITSTATUS,RTCUNITSTARTUP,RTCUNITSHUTDOWN,RTCGENRESERVESCHEDULE,...
                 RTCRCP,RTCLOADDIST,RTCGENVALUE,RTCSTORAGEVALUE,RTCVGCURTAILMENT,RTCLOAD,RTCRESERVEVALUE,RTCRESERVELEVEL,RTCBRANCHDATA,...
                 RTCBLOCKCOST,RTCBLOCKMW,RTCBPRIME,RTCBGAMMA,RTCLOSSLOAD,RTCINSUFFRESERVE,RTCGEN,RTCBUS,RTCHOUR,...
@@ -2168,8 +2201,11 @@ while(time < end_time)
         rtsced_update = 0;
         rtsced_running = 1;
         
-        if ~festiv.use_gui
-          fprintf('Simulation Time = %02d days %02d hrs %02d min %02d sec\n', day, hour, minute, second);
+        status_msg = sprintf('Simulation Time = %03d days %02d hrs %02d min %02d sec',day,hour,minute,second);
+        if fopt.use_gui
+           waitbar(time/end_time,  progress_window, status_msg);
+        else
+            fprintf('%s\n', status_msg);
         end
         
 %         t = 1; 
@@ -2589,7 +2625,12 @@ while(time < end_time)
                  INTERVAL,NRTDINTERVAL,RTD_PROCESS_TIME,RTDINTERVAL_LENGTH,RTDINTERVAL_ADVISORY_LENGTH,RTDINTERVAL_UPDATE,...
                  UNIT_PUMPINGDOWN_ACTUAL,UNIT_STARTINGUP_ACTUAL,UNIT_PUMPINGUP_ACTUAL,PUCOST_BLOCK_OFFSET,GENVALUE,STORAGEVALUE);
 
-            system(RTSCED_GAMS_CALL);
+            [status, gamsout] = system(RTSCED_GAMS_CALL);
+            if status ~= 0
+                error('FESTIV:GAMS_ERROR', 'Error running RTSCED in gams. See gamsout for system call output')
+            end
+
+
             [RTDPRODCOST,RTDGENSCHEDULE,RTDLMP,RTDUNITSTATUS,RTDUNITSTARTUP,RTDUNITSHUTDOWN,RTDGENRESERVESCHEDULE,...
                 RTDRCP,RTDLOADDIST,RTDGENVALUE,RTDSTORAGEVALUE,RTDVGCURTAILMENT,RTDLOAD,RTDRESERVEVALUE,RTDRESERVELEVEL,RTDBRANCHDATA,...
                 RTDBLOCKCOST,RTDBLOCKMW,RTDBPRIME,RTDBGAMMA,RTDLOSSLOAD,RTDINSUFFRESERVE,RTDGEN,RTDBUS,RTDHOUR,...
@@ -2686,13 +2727,9 @@ while(time < end_time)
         if(RTDPrintResults ==1 )
             saveRT('RTD',RTSCED_binding_interval_index,PRTD,hour,minute,RTDPRODCOST.val,RTDGENSCHEDULE.val,RTDLMP.val,RTDUNITSTATUS.val,RTDLINEFLOW.val,RESERVETYPE.uels,nreserve,RTDGENRESERVESCHEDULE.val,RTDRCP.val,nbranch,BRANCHDATA.val,BRANCH.uels,HRTD,RTDLINEFLOWCTGC.val);
         end
-        
     end
 
 %% Actual Generation
-
-
-        
     for x=1:size(ACTUAL_OUTPUT_PRE_in,1)
         try run(ACTUAL_OUTPUT_PRE_in{x,1});catch;end
     end
@@ -3523,7 +3560,10 @@ while(time < end_time)
                 INTERVAL,NRTCINTERVAL,RTCINTERVAL_LENGTH,RTC_PROCESS_TIME,RTCINTERVAL_UPDATE,RTCSTART,RTCSHUT,RTCPUMPSTART,RTCPUMPSHUT,...
                 LAST_STATUS,UNIT_STATUS_ENFORCED_ON,UNIT_STATUS_ENFORCED_OFF,RESERVELEVEL,VG_FORECAST,GENVALUE,STORAGEVALUE);
 
-            system(RTSCUC_GAMS_CALL);
+            [status, gamsout] = system(RTSCUC_GAMS_CALL);
+            if status ~= 0
+                error('FESTIV:GAMS_ERROR', 'Error running RTSCUC in gams. See gamsout for system call output')
+            end
 
             [RPUPRODCOST,RPUGENSCHEDULE,RPULMP,RPUUNITSTATUS,RPUUNITSTARTUP,RPUUNITSHUTDOWN,RPUGENRESERVESCHEDULE,...
                 RPURCP,RPULOADDIST,RPUGENVALUE,RPUSTORAGEVALUE,RPUVGCURTAILMENT,RPULOAD,RPURESERVEVALUE,RPURESERVELEVEL,RPUBRANCHDATA,...
@@ -3652,18 +3692,19 @@ while(time < end_time)
         hour = 0;
         day = day+1;
     end
-    if festiv.use_gui
+    if fopt.use_gui
       fprintf(1,'\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b %03d days %02d hrs %02d min %02d sec',day,hour,minute,second);
     end
     time = day*24 + hour + minute/60 + second/(60*60);
     rtscuc_update = rtscuc_update + t_AGC/60;
     rtsced_update = rtsced_update + t_AGC/60;
     dascuc_update = dascuc_update + t_AGC/(60*60);
+
     for x=1:size(RT_LOOP_POST_in,1)
         try run(RT_LOOP_POST_in{x,1});catch;end 
     end
+end  %Main loop
     
-end
 fprintf('\n')
 tEnd = toc(tStart);
 fprintf('Simulation Complete! (%02.0f min, %05.2f s)\n',floor(tEnd/60),rem(tEnd,60));
@@ -3696,7 +3737,7 @@ else
     SAVE_CURRENT_FESTIV_CASE;  % Windows-Excel
 end
 
-if strcmp(suppress_plots_in,'NO')
+if strcmpi(suppress_plots_in,'NO') && fopt.use_gui == true
     CREATE_FESTIV_OUTPUT_PLOTS
 end
 
@@ -3724,5 +3765,11 @@ end
 else
     finishedrunningFESTIV=1;
 end
+
+if fopt.clear_for_restart
+    clear fopt
 end
+
+end  %Multi-run loop
 %End program
+disp('FESTIV has finished execution.')

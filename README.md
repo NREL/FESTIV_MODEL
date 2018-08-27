@@ -59,16 +59,9 @@ Welcome to the FESTIV GitHub Repo!
           /Applications/GAMS25.0/sysdir/wgdx.mexmaci64
           ```
 
-2. Make sure that the GAMS executable is accessible to the MATLAB shell:
+2. Change to the FESTIV directory in MATLAB. e.g.: `cd ~/repos/FESTIV`
 
-   * Try `system('gams')` at the MATLAB prompt
-     * If you get a bunch of text output, you are good to go
-     * If you get a Command not found error you need to add it to the path in the environment that MATLAB creates for its shells (which is different than your computer's shell setup) using `setenv('PATH', [getenv('PATH') ':' '$PATH_TO_GAMS/sysdir'])`
-     * Now recheck with `system('gams')`
-
-3. Change to the FESTIV directory in MATLAB. e.g.: `cd ~/repos/FESTIV`
-
-4. Double check FESTIV is in the path (b/c it is local file):
+3. Double check FESTIV is in the path (b/c it is local file):
 
    ````
    >> which FESTIV

@@ -23,8 +23,15 @@ function gamspath = getgamspath
             end
           end % if a (i.e. is gamside.exe found)
        end % if length == 1
-    else 
-        warning('FESTIV:gamspath','For non-Windows platforms the path to gams matlab files are assumed to be in MATLABPATH')
-        gamspath = '';
+    else
+        %For other platforms (Linux, Mac), assume gams executable in same
+        %directory as the compiled mex library and add this to the system()
+        %environment
+        if not(contains(getenv('PATH'), 'gams', 'IgnoreCase', true))
+            path_to_gams = fileparts(which('gams'));
+            fprintf('Assuming gams executable is in %s\n', path_to_gams)
+            setenv('PATH', [getenv('PATH') ':' path_to_gams])
+        end
+        gamspath = ''; %need to define to prevent errors
     end
 end
