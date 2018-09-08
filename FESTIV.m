@@ -11,7 +11,7 @@
 % web('http://www.nrel.gov/electricity/transmission/festiv.html')">the FESTIV homepage</a>.
 %
 % To get started, just run 'FESTIV'
-% 
+%
 %
 % Usage notes: FESTIV was developed as a script with an interactive front
 % end. As such it is not practical to have command line options through a
@@ -84,17 +84,23 @@ if feature('ShowFigureWindows') && fopt.use_gui
 else
     cancel=0;
 end
+create_gams_rules();
 
 %clc;
-finishedrunningFESTIV=0 ;numberofFESTIVrun=1; gamspath=getgamspath();
+%     disp('Failed to read from time.config');
 
 %% Multi-scenario outer loop
+finishedrunningFESTIV=0; numberofFESTIVrun=1;
+gamspath=getgamspath();
+
+
 while(finishedrunningFESTIV ~= 1)
 if cancel==0
 festivBanner;
 RTDFINALSTORAGEIN=[];RTCFINALSTORAGEIN=[];
 
 qq=strcat('tempws',num2str(numberofFESTIVrun));
+
 if exist('multiplefilecheck')==1
     if multiplefilecheck == 0
         inputPath = char(inifile(['Input', filesep, 'FESTIV.inp'],'read',{'','','inputPath',''}));
@@ -124,7 +130,12 @@ else
 %% Data and Inititialization
 
 for x=1:size(DATA_INITIALIZE_PRE_in,1)
-    try run(DATA_INITIALIZE_PRE_in{x,1});catch;end 
+    try 
+        run(DATA_INITIALIZE_PRE_in{x,1});
+    catch
+        %Use an error here, setup stage errors should be fatal
+        error('FESTIV:ModelRuleError', 'Unable to run pre-Data Initialize model rule %s, skipping', DATA_INITIALIZE_PRE_in{x,1}) 
+    end
 end
 
 INITIALIZE_VARIABLES_FROM_GUI_INPUTS
@@ -133,7 +144,12 @@ READ_IN_SYSTEM_DATA_FROM_EXCEL
 INPUT_FILE_VALIDATION
 
 for x=1:size(DATA_INITIALIZE_POST_in,1)
-    try run(DATA_INITIALIZE_POST_in{x,1});catch;end 
+    try 
+        run(DATA_INITIALIZE_POST_in{x,1});
+    catch
+        %Use an error here, setup stage errors should be fatal
+        error('FESTIV:ModelRuleError', 'Unable to run post-Data Initialize model rule %s, skipping', DATA_INITIALIZE_POST_in{x,1}) 
+    end
 end
 
 Display_Used_Rules
@@ -170,6 +186,7 @@ try
     for a =1:size(Q_LOAD_DIST_VAL,1)
         for b=1:size(Q_LOAD_DIST_VAL,2)
             if isfinite(Q_LOAD_DIST_VAL(a,b)) == 0
+%TODO: I think this should be a 1 column vector, should it even be set here?
                 Q_LOAD_DIST_VAL(a,b) = 0;
             end
         end
@@ -212,7 +229,12 @@ if nvg==0
 end
 
 for x=1:size(FORECASTING_PRE_in,1)
-    try run(FORECASTING_PRE_in{x,1});catch;end 
+    try 
+        run(FORECASTING_PRE_in{x,1});
+    catch
+        %Use an error here, setup stage errors should be fatal
+        error('FESTIV:ModelRuleError', 'Unable to run FORECASTING_PRE_in model rule %s, skipping', FORECASTING_PRE_in{x,1}) 
+    end
 end
 
 % Create Interchange forecasts if necessary
@@ -226,10 +248,17 @@ DEFINE_INTERCHANGES
 DAC_VG_FULL(DAC_VG_FULL<eps)=0;
 RTC_VG_FULL(RTC_VG_FULL<eps)=0;
 RTD_VG_FULL(RTD_VG_FULL<eps)=0;
+
 for x=1:size(FORECASTING_POST_in,1)
-    try run(FORECASTING_POST_in{x,1});catch;end 
+    try 
+        run(FORECASTING_POST_in{x,1});
+    catch
+        %Use an error here, setup stage errors should be fatal
+        error('FESTIV:ModelRuleError', 'Unable to run FORECASTING_POST_in model rule %s, skipping', FORECASTING_POST_in{x,1}) 
+    end
 end
-DAC_VG_FULL(:,1:2)=DAC_LOAD_FULL(:,1:2); 
+
+DAC_VG_FULL(:,1:2)=DAC_LOAD_FULL(:,1:2);
 hour = hour_beginning;
 minute = minute_beginning;
 second = second_beginning;
@@ -280,7 +309,12 @@ size_RTD_RESERVE_FULL = size(RTD_RESERVE_FULL,1);
 %% Shift Factor and other Calculations
 
 for x=1:size(SHIFT_FACTOR_PRE_in,1)
-    try run(SHIFT_FACTOR_PRE_in{x,1});catch;end
+    try 
+        run(SHIFT_FACTOR_PRE_in{x,1});
+    catch
+        %Use an error here, setup stage errors should be fatal
+        error('FESTIV:ModelRuleError', 'Unable to run pre-Shift Factor model rule %s, skipping', SHIFT_FACTOR_PRE_in{x,1}) 
+    end
 end
 
 CREATE_SHIFT_FACTORS
@@ -311,7 +345,12 @@ rpu_running = 0;
 
 
 for x=1:size(SHIFT_FACTOR_POST_in,1)
-    try run(SHIFT_FACTOR_POST_in{x,1});catch;end
+    try 
+        run(SHIFT_FACTOR_POST_in{x,1});
+    catch
+        %Use an error here, setup stage errors should be fatal
+        error('FESTIV:ModelRuleError', 'Unable to run SHIFT_FACTOR_POST_in model rule %s, skipping', SHIFT_FACTOR_POST_in{x,1}) 
+    end
 end
 
 use_Default_DASCUC = 'YES';
@@ -463,7 +502,7 @@ for x=1:size(DASCUC_RULES_PRE_in,1)
     try 
         run(DASCUC_RULES_PRE_in{x,1});
     catch
-        warning('FESTIV:MODEL_RULE_ERROR', 'Error running DASCUC_RULES_PRE_in rule #%d', x)
+        error('FESTIV:MODEL_RULE_ERROR', 'Error running DASCUC_RULES_PRE_in rule %s the first time', DASCUC_RULES_PRE_in{x,1})
     end
 end
 
@@ -499,8 +538,14 @@ DAModelSolutionStatus=[];
 DAModelSolutionStatus=[0 modelSolveStatus numberOfInfes solverStatus relativeGap];
 catch
 end
+
 for x=1:size(DASCUC_RULES_POST_in,1)
-    try run(DASCUC_RULES_POST_in{x,1});catch;end
+    try 
+        run(DASCUC_RULES_POST_in{x,1});
+    catch
+        %Use an error here, setup stage errors should be fatal
+        error('FESTIV:ModelRuleError', 'Unable to run DASCUC_RULES_POST_in model rule %s, skipping', DASCUC_RULES_POST_in{x,1}) 
+    end
 end
 
 DASCUCSCHEDULE((DASCUC_binding_interval_index-1)*HDAC+1:HDAC+(DASCUC_binding_interval_index-1)*HDAC,1) = (0:IDAC:HDAC*IDAC-IDAC)';
@@ -803,8 +848,13 @@ UNIT_STATUS_ENFORCED_OFF_VAL(GENVALUE.val(:,gen_type)==7|GENVALUE.val(:,gen_type
 CREATE_RTC_GAMS_VARIABLES
 
 for x=1:size(RTSCUC_RULES_PRE_in,1)
-    try run(RTSCUC_RULES_PRE_in{x,1});catch;end
+    try 
+        run(RTSCUC_RULES_PRE_in{x,1});
+    catch
+        error('FESTIV:MODEL_RULE_ERROR', 'Error running RTSCUC_RULES_PRE_in rule %s the first time', RTSCUC_RULES_PRE_in{x,1})
+    end
 end
+
 if strcmp(use_Default_RTSCUC,'YES')
     per_unitize;
     wgdx(['TEMP', filesep, 'RTSCUCINPUT1'],PTDF,BLOCK_COST,BLOCK_CAP,QSC,GEN_EFFICIENCY_BLOCK,GEN_EFFICIENCY_MW,PUMP_EFFICIENCY_BLOCK,PUMP_EFFICIENCY_MW,...
@@ -842,7 +892,12 @@ rtcmodeltracker=rtcmodeltracker+1;
 catch
 end
 for x=1:size(RTSCUC_RULES_POST_in,1)
-    try run(RTSCUC_RULES_POST_in{x,1});catch;end
+    try 
+        run(RTSCUC_RULES_POST_in{x,1});
+    catch
+        %Use an error here, setup stage errors should be fatal
+        error('FESTIV:ModelRuleError', 'Unable to run RTSCUC_RULES_POST_in model rule %s, skipping', RTSCUC_RULES_POST_in{x,1}) 
+    end
 end
 
 RTSCUCBINDINGCOMMITMENT(RTSCUC_binding_interval_index:RTSCUC_binding_interval_index + HRTC - 1,1) = RTC_LOOKAHEAD_INTERVAL_VAL ;
@@ -1103,8 +1158,13 @@ end
 CREATE_RTD_GAMS_VARIABLES
 
 for x=1:size(RTSCED_RULES_PRE_in,1)
-    try run(RTSCED_RULES_PRE_in{x,1});catch;end 
+    try 
+        run(RTSCED_RULES_PRE_in{x,1});
+    catch
+        error('FESTIV:MODEL_RULE_ERROR', 'Error running RTSCED_RULES_PRE_in rule %s the first time', RTSCED_RULES_PRE_in{x,1})
+    end
 end
+
 if strcmp(use_Default_RTSCED,'YES')
     per_unitize;
     wgdx(['TEMP', filesep, 'RTSCEDINPUT1'],PTDF,BRANCHDATA,PARTICIPATION_FACTORS,STORAGEPARAM,GEN,BUS,GENPARAM,RESERVEPARAM,...
@@ -1141,7 +1201,12 @@ rtdmodeltracker=rtdmodeltracker+1;
 catch
 end
 for x=1:size(RTSCED_RULES_POST_in,1)
-    try run(RTSCED_RULES_POST_in{x,1});catch;end
+    try 
+        run(RTSCED_RULES_POST_in{x,1});
+    catch
+        %Use an error here, setup stage errors should be fatal
+        error('FESTIV:ModelRuleError', 'Unable to run RTSCED_RULES_POST_in model rule %s, skipping', RTSCED_RULES_POST_in{x,1}) 
+    end
 end
 
 
@@ -1239,13 +1304,22 @@ finalvariablescounter=1;
 %% Forced Outages
 
 for x=1:size(FORCED_OUTAGE_PRE_in,1)
-    try run(FORCED_OUTAGE_PRE_in{x,1});catch;end
+    try 
+        run(FORCED_OUTAGE_PRE_in{x,1});
+    catch
+        error('FESTIV:MODEL_RULE_ERROR', 'Error running FORCED_OUTAGE_PRE_in rule %s', FORCED_OUTAGE_PRE_in{x,1})
+    end
 end
 
 DETERMINE_FORCED_GENERATOR_OUTAGES
 
 for x=1:size(FORCED_OUTAGE_POST_in,1)
-    try run(FORCED_OUTAGE_POST_in{x,1});catch;end
+    try 
+        run(FORCED_OUTAGE_POST_in{x,1});
+    catch
+        %Use an error here, setup stage errors should be fatal
+        error('FESTIV:ModelRuleError', 'Unable to run FORCED_OUTAGE_POST_in model rule %s, skipping', FORCED_OUTAGE_POST_in{x,1}) 
+    end
 end
 
 else
@@ -1270,7 +1344,12 @@ else
 end
 
 for x=1:size(RT_LOOP_PRE_in,1)
-    try run(RT_LOOP_PRE_in{x,1});catch;end 
+    try 
+        run(RT_LOOP_PRE_in{x,1});
+    catch
+        %Call full error during first execution
+        error('FESTIV:MODEL_RULE_ERROR', 'Error running RT_LOOP_PRE_in rule %s', RT_LOOP_PRE_in{x,1})
+    end
 end
 
 
@@ -1491,8 +1570,13 @@ while(time < end_time)
         CREATE_DAC_GAMS_VARIABLES
         
         for x=1:size(DASCUC_RULES_PRE_in,1)
-            try run(DASCUC_RULES_PRE_in{x,1});catch;end
+            try 
+                run(DASCUC_RULES_PRE_in{x,1});
+            catch
+                warning('FESTIV:MODEL_RULE_ERROR', 'Unable to run DASCUC_RULES_PRE_in rule %s, skipping', DASCUC_RULES_PRE_in{x,1})
+            end
         end
+
         if strcmp(use_Default_DASCUC,'YES')
             per_unitize;
             wgdx(['TEMP', filesep, 'DASCUCINPUT2'],LOSS_BIAS,BUS_DELIVERY_FACTORS,GEN_DELIVERY_FACTORS,LOAD,UNIT_STATUS_ENFORCED_ON,UNIT_STATUS_ENFORCED_OFF,...
@@ -1526,8 +1610,13 @@ while(time < end_time)
         end
 
         for x=1:size(DASCUC_RULES_POST_in,1)
-            try run(DASCUC_RULES_POST_in{x,1});catch;end
+            try 
+                run(DASCUC_RULES_POST_in{x,1});
+            catch
+                warning('FESTIV:MODEL_RULE_ERROR', 'Unable to run DASCUC_RULES_POST_in rule %s, skipping', DASCUC_RULES_POST_in{x,1})
+            end
         end
+        
         DASCUCSCHEDULE((DASCUC_binding_interval_index-1)*HDAC+1:HDAC+(DASCUC_binding_interval_index-1)*HDAC,1) = (dascuc_start_horizon:IDAC:dascuc_end_horizon-IDAC)';
         DASCUCSCHEDULE((DASCUC_binding_interval_index-1)*HDAC+1:HDAC+(DASCUC_binding_interval_index-1)*HDAC,2:ngen+1) = (SCUCGENSCHEDULE.val)';
         DASCUCMARGINALLOSS((DASCUC_binding_interval_index-1)*HDAC+1:HDAC+(DASCUC_binding_interval_index-1)*HDAC,1) = (dascuc_start_horizon:IDAC:dascuc_end_horizon-IDAC)';
@@ -2080,8 +2169,13 @@ while(time < end_time)
         CREATE_RTC_GAMS_VARIABLES
         
         for x=1:size(RTSCUC_RULES_PRE_in,1)
-            try run(RTSCUC_RULES_PRE_in{x,1});catch; end 
+            try 
+                run(RTSCUC_RULES_PRE_in{x,1});
+            catch
+                warning('FESTIV:MODEL_RULE_ERROR', 'Unable to run RTSCUC_RULES_PRE_in rule %s, skipping', RTSCUC_RULES_PRE_in{x,1})
+            end
         end
+        
         if strcmp(use_Default_RTSCUC,'YES')
             per_unitize;
             wgdx(['TEMP', filesep, 'RTSCUCINPUT2'],UNIT_STARTUP_ACTUAL,UNIT_PUMPUP_ACTUAL,LAST_STARTUP,LAST_SHUTDOWN,PUCOST_BLOCK_OFFSET,INTERCHANGE,LOSS_BIAS,...
@@ -2117,7 +2211,11 @@ while(time < end_time)
         end
         
         for x=1:size(RTSCUC_RULES_POST_in,1)
-            try run(RTSCUC_RULES_POST_in{x,1});catch; end 
+            try 
+                run(RTSCUC_RULES_POST_in{x,1});
+            catch
+                warning('FESTIV:MODEL_RULE_ERROR', 'Unable to run RTSCUC_RULES_POST_in rule %s, skipping', RTSCUC_RULES_POST_in{x,1})
+            end
         end
 
         RTSCUCBINDINGCOMMITMENT(RTSCUC_binding_interval_index:RTSCUC_binding_interval_index + HRTC - 1,1) = RTC_LOOKAHEAD_INTERVAL_VAL ;
@@ -2197,7 +2295,7 @@ while(time < end_time)
     end
     
 %% Real-Time SCED
-    if rtsced_update + eps >= tRTD  
+    if rtsced_update + eps >= tRTD 
         rtsced_update = 0;
         rtsced_running = 1;
         
@@ -2612,8 +2710,13 @@ while(time < end_time)
         CREATE_RTD_GAMS_VARIABLES
 
         for x=1:size(RTSCED_RULES_PRE_in,1)
-            try run(RTSCED_RULES_PRE_in{x,1});catch;end 
+            try 
+                run(RTSCED_RULES_PRE_in{x,1});
+            catch
+                warning('FESTIV:MODEL_RULE_ERROR', 'Unable to run RTSCED_RULES_PRE_in rule %s, skipping', RTSCED_RULES_PRE_in{x,1})
+            end
         end
+        
         if strcmp(use_Default_RTSCED,'YES')
             per_unitize;
             wgdx(['TEMP', filesep, 'RTSCEDINPUT2'],RESERVELEVEL,VG_FORECAST,UNIT_STATUS,UNIT_STARTINGUP,UNIT_STARTUPMINGENHELP,...
@@ -2651,7 +2754,11 @@ while(time < end_time)
         end
         
         for x=1:size(RTSCED_RULES_POST_in,1)
-            try run(RTSCED_RULES_POST_in{x,1});catch;end
+            try 
+                run(RTSCED_RULES_POST_in{x,1});
+            catch
+                warning('FESTIV:MODEL_RULE_ERROR', 'Unable to run RTSCED_RULES_POST_in rule %s, skipping', RTSCED_RULES_POST_in{x,1})
+            end
         end
 
         %assuming the solution started P minutes ago, and is directing
@@ -2731,8 +2838,13 @@ while(time < end_time)
 
 %% Actual Generation
     for x=1:size(ACTUAL_OUTPUT_PRE_in,1)
-        try run(ACTUAL_OUTPUT_PRE_in{x,1});catch;end
+        try 
+            run(ACTUAL_OUTPUT_PRE_in{x,1});
+        catch
+            warning('FESTIV:MODEL_RULE_ERROR', 'Unable to run ACTUAL_OUTPUT_PRE_in rule %s, skipping', ACTUAL_OUTPUT_PRE_in{x,1})
+        end
     end
+
     GEN_AGC_MODES=GENVALUE.val(:,gen_agc_mode);
     ACTUAL_GENERATION(AGC_interval_index,1) = time;
     ACTUAL_PUMP(AGC_interval_index,1) = time;
@@ -2861,9 +2973,13 @@ while(time < end_time)
         Min_Reg_Limit_Hit=[0 0];
     end
         
-    for x=1:size(ACTUAL_OUTPUT_POST_in,1)
-        try run(ACTUAL_OUTPUT_POST_in{x,1});catch;end
-    end
+	for x=1:size(ACTUAL_OUTPUT_POST_in,1)
+		try 
+			run(ACTUAL_OUTPUT_POST_in{x,1});
+		catch
+			warning('FESTIV:MODEL_RULE_ERROR', 'Unable to run ACTUAL_OUTPUT_POST_in rule %s, skipping', ACTUAL_OUTPUT_POST_in{x,1})
+		end
+	end
     if AGC_interval_index > 1
         for i=1:ngen
             if ACTUAL_GENERATION(AGC_interval_index,1+i) > 0 && ACTUAL_GENERATION(AGC_interval_index-1,1+i) < eps
@@ -2959,15 +3075,23 @@ while(time < end_time)
     end
     
     for x=1:size(ACE_PRE_in,1)
-        try run(ACE_PRE_in{x,1});catch;end 
+        try 
+            run(ACE_PRE_in{x,1});
+        catch
+            warning('FESTIV:MODEL_RULE_ERROR', 'Unable to run ACE_PRE_in rule %s, skipping', ACE_PRE_in{x,1})
+        end
     end
     
     [ACE_raw,ACE_int,AACEE,ACE_CPS2, SACE] = ACE_calculator(previous_ACE_int,previous_CPS2_ACE,previous_SACE,previous_ACE_ABS,current_gen_agc,current_load_agc,current_pump_agc,...
         CPS2_interval,K1,K2,t_AGC,ngen,losses);
 
-    for x=1:size(ACE_POST_in,1)
-        try run(ACE_POST_in{x,1});catch;end 
-    end
+	for x=1:size(ACE_POST_in,1)
+		try 
+			run(ACE_POST_in{x,1});
+		catch
+			warning('FESTIV:MODEL_RULE_ERROR', 'Unable to run ACE_POST_in rule %s, skipping', ACE_POST_in{x,1})
+		end
+	end
 
     ACE(AGC_interval_index,ACE_time_index) = time; 
     ACE(AGC_interval_index,raw_ACE_index) = ACE_raw; 
@@ -3000,15 +3124,22 @@ while(time < end_time)
     end
     
     for x=1:size(AGC_RULES_PRE_in,1)
-        try run(AGC_RULES_PRE_in{x,1});catch;end
+        try 
+            run(AGC_RULES_PRE_in{x,1});
+        catch
+            warning('FESTIV:ModelRuleError', 'Unable to run pre-AGC model rule %s, skipping', AGC_RULES_PRE_in{x,1}) 
+        end
     end
     
     AGC;
     
     for x=1:size(AGC_RULES_POST_in,1)
-        try run(AGC_RULES_POST_in{x,1});catch;end
-    end
-    
+        try 
+            run(AGC_RULES_POST_in{x,1});
+        catch
+            warning('FESTIV:ModelRuleError', 'Unable to run post-AGC model rule %s, skipping', AGC_RULES_POST_in{x,1}) 
+        end
+    end    
     
     % CTGC RPU
     for i=1:ngen
@@ -3549,8 +3680,13 @@ while(time < end_time)
         CREATE_RPU_GAMS_VARIABLES
         
         for x=1:size(RPU_RULES_PRE_in,1)
-            try run(RPU_RULES_PRE_in{x,1});catch;end 
+            try 
+                run(RPU_RULES_PRE_in{x,1});
+            catch
+                warning('FESTIV:MODEL_RULE_ERROR', 'Unable to run RPU_RULES_PRE_in rule %s, skipping', RPU_RULES_PRE_in{x,1})
+            end
         end
+        
         if strcmp(use_Default_SCRPU,'YES')
             per_unitize;
             wgdx(['TEMP', filesep, 'RTSCUCINPUT2'],UNIT_STARTUP_ACTUAL,UNIT_PUMPUP_ACTUAL,LAST_STARTUP,LAST_SHUTDOWN,PUCOST_BLOCK_OFFSET,INTERCHANGE,LOSS_BIAS,...
@@ -3584,9 +3720,13 @@ while(time < end_time)
         end
         
         for x=1:size(RPU_RULES_POST_in,1)
-            try run(RPU_RULES_POST_in{x,1});catch;end 
+            try 
+                run(RPU_RULES_POST_in{x,1});
+            catch
+                warning('FESTIV:MODEL_RULE_ERROR', 'Unable to run RPU_RULES_POST_in rule %s, skipping', RPU_RULES_POST_in{x,1})
+            end
         end
-        
+
         RPUBINDINGCOMMITMENT(RPU_binding_interval_index,1) = RPU_LOOKAHEAD_INTERVAL_VAL(1,1) ;
         RPUBINDINGCOMMITMENT(RPU_binding_interval_index,1) = RPU_LOOKAHEAD_INTERVAL_VAL(1,1);
         RPUBINDINGSHUTDOWN(RPU_binding_interval_index,1) = RPU_LOOKAHEAD_INTERVAL_VAL(1,1) ;
@@ -3700,11 +3840,15 @@ while(time < end_time)
     rtsced_update = rtsced_update + t_AGC/60;
     dascuc_update = dascuc_update + t_AGC/(60*60);
 
-    for x=1:size(RT_LOOP_POST_in,1)
-        try run(RT_LOOP_POST_in{x,1});catch;end 
-    end
+	for x=1:size(RT_LOOP_POST_in,1)
+		try 
+			run(RT_LOOP_POST_in{x,1});
+		catch
+			warning('FESTIV:MODEL_RULE_ERROR', 'Unable to run RT_LOOP_POST_in rule %s, skipping', RT_LOOP_POST_in{x,1})
+		end
+	end
 end  %Main loop
-    
+
 fprintf('\n')
 tEnd = toc(tStart);
 fprintf('Simulation Complete! (%02.0f min, %05.2f s)\n',floor(tEnd/60),rem(tEnd,60));
@@ -3712,17 +3856,29 @@ fprintf('\nOutputs\n-------\n')
 
 %% Post Processing
 for x=1:size(POST_PROCESSING_PRE_in,1)
-    try run(POST_PROCESSING_PRE_in{x,1});catch;end 
+    try 
+        run(POST_PROCESSING_PRE_in{x,1});
+    catch
+        warning('FESTIV:MODEL_RULE_ERROR', 'Unable to run POST_PROCESSING_PRE_in rule %s, skipping', POST_PROCESSING_PRE_in{x,1})
+    end
 end
 
 CALCULATE_COSTS_AND_RELIABILITY_METRICS
 
 for x=1:size(POST_PROCESSING_POST_in,1)
-    try run(POST_PROCESSING_POST_in{x,1});catch;end 
+    try 
+        run(POST_PROCESSING_POST_in{x,1});
+    catch
+        warning('FESTIV:MODEL_RULE_ERROR', 'Unable to run POST_PROCESSING_POST_in rule %s, skipping', POST_PROCESSING_POST_in{x,1})
+    end
 end
 
 for x=1:size(SAVING_PRE_in,1)
-    try run(SAVING_PRE_in{x,1});catch;end
+    try 
+        run(SAVING_PRE_in{x,1});
+    catch
+        warning('FESTIV:MODEL_RULE_ERROR', 'Unable to run SAVING_PRE_in rule %s, skipping', SAVING_PRE_in{x,1})
+    end
 end
 
 if ~ispc
@@ -3742,7 +3898,11 @@ if strcmpi(suppress_plots_in,'NO') && fopt.use_gui == true
 end
 
 for x=1:size(SAVING_POST_in,1)
-    try run(SAVING_POST_in{x,1});catch;end
+    try 
+        run(SAVING_POST_in{x,1});
+    catch
+        warning('FESTIV:MODEL_RULE_ERROR', 'Unable to run SAVING_POST_in rule %s, skipping', SAVING_POST_in{x,1})
+    end
 end
 
 %% Check For FESTIV End
