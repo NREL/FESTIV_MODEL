@@ -1,0 +1,9 @@
+=start
+$IF EXIST TOTAL_RTSCUCOUTPUT EXECUTE_LOADPOINT 'TOTAL_RTSCUCOUTPUT';
+RTC.iterlim =500000;
+RTC.optcr = 0.001;
+RTC.reslim = 1800;
+option solvelink=5;
+RTC.OptFile = 1;
+option limrow=10000;
+=end

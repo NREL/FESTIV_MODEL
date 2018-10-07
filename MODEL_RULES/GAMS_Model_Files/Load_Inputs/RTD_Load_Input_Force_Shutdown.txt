@@ -1,0 +1,5 @@
+=start
+$gdxin Force_Shutdown_File
+$LOAD REDUCE_OUTPUT_PREPARE_SHUTDOWN
+$LOAD FORCE_SHUTDOWN_GEN
+=end

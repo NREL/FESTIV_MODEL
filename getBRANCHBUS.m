@@ -1,4 +1,4 @@
-function [BRANCHBUSTABLE]=getBRANCHBUS(path)
+function [BRANCHBUS_VAL,BRANCHBUS_STRING]=getBRANCHBUS(path)
     %% Create the BRANCHBUS variable for GAMS
     inputfilepath=path;
     useHDF5=evalin('caller','useHDF5');
@@ -34,11 +34,8 @@ function [BRANCHBUSTABLE]=getBRANCHBUS(path)
     uniquefromids=unique(SEPERATED_BRANCH_DATA(:,2));
     uniquetoids=unique(SEPERATED_BRANCH_DATA(:,3));
 
-    BRANCHBUSTABLE.name='BRANCHBUS';
-    BRANCHBUSTABLE.form='full';
-    BRANCHBUSTABLE.type='set';
-    BRANCHBUSTABLE.uels={BRANCH_DATA(:,1)',uniquefromids',uniquetoids'};
-    BRANCHBUSTABLE.val=zeros(size(BRANCH_DATA,1),size(uniquefromids,1),size(uniquetoids,1));
+    BRANCHBUS_STRING={BRANCH_DATA(:,1)',uniquefromids',uniquetoids'};
+    BRANCHBUS_VAL=zeros(size(BRANCH_DATA,1),size(uniquefromids,1),size(uniquetoids,1));
 
     %% Fill in branch locations
     for a=1:size(BRANCH_DATA,1)
@@ -46,7 +43,7 @@ function [BRANCHBUSTABLE]=getBRANCHBUS(path)
             if strcmp(uniquefromids(b,1),SEPERATED_BRANCH_DATA(a,2))
                 for c=1:size(uniquetoids,1)
                     if strcmp(uniquetoids(c,1),SEPERATED_BRANCH_DATA(a,3))
-                        BRANCHBUSTABLE.val(a,b,c)=1;
+                        BRANCHBUS_VAL(a,b,c)=1;
                     end
                 end
             end

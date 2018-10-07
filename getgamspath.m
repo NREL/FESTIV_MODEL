@@ -9,9 +9,13 @@ function gamspath = getgamspath
          fclose(f) ; % !del pathfile.txt % can delete it
           gamspathcell = regexp(path,'[^;]+[gG][aA][mM][sS][^;]+','match') ; %select GAMS-related paths
       if length(gamspathcell)==1 % if there is one path referring to GAMS, use it
-       a=(system(['dir ',gamspathcell{1},'\gamside.exe /w /s >> tmp.txt'])==0); !del tmp.txt
-         if a ; gamspath = gamspathcell{1} ; 
-          else % if there are several GAMS paths or none is found, then search for 'gamside.exe' (takes longer though)
+       %a=(system(['dir ',[gamspathcell{1},'\gamside.exe] /w /s >> tmp.txt'])==0); !del tmp.txt
+       fullpath=strcat(cellstr(gamspathcell{1}),'\gamside.exe');
+       a=dir(fullpath{1});
+         if isempty(a)==0  
+             gamspath = gamspathcell{1} ;
+      end % if length == 1
+      else % if there are several GAMS paths or none is found, then search for 'gamside.exe' (takes longer though)
             [~,lines]=system('CD \ & dir gamside.exe /s');
             numlines=regexp(lines,'\n','split')';
             for i=1:size(numlines,1)
@@ -22,16 +26,9 @@ function gamspath = getgamspath
                 end
             end
           end % if a (i.e. is gamside.exe found)
-       end % if length == 1
-    else
-        %For other platforms (Linux, Mac), assume gams executable in same
-        %directory as the compiled mex library and add this to the system()
-        %environment
-        if not(contains(getenv('PATH'), 'gams', 'IgnoreCase', true))
-            path_to_gams = fileparts(which('gams'));
-            fprintf('Assuming gams executable is in %s\n', path_to_gams)
-            setenv('PATH', [getenv('PATH') ':' path_to_gams])
-        end
-        gamspath = ''; %need to define to prevent errors
+
+    else 
+        warning('FESTIV:gamspath','For non-Windows platforms the path to gams matlab files are assumed to be in MATLABPATH')
+        gamspath = '';
     end
 end

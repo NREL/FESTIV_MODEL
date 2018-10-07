@@ -1,0 +1,7 @@
+=start
+*DECLARE UC SETS
+SET
+MIN_RUN_GEN(GEN)
+MIN_DOWN_GEN(GEN)
+;
+=end=

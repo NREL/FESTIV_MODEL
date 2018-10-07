@@ -12,7 +12,7 @@ uicontrol('Parent',f,'Style','pushbutton','String','<html><center>RTSCED<br>Sche
 uicontrol('Parent',f,'Style','pushbutton','String','<html><center>Generation<br>Vs. Load</center></html>','units','normalized','Position', [.83 .58 .13 .115],'fontunits','normalized','fontsize',0.30,'Callback',{@plot_genvload_callback});
 uicontrol('Parent',f,'Style','pushbutton','String','Energy Prices','units','normalized','Position', [.685 .44 .13 .115],'fontunits','normalized','fontsize',0.30,'Callback',{@plot_dalmp_callback});
 uicontrol('Parent',f,'Style','pushbutton','String','<html><center>Instant VG<br>Penetration</center></html>','units','normalized','Position', [.83 .44 .13 .115],'fontunits','normalized','fontsize',0.30,'Callback',{@plot_vg_penetration});
-uicontrol('Parent',f,'Style','pushbutton','String','<html><center>DA VG vs<br>ACTUAL VG</center></html>','units','normalized','Position',[.83 .72 .13 .115],'fontunits','normalized','fontsize',0.30,'Callback',{@plot_daVactualVG_callback});
+uicontrol('Parent',f,'Style','pushbutton','String','<html><center>Comparison Across<br> Sched Processes</center></html>','units','normalized','Position',[.83 .72 .13 .115],'fontunits','normalized','fontsize',0.30,'Callback',{@Compare_Across_Schedule_Process_callback});
 uicontrol('Parent',f,'Style','pushbutton','String','<html><center>Compare ACE<br>Distributions</center></html>','units','normalized','Position',[.83 .30 .13 .115],'fontunits','normalized','fontsize',0.30,'Callback',{@plot_aceDist});
 uicontrol('Parent',f,'Style','pushbutton','String','<html><center>Total Generation<br>By Gen Type</center></html>','units','normalized','Position',[.685 .30 .13 .115],'fontunits','normalized','fontsize',0.30,'Callback',{@plot_gentotals});
 uicontrol('Parent',f,'Style','pushbutton','String','<html><center>DA Load Vs<br>Actual Load</center></html>','units','normalized','Position',[.685 .16 .13 .115],'fontunits','normalized','fontsize',0.30,'Callback',{@plot_daloadVactual});
@@ -75,15 +75,19 @@ end
 
 % plot realized generation
 function plot_realizedgen_callback(~,~)
-    x=evalin('base','ACTUAL_GENERATION');
-    y=evalin('base','ACTUAL_PUMP');
-    z=evalin('base','ngen');
-    w=evalin('base','GEN.uels');
+    ACTUAL_GENERATION=evalin('base','ACTUAL_GENERATION');
+    ACTUAL_PUMP=evalin('base','ACTUAL_PUMP');
+    ngen=evalin('base','ngen');
+    nESR=evalin('base','nESR');
+    storage_to_gen_index=evalin('base','storage_to_gen_index');
+    GEN_VAL=evalin('base','GEN_VAL');
     name=evalin('base','outputname');
-    figure;plot(x(:,1),x(:,2:z+1) - y(:,2:z+1));
+    temp=ACTUAL_GENERATION(:,2:ngen+1);
+    temp(:,storage_to_gen_index) = temp(:,storage_to_gen_index)  - ACTUAL_PUMP(:,2:nESR+1);
+    figure;plot(ACTUAL_GENERATION(:,1),temp);
     titlename=sprintf('Actual Generation: %s',name);
     title(titlename)
-    hlegend=legend(w','interpreter','none');
+    hlegend=legend(GEN_VAL,'interpreter','none');
     set(hlegend,'visible','off');
     xlabel('Time [hr]');
     ylabel('Output [MW]');
@@ -91,15 +95,19 @@ end
 
 % plot DASCUC scheudles
 function plot_dagen_callback(~,~)
-    x=evalin('base','DASCUCSCHEDULE');
-    y=evalin('base','DASCUCPUMPSCHEDULE');
-    z=evalin('base','ngen');
-    w=evalin('base','GEN.uels');
+    DASCUCSCHEDULE=evalin('base','DASCUCSCHEDULE');
+    DASCUCPUMPSCHEDULE=evalin('base','DASCUCPUMPSCHEDULE');
+    ngen=evalin('base','ngen');
+    nESR=evalin('base','nESR');
+    GEN_VAL=evalin('base','GEN_VAL');
+    storage_to_gen_index=evalin('base','storage_to_gen_index');
     name=evalin('base','outputname');
-    figure;plot(x(:,1),x(:,2:z+1)-y(:,2:z+1))
+    temp=DASCUCSCHEDULE(:,2:ngen+1);
+    temp(:,storage_to_gen_index) = temp(:,storage_to_gen_index)  - DASCUCPUMPSCHEDULE(:,2:nESR+1);
+    figure;plot(DASCUCSCHEDULE(:,1),temp(:,1:ngen))
     titlename=sprintf('Day-Ahead Schedules: %s',name);
     title(titlename);
-    hlegend=legend(w','interpreter','none');
+    hlegend=legend(GEN_VAL,'interpreter','none');
     set(hlegend,'visible','off');
     xlabel('Time [hr]');
     ylabel('Output [MW]');
@@ -107,15 +115,19 @@ end
 
 % plot RTDCED scheudles
 function plot_rtdgen_callback(~,~)
-    x=evalin('base','RTSCEDBINDINGSCHEDULE');
-    y=evalin('base','RTSCEDBINDINGPUMPSCHEDULE');
-    z=evalin('base','ngen');
-    w=evalin('base','GEN.uels');
+    RTSCEDBINDINGSCHEDULE=evalin('base','RTSCEDBINDINGSCHEDULE');
+    RTSCEDBINDINGPUMPSCHEDULE=evalin('base','RTSCEDBINDINGPUMPSCHEDULE');
+    ngen=evalin('base','ngen');
+    nESR=evalin('base','nESR');
+    GEN_VAL=evalin('base','GEN_VAL');
+    storage_to_gen_index=evalin('base','storage_to_gen_index');
     name=evalin('base','outputname');
-    figure;plot(x(:,1),x(:,2:z+1)-y(:,2:z+1));
+    temp=RTSCEDBINDINGSCHEDULE(:,2:ngen+1);
+    temp(:,storage_to_gen_index) = temp(:,storage_to_gen_index)  - RTSCEDBINDINGPUMPSCHEDULE(:,2:nESR+1);
+    figure;plot(RTSCEDBINDINGSCHEDULE(:,1),temp);
     titlename=sprintf('RTSCED Schedules: %s',name);
     title(titlename)
-    hlegend=legend(w','interpreter','none');
+    hlegend=legend(GEN_VAL,'interpreter','none');
     set(hlegend,'visible','off'); 
     xlabel('Time [hr]');
     ylabel('Output [MW]');
@@ -123,7 +135,7 @@ end
 
 % plot DA prices
 function plot_dalmp_callback(~,~)
-    w=evalin('base','BUS.uels');
+    w=evalin('base','BUS_VAL');
     DASCUCLMP=evalin('base','DASCUCLMP');
     lmpFigure=figure('visible','off','name','Locational Marginal Prices (LMPs)','NumberTitle','off','units','pixels','position',[50 50 750 500],'color',[.9412 .9412 .9412]);
     movegui(lmpFigure,'center');
@@ -133,7 +145,7 @@ function plot_dalmp_callback(~,~)
     network_button_group=uibuttongroup('parent',lmpFigure,'title','Select Model','units','normalized','position',[.025 .65 .26 .20],'fontunits','normalized','fontsize',0.15,'SelectionChangeFcn',{@changeLMPPlot});
     uicontrol('parent',network_button_group,'style','radiobutton','units','normalized','position',[.07 .60 .90 .40],'string','Day Ahead SCUC','fontsize',10,'tag','plotDASCUClmp');
     uicontrol('parent',network_button_group,'style','radiobutton','units','normalized','position',[.07 .10 .90 .40],'string','Real Time SCED','fontsize',10,'tag','plotRTSCEDlmp');
-    hlegend=legend(w','interpreter','none');
+    hlegend=legend(w,'interpreter','none');
     set(hlegend,'visible','off')
     xlabel(gca,'Time [hr]');
     ylabel(gca,'LMP [$/MWh]');
@@ -147,7 +159,7 @@ function changeLMPPlot(~,eventdata)
         case 'plotDASCUClmp'
             DASCUCLMP=evalin('base','DASCUCLMP');
             plot(DASCUCLMP(:,1),DASCUCLMP(:,2:end));
-            w=evalin('base','BUS.uels');hlegend=legend(w','interpreter','none');set(hlegend,'visible','off')
+            w=evalin('base','BUS_VAL');hlegend=legend(w,'interpreter','none');set(hlegend,'visible','off')
             xlabel(gca,'Time [hr]');
             ylabel(gca,'LMP [$/MWh]');
             name=evalin('base','outputname');
@@ -156,7 +168,7 @@ function changeLMPPlot(~,eventdata)
         case 'plotRTSCEDlmp'
             RTSCEDBINDINGLMP=evalin('base','RTSCEDBINDINGLMP');
             plot(RTSCEDBINDINGLMP(:,1),RTSCEDBINDINGLMP(:,2:end));
-            w=evalin('base','BUS.uels');hlegend=legend(w','interpreter','none');set(hlegend,'visible','off')
+            w=evalin('base','BUS_VAL');hlegend=legend(w,'interpreter','none');set(hlegend,'visible','off')
             xlabel(gca,'Time [hr]');
             ylabel(gca,'LMP [$/MWh]');
             name=evalin('base','outputname');
@@ -167,7 +179,7 @@ end
 
 % plot instantaneous VG penetration
 function plot_vg_penetration(~,~)
-    GENVALUE=evalin('base','GENVALUE');
+    GENVALUE_VAL=evalin('base','DEFAULT_DATA.GENVALUE.val');
     GEN_VAL=evalin('base','GEN_VAL');
     ACE=evalin('base','ACE');
     ACTUAL_VG_FIELD=evalin('base','ACTUAL_VG_FIELD');
@@ -175,10 +187,12 @@ function plot_vg_penetration(~,~)
     ACTUAL_LOAD_FULL=evalin('base','ACTUAL_LOAD_FULL');
     daystosimulate=evalin('base','daystosimulate');
     gen_type=evalin('base','gen_type'); 
+    wind_gen_type_index=evalin('base','wind_gen_type_index'); 
+    PV_gen_type_index=evalin('base','PV_gen_type_index'); 
     ACTUAL_GENERATION=evalin('base','ACTUAL_GENERATION');
-    gentypes=GENVALUE.val(:,gen_type);
-    windidx=gentypes==7;
-    solaridx=gentypes==10;
+    gentypes=GENVALUE_VAL(:,gen_type);
+    windidx=gentypes==wind_gen_type_index;
+    solaridx=gentypes==PV_gen_type_index;
     vgidx=windidx+solaridx;
     vg_names=GEN_VAL(find(vgidx));
     vgidx=find(vgidx);
@@ -201,17 +215,19 @@ end
 
 % plot generation vs. load
 function plot_genvload_callback(~,~)
-    x=evalin('base','ACTUAL_GENERATION');
-    y=evalin('base','ACTUAL_PUMP');
-    z=evalin('base','ngen');
-    w=evalin('base','ACTUAL_LOAD_FULL');
-    v=evalin('base','AGC_interval_index');
-    u=evalin('base','storelosses');
+    ACTUAL_GENERATION=evalin('base','ACTUAL_GENERATION');
+    ACTUAL_PUMP=evalin('base','ACTUAL_PUMP');
+    ngen=evalin('base','ngen');
+    nESR=evalin('base','nESR');
+    storage_to_gen_index=evalin('base','storage_to_gen_index');
+    ACTUAL_LOAD_FULL=evalin('base','ACTUAL_LOAD_FULL');
+    AGC_interval_index=evalin('base','AGC_interval_index');
+    storelosses=evalin('base','storelosses');
     name=evalin('base','outputname');
-    sumgen = sum(x(:,2:z+1)'-y(:,2:z+1)')';
-    figure;plot(x(:,1),sumgen);
+    sumgen = sum(ACTUAL_GENERATION(:,2:ngen+1)')'-sum(ACTUAL_PUMP(:,2:nESR+1)')';
+    figure;plot(ACTUAL_GENERATION(:,1),sumgen);
     hold('on')
-    line(x(:,1),w(1:v-1,2)+u,'color','red');
+    line(ACTUAL_GENERATION(:,1),ACTUAL_LOAD_FULL(1:AGC_interval_index-1,2)+storelosses,'color','red');
     titlename=sprintf('Generation and Load: %s',name);
     legend('Total Generation','Total Load');
     title(titlename);
@@ -220,47 +236,278 @@ function plot_genvload_callback(~,~)
 end
 
 % plot da vg vs actual vg
-function plot_daVactualVG_callback(~,~)
-    DAC_VG_FULL=evalin('base','DAC_VG_FULL');
-    ACTUAL_GENERATION=evalin('base','ACTUAL_GENERATION');
-    ACTUAL_VG_FULL=evalin('base','ACTUAL_VG_FULL');
-    nvg=evalin('base','nvg');
-    ACTUAL_VG_FIELD=evalin('base','ACTUAL_VG_FIELD');
-    DAC_VG_FIELD=evalin('base','DAC_VG_FIELD');
-    daystosimulate=evalin('base','daystosimulate');
-    outputname=evalin('base','outputname');
-    indicies=zeros(size(ACTUAL_VG_FIELD,2)-1,1);
-    for i=1:size(ACTUAL_VG_FIELD,2)-1
-        for j=1:size(DAC_VG_FIELD,2)-2
-            if strcmp(ACTUAL_VG_FIELD(1,i+1),DAC_VG_FIELD(1,j+2))
-                indicies(i,1)=j+2;
-            end
-        end
-    end
-    x1=1:1:24*daystosimulate;
-    y1=DAC_VG_FULL(1:24*daystosimulate,indicies);
-    x2=ACTUAL_GENERATION(:,1);
-    y2=ACTUAL_VG_FULL(:,2:end);
+function Compare_Across_Schedule_Process_callback(~,~)
+    sched_figure = figure('Visible','on','name','Schedule Comparison','NumberTitle','off','units','pixels','position',[500 500 600 150],'color','white');
+    uicontrol('parent',sched_figure,'style','text','string','Schedule Data Type','units','normalized','position',[.02 .43 .18 .2],'BackgroundColor',get(sched_figure,'color'));
+    Sched_Data_Type=uicontrol('parent',sched_figure','style','popupmenu','units','normalized','position',[.2 .45 .2 .2],'string','1 - VG |2 - Load|3 - Net Load|4 - Variable Capacity Resource|5 - Conventional Gen','backgroundcolor','white');
+    uicontrol('parent',sched_figure,'style','text','string','Schedule Process','units','normalized','position',[.45 .65 .2 .2],'BackgroundColor',get(sched_figure,'color'));
+    Sched_Process1=uicontrol('parent',sched_figure','style','popupmenu','units','normalized','position',[.7 .65 .2 .2],'string','1 - DASCUC |2 - RTSCUC|3 - RTSCED|4 - ACTUAL','backgroundcolor','white');
+    uicontrol('parent',sched_figure,'style','text','string','Compared With','units','normalized','position',[.45 .43 .2 .2],'BackgroundColor',get(sched_figure,'color'));
+    uicontrol('parent',sched_figure,'style','text','string','Schedule Process','units','normalized','position',[.45 .25 .2 .2],'BackgroundColor',get(sched_figure,'color'));
+    Sched_Process2=uicontrol('parent',sched_figure','style','popupmenu','units','normalized','position',[.7 .25 .2 .2],'string','1 - DASCUC |2 - RTSCUC|3 - RTSCED|4 - ACTUAL','backgroundcolor','white');
+    uicontrol('Parent',sched_figure,'Style','pushbutton','String','COMPARE','units','normalized','Position', [.35 .05 .15 .15],'Callback',{@sched_proc_comparison});
+    assignin('base','Sched_Data_Type',Sched_Data_Type);
+    assignin('base','Sched_Process1',Sched_Process1);
+    assignin('base','Sched_Process2',Sched_Process2);
+end
+    
+    
+function sched_proc_comparison(~,~)
+    Sched_Data_Type = evalin('base','Sched_Data_Type');
+    Sched_Process1 = evalin('base','Sched_Process1');
+    Sched_Process2 = evalin('base','Sched_Process2');
+    schd_proc_cmbn = [Sched_Data_Type.Value;Sched_Process1.Value;Sched_Process2.Value];
+    close(gcf);
+    for k=1:2
+        switch schd_proc_cmbn(1,1)
+            case 1
+                COMPARE_TITLE = 'Variable Generation Comparison (No Curtailments)';
+                GENVALUE_tmp = evalin('base','GENVALUE');
+                gen_type=evalin('base','gen_type');
+                wind_gen_type_index=evalin('base','wind_gen_type_index');
+                PV_gen_type_index=evalin('base','PV_gen_type_index');
+                nvg = evalin('base','nvg');
+                tmp_vg_idx = [find(GENVALUE_tmp.val(:,gen_type)==wind_gen_type_index);find(GENVALUE_tmp.val(:,gen_type)==PV_gen_type_index)];
+                Names = GENVALUE_tmp.uels{1,1};
+                tmp_vg_names=Names(tmp_vg_idx);
+                switch schd_proc_cmbn(k+1,1)
+                    case 1 
+                        tmp=evalin('base','DAC_VG_FULL');
+                        tmp_sched_names = evalin('base','DAC_VG_FIELD');
+                        SCHED_COMPARE.(sprintf('part_%d',k))=[24.*tmp(:,2) zeros(size(tmp,1),1)];
+                        for z=1:nvg
+                            w=3;
+                            while w<=size(tmp_sched_names,2)
+                                if strcmp(tmp_vg_names(z),tmp_sched_names(w))
+                                    SCHED_COMPARE.(sprintf('part_%d',k))(:,2)=SCHED_COMPARE.(sprintf('part_%d',k))(:,2) + tmp(:,w);
+                                    w=size(tmp_sched_names,2);
+                                end;
+                                w=w+1;
+                            end;
+                        end;
+                        SCHED_NAME.(sprintf('part_%d',k))='DASCUC';
+                    case 2
+                        tmp=evalin('base','RTC_VG_FULL');
+                        HRTC=evalin('base','HRTC');
+                        tmp_sched_names = evalin('base','RTC_VG_FIELD');
+                        tmp_new=[24.*tmp(:,2) zeros(size(tmp,1),1)];
+                        for z=1:nvg
+                            w=3;
+                            while w<=size(tmp_sched_names,2)
+                                if strcmp(tmp_vg_names(z),tmp_sched_names(w))
+                                    tmp_new(:,2)=tmp_new(:,2) + tmp(:,w);
+                                    w=size(tmp_sched_names,2);
+                                end;
+                                w=w+1;
+                            end;
+                        end;
+                        SCHED_COMPARE.(sprintf('part_%d',k)) = tmp_new(1:HRTC:size(tmp_new,1),:);
+                        SCHED_NAME.(sprintf('part_%d',k))='RTSCUC';
+                    case 3
+                        tmp=evalin('base','RTD_VG_FULL');
+                        HRTD=evalin('base','HRTD');
+                        tmp_sched_names = evalin('base','RTD_VG_FIELD');
+                        tmp_new=[24.*tmp(:,2) zeros(size(tmp,1),1)];
+                        for z=1:nvg
+                            w=3;
+                            while w<=size(tmp_sched_names,2)
+                                if strcmp(tmp_vg_names(z),tmp_sched_names(w))
+                                    tmp_new(:,2)=tmp_new(:,2) + tmp(:,w);
+                                    w=size(tmp_sched_names,2);
+                                end;
+                                w=w+1;
+                            end;
+                        end;
+                        SCHED_COMPARE.(sprintf('part_%d',k)) = tmp_new(1:HRTD:size(tmp_new,1),:);
+                        SCHED_NAME.(sprintf('part_%d',k))='RTSCED';
+                    case 4
+                        tmp = evalin('base','ACTUAL_VG_FULL');
+                        tmp_sched_names = evalin('base','ACTUAL_VG_FIELD');
+                        tmp_new=[24.*tmp(:,1) zeros(size(tmp,1),1)];
+                        for z=1:nvg
+                            w=2;
+                            while w<=size(tmp_sched_names,2)
+                                if strcmp(tmp_vg_names(z),tmp_sched_names(w))
+                                    tmp_new(:,2)=tmp_new(:,2) + tmp(:,w);
+                                    w=size(tmp_sched_names,2);
+                                end;
+                                w=w+1;
+                            end;
+                        end;
+                        SCHED_COMPARE.(sprintf('part_%d',k))=tmp_new;
+                        SCHED_NAME.(sprintf('part_%d',k))='ACTUAL';
+                end;
+            case 2
+                COMPARE_TITLE = 'Load Comparison';
+                switch schd_proc_cmbn(k+1,1)
+                    case 1 
+                        tmp=evalin('base','DAC_LOAD_FULL');
+                        SCHED_COMPARE.(sprintf('part_%d',k))=[24.*tmp(:,2) tmp(:,3)];
+                        SCHED_NAME.(sprintf('part_%d',k))='DASCUC';
+                    case 2
+                        tmp=evalin('base','RTC_LOAD_FULL');
+                        HRTC=evalin('base','HRTC');
+                        tmp = [24.*tmp(:,2) tmp(:,3)];
+                        SCHED_COMPARE.(sprintf('part_%d',k)) = tmp(1:HRTC:size(tmp,1),:);
+                        SCHED_NAME.(sprintf('part_%d',k))='RTSCUC';
+                    case 3
+                        tmp=evalin('base','RTD_LOAD_FULL');
+                        HRTD=evalin('base','HRTD');
+                        tmp = [24.*tmp(:,2) tmp(:,3:end)];
+                        SCHED_COMPARE.(sprintf('part_%d',k)) = tmp(1:HRTD:size(tmp,1),:);
+                        SCHED_NAME.(sprintf('part_%d',k))='RTSCED';
+                    case 4
+                        tmp = evalin('base','ACTUAL_LOAD_FULL');
+                        SCHED_COMPARE.(sprintf('part_%d',k))=[24.*tmp(:,1) tmp(:,2)];
+                        SCHED_NAME.(sprintf('part_%d',k))='ACTUAL';
+                end;
+            case 3
+                COMPARE_TITLE = 'Net Load Comparison (No curtailments)';
+                GENVALUE_tmp = evalin('base','GENVALUE');
+                gen_type=evalin('base','gen_type');
+                wind_gen_type_index=evalin('base','wind_gen_type_index');
+                PV_gen_type_index=evalin('base','PV_gen_type_index');
+                nvg = evalin('base','nvg');
+                tmp_vg_idx = [find(GENVALUE_tmp.val(:,gen_type)==wind_gen_type_index);find(GENVALUE_tmp.val(:,gen_type)==PV_gen_type_index)];
+                Names = GENVALUE_tmp.uels{1,1};
+                tmp_vg_names=Names(tmp_vg_idx);
+                switch schd_proc_cmbn(k+1,1)
+                    case 1 
+                        tmp1=evalin('base','DAC_LOAD_FULL');
+                        tmp2=evalin('base','DAC_VG_FULL');
+                        tmp_sched_names = evalin('base','DAC_VG_FIELD');
+                        SCHED_COMPARE.(sprintf('part_%d',k))=[24.*tmp1(:,2) tmp1(:,3)];
+                        for z=1:nvg
+                            w=3;
+                            while w<=size(tmp_sched_names,2)
+                                if strcmp(tmp_vg_names(z),tmp_sched_names(w))
+                                    SCHED_COMPARE.(sprintf('part_%d',k))(:,2)=SCHED_COMPARE.(sprintf('part_%d',k))(:,2) - tmp2(:,w);
+                                    w=size(tmp_sched_names,2);
+                                end;
+                                w=w+1;
+                            end;
+                        end;
+                        SCHED_NAME.(sprintf('part_%d',k))='DASCUC';
+                    case 2
+                        tmp1=evalin('base','RTC_LOAD_FULL');
+                        tmp2=evalin('base','RTC_VG_FULL');
+                        tmp_sched_names = evalin('base','RTC_VG_FIELD');
+                        HRTC=evalin('base','HRTC');
+                        tmp = [24.*tmp1(:,2) tmp1(:,3)];
+                        for z=1:nvg
+                            w=3;
+                            while w<=size(tmp_sched_names,2)
+                                if strcmp(tmp_vg_names(z),tmp_sched_names(w))
+                                    tmp(:,2)=tmp(:,2) - tmp2(:,w);
+                                    w=size(tmp_sched_names,2);
+                                end;
+                                w=w+1;
+                            end;
+                        end;
+                        SCHED_COMPARE.(sprintf('part_%d',k)) = tmp(1:HRTC:size(tmp,1),:);
+                        SCHED_NAME.(sprintf('part_%d',k))='RTSCUC';
+                    case 3
+                        tmp1=evalin('base','RTD_LOAD_FULL');
+                        tmp2=evalin('base','RTD_VG_FULL');
+                        HRTD=evalin('base','HRTD');
+                        tmp_sched_names = evalin('base','RTD_VG_FIELD');
+                        tmp = [24.*tmp1(:,2) tmp1(:,3)];
+                        for z=1:nvg
+                            w=3;
+                            while w<=size(tmp_sched_names,2)
+                                if strcmp(tmp_vg_names(z),tmp_sched_names(w))
+                                    tmp(:,2)=tmp(:,2) - tmp2(:,w);
+                                    w=size(tmp_sched_names,2);
+                                end;
+                                w=w+1;
+                            end;
+                        end;
+                        SCHED_COMPARE.(sprintf('part_%d',k)) = tmp(1:HRTD:size(tmp,1),:);
+                        SCHED_NAME.(sprintf('part_%d',k))='RTSCED';
+                    case 4
+                        tmp1 = evalin('base','ACTUAL_LOAD_FULL');
+                        tmp2 = evalin('base','ACTUAL_VG_FULL');
+                        tmp_sched_names = evalin('base','ACTUAL_VG_FIELD');
+                        SCHED_COMPARE.(sprintf('part_%d',k))=[24.*tmp1(:,1) tmp1(:,2)];
+                        for z=1:nvg
+                            w=2;
+                            while w<=size(tmp_sched_names,2)
+                                if strcmp(tmp_vg_names(z),tmp_sched_names(w))
+                                    SCHED_COMPARE.(sprintf('part_%d',k))(:,2)=SCHED_COMPARE.(sprintf('part_%d',k))(:,2) - tmp2(:,w);
+                                    w=size(tmp_sched_names,2);
+                                end;
+                                w=w+1;
+                            end;
+                        end;
+                        SCHED_NAME.(sprintf('part_%d',k))='ACTUAL';
+                end;
+            case 4
+                COMPARE_TITLE = 'Variable Capacity Resource Comparison (No Curtailments)';
+                switch schd_proc_cmbn(k+1,1)
+                    case 1 
+                        tmp=evalin('base','DAC_VG_FULL');
+                        SCHED_COMPARE.(sprintf('part_%d',k))=[24.*tmp(:,2) sum(tmp(:,3:end)')'];
+                        SCHED_NAME.(sprintf('part_%d',k))='DASCUC';
+                    case 2
+                        tmp=evalin('base','RTC_VG_FULL');
+                        HRTC=evalin('base','HRTC');
+                        tmp = [24.*tmp(:,2) sum(tmp(:,3:end)')'];
+                        SCHED_COMPARE.(sprintf('part_%d',k)) = tmp(1:HRTC:size(tmp,1),:);
+                        SCHED_NAME.(sprintf('part_%d',k))='RTSCUC';
+                    case 3
+                        tmp=evalin('base','RTD_VG_FULL');
+                        HRTD=evalin('base','HRTD');
+                        tmp = [24.*tmp(:,2) sum(tmp(:,3:end)')'];
+                        SCHED_COMPARE.(sprintf('part_%d',k)) = tmp(1:HRTD:size(tmp,1),:);
+                        SCHED_NAME.(sprintf('part_%d',k))='RTSCED';
+                    case 4
+                        tmp = evalin('base','ACTUAL_VG_FULL');
+                        SCHED_COMPARE.(sprintf('part_%d',k))=[24.*tmp(:,1) sum(tmp(:,2:end)')'];
+                        SCHED_NAME.(sprintf('part_%d',k))='ACTUAL';
+                end;
+             case 5
+                COMPARE_TITLE = 'Conventional Gen Comparison';
+                GENVALUE_tmp = evalin('base','GENVALUE');
+                gen_type=evalin('base','gen_type');
+                tmp_convgen_idx = [find(GENVALUE_tmp.val(:,gen_type)==1);find(GENVALUE_tmp.val(:,gen_type)==2);find(GENVALUE_tmp.val(:,gen_type)==3);find(GENVALUE_tmp.val(:,gen_type)==4);find(GENVALUE_tmp.val(:,gen_type)==5)];
+                switch schd_proc_cmbn(k+1,1)
+                    case 1 
+                        tmp=evalin('base','DASCUCSCHEDULE');
+                        SCHED_COMPARE.(sprintf('part_%d',k))=[tmp(:,1) sum(tmp(:,tmp_convgen_idx+1),2)];
+                        SCHED_NAME.(sprintf('part_%d',k))='DASCUC';
+                    case 2
+                        tmp=evalin('base','RTSCUCBINDINGSCHEDULE');
+                        RTSCUC_binding_interval_index=evalin('base','RTSCUC_binding_interval_index');
+                        tmp = [tmp(:,1) sum(tmp(:,tmp_convgen_idx+1),2)];
+                        SCHED_COMPARE.(sprintf('part_%d',k)) = tmp(1:RTSCUC_binding_interval_index-1,:);
+                        SCHED_NAME.(sprintf('part_%d',k))='RTSCUC';
+                    case 3
+                        tmp=evalin('base','RTSCEDBINDINGSCHEDULE');
+                        RTSCED_binding_interval_index=evalin('base','RTSCED_binding_interval_index');
+                        tmp = [tmp(:,1) sum(tmp(:,tmp_convgen_idx+1),2)];
+                        SCHED_COMPARE.(sprintf('part_%d',k)) = tmp(1:RTSCED_binding_interval_index-1,:);
+                        SCHED_NAME.(sprintf('part_%d',k))='RTSCED';
+                    case 4
+                        tmp = evalin('base','ACTUAL_GENERATION');
+                        AGC_interval_index=evalin('base','AGC_interval_index');
+                        tmp=[tmp(:,1) sum(tmp(:,tmp_convgen_idx+1),2)];
+                        SCHED_COMPARE.(sprintf('part_%d',k))=tmp(1:AGC_interval_index-1,:);
+                        SCHED_NAME.(sprintf('part_%d',k))='ACTUAL';
+                end;
+       end;
+    end;
     figure;
-    line(x1,y1,'color','k');
+    title(COMPARE_TITLE);
+    line(SCHED_COMPARE.part_1(:,1),SCHED_COMPARE.part_1(:,2),'color','k');
     xlabel('Time [hr]');
-    ylabel('Output [MW]');
+    ylabel('Power [MW]');
     ax1=gca;
     set(ax1,'xcolor','k','ycolor','k')
-    title1=sprintf('DA: %s',outputname);
-    title(title1);
-    hlegend=legend(ACTUAL_VG_FIELD(2:end));
-    set(hlegend,'visible','off');
     ax2=axes('Position',get(ax1,'Position'),'xaxislocation','top','yaxislocation','right','color','none','xcolor','r','ycolor','r','visible','off');
-    line(x2,y2,'color','r','parent',ax2);
-    title2=sprintf('ACTUAL: %s',outputname);
-    t2=title(title2);
-    set(t2,'color','r');
-    hlegend=legend(ACTUAL_VG_FIELD(2:end));
-    set(hlegend,'visible','off');
+    line(SCHED_COMPARE.part_2(:,1),SCHED_COMPARE.part_2(:,2),'color','r','parent',ax2);
     linkaxes([ax1 ax2],'xy');
-    text(0.85,0.95,'ACTUAL','units','normalized','color','r');
-    text(0.80,0.95,'DA','units','normalized','color','K');
+    text(0.3,0.95,SCHED_NAME.part_1,'units','normalized','color','k');
+    text(0.80,0.95,SCHED_NAME.part_2,'units','normalized','color','r');
 end
 
 % plot ace vs percentage of time
@@ -363,17 +610,18 @@ end
 
 % plot generation stack
 function plot_genstack(~,~)
-    x=evalin('base','GENVALUE.val(:,8)');
-    y=evalin('base','ACTUAL_GENERATION');
-    z=evalin('base','t_AGC');
-    w=evalin('base','RTD_LOAD_FULL');
+    GENVALUE_VAL=evalin('base','DEFAULT_DATA.GENVALUE.val');
+    gen_type=evalin('base','gen_type'); 
+    ACTUAL_GENERATION=evalin('base','ACTUAL_GENERATION');
+    t_AGC=evalin('base','t_AGC');
+    RTD_LOAD_FULL=evalin('base','RTD_LOAD_FULL');
     IRTD=evalin('base','IRTD');
-    total=zeros(size(y,1),16);
+    total=zeros(size(ACTUAL_GENERATION,1),16);
     for t=1:16
         temp=[];temp2=[];
-        for i=1:size(x,1)
-            if x(i,1) == t
-                temp = [temp,y(:,i+1)];
+        for i=1:size(GENVALUE_VAL,1)
+            if GENVALUE_VAL(i,gen_type) == t
+                temp = [temp,ACTUAL_GENERATION(:,i+1)];
             end
         end
         temp2=sum(temp,2);
@@ -382,9 +630,9 @@ function plot_genstack(~,~)
             total(:,t)=temp2;
         end
     end
-    temp=total((1:size(y,1)/(60/z*IRTD))*(60/z*IRTD),:);
+    temp=[total(1,:); total((1:size(ACTUAL_GENERATION,1)/(60/t_AGC*IRTD))*(60/t_AGC*IRTD),:)];
     temp2=[temp(:,5),temp(:,1),temp(:,3),temp(:,2),temp(:,4),temp(:,6:end)];
-    xval=unique(w(:,1))*24;
+    xval=unique(RTD_LOAD_FULL(:,1))*24;
     figure;handles=area(xval,temp2);
     set(handles(2),'facecolor','blue')
     set(handles(4),'facecolor','red')
@@ -458,9 +706,12 @@ function plot_vgcurtailment(~,~)
     z=evalin('base','GENVALUE');
     w=evalin('base','t_AGC');
     q=evalin('base','ACTUAL_VG_FIELD');
-    types=z.val(:,8);indices=[];names=[];
+    gen_type=evalin('base','gen_type');
+    wind_gen_type_index=evalin('base','wind_gen_type_index');
+    PV_gen_type_index=evalin('base','PV_gen_type_index');
+    types=z.val(:,gen_type);indices=[];names=[];
     for i=1:size(types,1)
-        if types(i) == 7 || types(i) == 10 
+        if types(i) == wind_gen_type_index || types(i) == PV_gen_type_index 
             indices=[indices;i];
             names=[names;z.uels{1,1}(1,i)];
         end
@@ -528,11 +779,9 @@ function plot_numsus(~,~)
     GENVALUE=evalin('base','GENVALUE');
     for i=2:size(ACTUAL_GENERATION,1)
         for j=1:ngen
-%            if GENVALUE.val(j,8) ~= 7 && GENVALUE.val(j,8) ~= 10 && GENVALUE.val(j,8) ~= 15 
                if ACTUAL_GENERATION(i,j+1) > 0 && ACTUAL_GENERATION(i-1,j+1) == 0
                     su(i,j)=1;
                end
-%            end
         end
     end
 
@@ -649,7 +898,7 @@ function plot_ramputilization(~,~)
     plot(X,sum(sum_2(:,1:5),2)-sum(sum_1(:,1:5),2))
 %     legend('Thermal Ramp','Thermal Ramp Cap');
     ytemp=ylim;
-    axis([0 (size(RTSCEDBINDINGSCHEDULE,1)-1)/(60/round((RTSCEDBINDINGSCHEDULE(2,1)-RTSCEDBINDINGSCHEDULE(1,1))*60)) 0 ytemp(2)]);
+    axis([0 (size(RTSCEDBINDINGSCHEDULE,1)-1)/(60/round((RTSCEDBINDINGSCHEDULE(2,1)-RTSCEDBINDINGSCHEDULE(1,1))*60)) ytemp]);
     assignin('base','RampUtil',sum(sum_1(:,1:5),2));
     assignin('base','RampCap',sum(sum_2(:,1:5),2));
     
@@ -666,9 +915,12 @@ function plot_onlinecapacity(~,~)
     ACTUAL_GENERATION=evalin('base','ACTUAL_GENERATION');
     size_AG=size(ACTUAL_GENERATION,1);
     ngen=evalin('base','ngen');
-    GENVALUE=evalin('base','GENVALUE');
+    GENVALUE_VAL=evalin('base','GENVALUE_VAL');
     ramp_rate=evalin('base','ramp_rate');
     gen_type=evalin('base','gen_type');
+    wind_gen_type_index=evalin('base','wind_gen_type_index');
+    PV_gen_type_index=evalin('base','PV_gen_type_index');
+    outage_gen_type_index=evalin('base','outage_gen_type_index');
     min_gen=evalin('base','min_gen');
     su_time=evalin('base','su_time');
     sd_time=evalin('base','sd_time');
@@ -676,13 +928,13 @@ function plot_onlinecapacity(~,~)
     data=zeros(size(ACTUAL_GENERATION));
     data(:,1)=ACTUAL_GENERATION(:,1);
     for gen=1:ngen
-        if GENVALUE.val(gen,gen_type) ~= 7 && GENVALUE.val(gen,gen_type) ~= 10 && GENVALUE.val(gen,gen_type) ~= 15
+        if GENVALUE_VAL.val(gen,gen_type) ~= wind_gen_type_index && GENVALUE_VAL.val(gen,gen_type) ~= PV_gen_type_index && GENVALUE_VAL.val(gen,gen_type) ~= outage_gen_type_index
             sus=zeros(151200,1);sds=zeros(151200,1);    
             for i=1:size_AG-1
-               if  round(ACTUAL_GENERATION(i,gen+1)/.0001)*.0001 == round((GENVALUE.val(gen,min_gen)-(GENVALUE.val(gen,min_gen)/GENVALUE.val(gen,su_time)/3600*4))/.0001)*.0001 && round(ACTUAL_GENERATION(i+1,gen+1)/.0001)*.0001 > round(ACTUAL_GENERATION(i,gen+1)/.0001)*.0001
+               if  round(ACTUAL_GENERATION(i,gen+1)/.0001)*.0001 == round((GENVALUE_VAL.val(gen,min_gen)-(GENVALUE_VAL.val(gen,min_gen)/GENVALUE_VAL.val(gen,su_time)/3600*4))/.0001)*.0001 && round(ACTUAL_GENERATION(i+1,gen+1)/.0001)*.0001 > round(ACTUAL_GENERATION(i,gen+1)/.0001)*.0001
                     sus(i,1)=1;
                end
-               if  round(ACTUAL_GENERATION(i,gen+1)/.0001)*.0001 == round((GENVALUE.val(gen,min_gen)-(GENVALUE.val(gen,min_gen)/GENVALUE.val(gen,sd_time)/3600*4))/.0001)*.0001 && round(ACTUAL_GENERATION(i+1,gen+1)/.0001)*.0001 < round(ACTUAL_GENERATION(i,gen+1)/.0001)*.0001
+               if  round(ACTUAL_GENERATION(i,gen+1)/.0001)*.0001 == round((GENVALUE_VAL.val(gen,min_gen)-(GENVALUE_VAL.val(gen,min_gen)/GENVALUE_VAL.val(gen,sd_time)/3600*4))/.0001)*.0001 && round(ACTUAL_GENERATION(i+1,gen+1)/.0001)*.0001 < round(ACTUAL_GENERATION(i,gen+1)/.0001)*.0001
                     sds(i,1)=1;
                end
             end
@@ -728,16 +980,16 @@ function plot_onlinecapacity(~,~)
 
             for k=1:size(onoffints,1)
                 for o1=1:onoffints(k,2)
-                    data(onoffints(k,1)+o1-1,gen+1)=min(GENVALUE.val(gen,capacity),data(onoffints(k,1),gen+1)+(GENVALUE.val(gen,ramp_rate)/60*4)*o1);
+                    data(onoffints(k,1)+o1-1,gen+1)=min(GENVALUE_VAL.val(gen,capacity),data(onoffints(k,1),gen+1)+(GENVALUE_VAL.val(gen,ramp_rate)/60*4)*o1);
                 end
                 for o2=1:onoffints(k,3)
-                    data(onoffints(k,1)+onoffints(k,2)+o2-1,gen+1)=max(GENVALUE.val(gen,min_gen),min(GENVALUE.val(gen,capacity),(data(onoffints(k,1),gen+1)+(GENVALUE.val(gen,ramp_rate)/60*4)*o1)-(GENVALUE.val(gen,ramp_rate)/60*4)*o2));
+                    data(onoffints(k,1)+onoffints(k,2)+o2-1,gen+1)=max(GENVALUE_VAL.val(gen,min_gen),min(GENVALUE_VAL.val(gen,capacity),(data(onoffints(k,1),gen+1)+(GENVALUE_VAL.val(gen,ramp_rate)/60*4)*o1)-(GENVALUE_VAL.val(gen,ramp_rate)/60*4)*o2));
                 end
             end
 
-            onlinecheck=data(:,gen+1)>=GENVALUE.val(gen,min_gen);
+            onlinecheck=data(:,gen+1)>=GENVALUE_VAL.val(gen,min_gen);
             if sum(onlinecheck) == size_AG
-                data(:,gen+1)=GENVALUE.val(gen,capacity);
+                data(:,gen+1)=GENVALUE_VAL.val(gen,capacity);
             end
 
         end
@@ -745,22 +997,22 @@ function plot_onlinecapacity(~,~)
     end
     close(wb);
 
-    G1indicies=GENVALUE.val(:,gen_type)==1;
-    G2indicies=GENVALUE.val(:,gen_type)==2;
-    G3indicies=GENVALUE.val(:,gen_type)==3;
-    G4indicies=GENVALUE.val(:,gen_type)==4;
-    G5indicies=GENVALUE.val(:,gen_type)==5;
-    G6indicies=GENVALUE.val(:,gen_type)==6;
-    G7indicies=GENVALUE.val(:,gen_type)==7;
-    G8indicies=GENVALUE.val(:,gen_type)==8;
-    G9indicies=GENVALUE.val(:,gen_type)==9;
-    G10indicies=GENVALUE.val(:,gen_type)==10;
-    G11indicies=GENVALUE.val(:,gen_type)==11;
-    G12indicies=GENVALUE.val(:,gen_type)==12;
-    G13indicies=GENVALUE.val(:,gen_type)==13;
-    G14indicies=GENVALUE.val(:,gen_type)==14;
-    G15indicies=GENVALUE.val(:,gen_type)==15;
-    G16indicies=GENVALUE.val(:,gen_type)==16;
+    G1indicies=GENVALUE_VAL.val(:,gen_type)==1;
+    G2indicies=GENVALUE_VAL.val(:,gen_type)==2;
+    G3indicies=GENVALUE_VAL.val(:,gen_type)==3;
+    G4indicies=GENVALUE_VAL.val(:,gen_type)==4;
+    G5indicies=GENVALUE_VAL.val(:,gen_type)==5;
+    G6indicies=GENVALUE_VAL.val(:,gen_type)==6;
+    G7indicies=GENVALUE_VAL.val(:,gen_type)==7;
+    G8indicies=GENVALUE_VAL.val(:,gen_type)==8;
+    G9indicies=GENVALUE_VAL.val(:,gen_type)==9;
+    G10indicies=GENVALUE_VAL.val(:,gen_type)==10;
+    G11indicies=GENVALUE_VAL.val(:,gen_type)==11;
+    G12indicies=GENVALUE_VAL.val(:,gen_type)==12;
+    G13indicies=GENVALUE_VAL.val(:,gen_type)==13;
+    G14indicies=GENVALUE_VAL.val(:,gen_type)==14;
+    G15indicies=GENVALUE_VAL.val(:,gen_type)==15;
+    G16indicies=GENVALUE_VAL.val(:,gen_type)==16;
     
     genOutputs=ACTUAL_GENERATION(:,2:end);
     G1outputs=genOutputs.*repmat(G1indicies',size(genOutputs,1),1);
@@ -1005,7 +1257,9 @@ end
 
 function plot_netload(~,~)
     gentypes=evalin('base','GENVALUE.val(:,gen_type);');
-    X=gentypes==7|gentypes==10;
+    wind_gen_type_index=evalin('base','wind_gen_type_index');
+    PV_gen_type_index=evalin('base','PV_gen_type_index');
+    X=gentypes==wind_gen_type_index|gentypes==PV_gen_type_index;
     X=[0;X];
     temp=evalin('base','ACTUAL_GENERATION');
     Y=temp*X;
@@ -1100,10 +1354,15 @@ function plot_unused(~,~)
     GENVALUE=evalin('base','GENVALUE');
     RTSCEDBINDINGSCHEDULE=evalin('base','RTSCEDBINDINGSCHEDULE');
     GEN_VAL=evalin('base','GEN_VAL');
-    onlinegens=GENVALUE.val(:,8)~=15;
-    solar=GENVALUE.val(:,8)==10;
-    wind=GENVALUE.val(:,8)==7;
-    vcrs=GENVALUE.val(:,8)==16;
+    gen_type=evalin('base','gen_type');
+    wind_gen_type_index=evalin('base','wind_gen_type_index');
+    PV_gen_type_index=evalin('base','PV_gen_type_index');
+    outage_gen_type_index=evalin('base','outage_gen_type_index');
+    variable_dispatch_gen_type_index=evalin('base','variable_dispatch_gen_type_index');
+    onlinegens=GENVALUE.val(:,gen_type)~=outage_gen_type_index;
+    solar=GENVALUE.val(:,gen_type)==PV_gen_type_index;
+    wind=GENVALUE.val(:,gen_type)==wind_gen_type_index;
+    vcrs=GENVALUE.val(:,gen_type)==variable_dispatch_gen_type_index;
     onlinegens=logical(onlinegens-wind-solar-vcrs);
     X1=RTSCEDBINDINGSCHEDULE(:,2:end);
     X1=X1(:,onlinegens);
@@ -1137,11 +1396,11 @@ function show_onlinetime(~,~)
     IRTC=evalin('base','IRTC');
     daystosimulate=evalin('base','daystosimulate');
     GEN=evalin('base','GEN');
-    avgONtime=zeros(1,size(STATUS,2));
-    for j=1:size(STATUS,2)
+    avgONtime=zeros(1,size(STATUS,2)-1);
+    for j=1:size(STATUS,2)-1
        count=0;
        for i=1:size(STATUS,1)
-            if STATUS(i,j) == 1
+            if STATUS(i,j+1) == 1
                 count=count+1;        
             end
        end
@@ -1428,7 +1687,7 @@ function plot_congestion(~,~)
         BUS_VAL=evalin('base','BUS_VAL');
         HRTD=evalin('base','HRTD');
         RTD_LOAD_FULL=evalin('base','RTD_LOAD_FULL');
-        GENBUS=evalin('base','GENBUS');
+        GENBUS_CALCS_VAL=evalin('base','GENBUS_CALCS_VAL');
         RTSCEDBINDINGSCHEDULE=evalin('base','RTSCEDBINDINGSCHEDULE');
         PTDF_VAL=evalin('base','PTDF_VAL');
         size_RTD_LOAD_FULL=evalin('base','size_RTD_LOAD_FULL');
@@ -1453,8 +1712,8 @@ function plot_congestion(~,~)
         RTD_LF=zeros(size(RTSCEDBINDINGSCHEDULE,1)-1,nbranch);
         for rtd_int=1:size(rtd_idx,1)
             bus_injection=-1*fullLoadDist*RTD_LOAD_FULL(rtd_idx(rtd_int),3);
-            temp1=zeros(nbus,ngen);temp2=sortrows(GENBUS,2);
-            temp1(sub2ind([nbus ngen],temp2(:,1),(1:ngen)'))=1;
+            temp1=zeros(nbus,ngen);temp2=sortrows(GENBUS_CALCS_VAL,1);
+            temp1(sub2ind([nbus ngen],temp2(:,2),(1:ngen)'))=1;
             bus_injection=temp1*RTSCEDBINDINGSCHEDULE(rtd_int,2:end)' + bus_injection;
             RTD_LF(rtd_int,:) = (PTDF_VAL*bus_injection)';
         end
@@ -1473,7 +1732,14 @@ function plot_congestion(~,~)
 end
 
 function eval_custom(~,~)
-    evalin('base','run(''Custom_Helper.m'')');
+    caseValues=get(listOfCases, 'Value');
+    caseNames=get(listOfCases, 'String');
+    selectedNames=caseNames(caseValues);
+    PathNames=evalin('base','PathNames');
+    CASE1DATA = load(PathNames{caseValues(1,1),1});
+    try CASE2DATA = load(PathNames{caseValues(1,2),1});catch;end;
+    [custom_chart_script,~] = uigetfile(['MODEL_RULES',filesep,'*.m'],'Select Custom Chart Script');
+    run(custom_chart_script);
 end
 
 end

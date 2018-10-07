@@ -9,9 +9,6 @@ AGC_BASEPOINT(1,1) = time;
 max_interval_limit_hit = Max_Reg_Limit_Hit(1,2);
 min_interval_limit_hit = Min_Reg_Limit_Hit(1,2);
 
-reg_proportion = 2; %1 by ramp rate, 2 by reg schedule, 3 from model rule
-%The above needs to go into GUI or somehow not in this script.
-
 if ~exist('ACE_Target_in','var')
     ACE_Target_in=zeros(size(GEN_AGC_MODES));
 end
@@ -37,9 +34,9 @@ AGC_energydown_available = sum(REGULATION_DOWN(1,2:ngen+1));
 max_reg=zeros(ngen,1);
 min_reg=zeros(ngen,1);
 
-agcIDX=unit_pumping_agc(:,1) == 1| unit_pumpdown_agc(:,1) == 1;
-max_reg(agcIDX,1) = min(current_pump_agc(1,find(agcIDX)+1) +ramp_agc(find(agcIDX),1)'.*(t_AGC/60),RTSCEDBINDINGPUMPSCHEDULE(RTSCED_binding_interval_index-1-1,find(agcIDX)+1) + (mod(AGC_interval_index,60/t_AGC*tRTD)/(60/t_AGC*tRTD)).*(next_pump_RTD(1,find(agcIDX)+1)-RTSCEDBINDINGPUMPSCHEDULE(RTSCED_binding_interval_index-1-1,find(agcIDX)+1)) - REGULATION_UP(1,find(agcIDX)+1));
-min_reg(agcIDX,1) = max(current_pump_agc(1,find(agcIDX)+1) -ramp_agc(find(agcIDX),1)'.*(t_AGC/60),RTSCEDBINDINGPUMPSCHEDULE(RTSCED_binding_interval_index-1-1,find(agcIDX)+1) + (mod(AGC_interval_index,60/t_AGC*tRTD)/(60/t_AGC*tRTD)).*(next_pump_RTD(1,find(agcIDX)+1)-RTSCEDBINDINGPUMPSCHEDULE(RTSCED_binding_interval_index-1-1,find(agcIDX)+1)) + REGULATION_DOWN(1,find(agcIDX)+1));
+agcIDX=unit_pumping_agc(:,1) == 1| unit_pumpdown_agc(:,1) == 1; agcIDX_ESR=agcIDX(storage_to_gen_index);
+max_reg(agcIDX,1) = min(current_pump_agc(1,find(agcIDX)+1) +ramp_agc(find(agcIDX),1)'.*(t_AGC/60),RTSCEDBINDINGPUMPSCHEDULE(RTSCED_binding_interval_index-1-1,find(agcIDX_ESR)+1) + (mod(AGC_interval_index,60/t_AGC*tRTD)/(60/t_AGC*tRTD)).*(next_pump_RTD(1,find(agcIDX_ESR)+1)-RTSCEDBINDINGPUMPSCHEDULE(RTSCED_binding_interval_index-1-1,find(agcIDX_ESR)+1)) - REGULATION_UP(1,find(agcIDX)+1));
+min_reg(agcIDX,1) = max(current_pump_agc(1,find(agcIDX)+1) -ramp_agc(find(agcIDX),1)'.*(t_AGC/60),RTSCEDBINDINGPUMPSCHEDULE(RTSCED_binding_interval_index-1-1,find(agcIDX_ESR)+1) + (mod(AGC_interval_index,60/t_AGC*tRTD)/(60/t_AGC*tRTD)).*(next_pump_RTD(1,find(agcIDX_ESR)+1)-RTSCEDBINDINGPUMPSCHEDULE(RTSCED_binding_interval_index-1-1,find(agcIDX_ESR)+1)) + REGULATION_DOWN(1,find(agcIDX)+1));
 agcIDX=~agcIDX;
 max_reg(agcIDX,1) = max(current_gen_agc(1,find(agcIDX)+1) - ramp_agc(find(agcIDX),1)'.*(t_AGC/60),RTSCEDBINDINGSCHEDULE(RTSCED_binding_interval_index-1-1,find(agcIDX)+1) + (mod(AGC_interval_index,60/t_AGC*tRTD)/(60/t_AGC*tRTD)).*(next_RTD(1,find(agcIDX)+1)-RTSCEDBINDINGSCHEDULE(RTSCED_binding_interval_index-1-1,find(agcIDX)+1)) + REGULATION_UP(1,find(agcIDX)+1));
 min_reg(agcIDX,1) = min(current_gen_agc(1,find(agcIDX)+1) + ramp_agc(find(agcIDX),1)'.*(t_AGC/60),RTSCEDBINDINGSCHEDULE(RTSCED_binding_interval_index-1-1,find(agcIDX)+1) + (mod(AGC_interval_index,60/t_AGC*tRTD)/(60/t_AGC*tRTD)).*(next_RTD(1,find(agcIDX)+1)-RTSCEDBINDINGSCHEDULE(RTSCED_binding_interval_index-1-1,find(agcIDX)+1)) - REGULATION_DOWN(1,find(agcIDX)+1));
@@ -94,11 +91,11 @@ for i=1:ngen
             || ( ACE_Target(i) >= -1*agc_deadband_Target(i) && REGULATION_UP(:,1+i) > eps) ...
             || ( ACE_Target(i) <= agc_deadband_Target(i) && REGULATION_DOWN(:,1+i) > eps) )  
             if unit_pumping_agc(i,1) == 1 || unit_pumpdown_agc(i,1) == 1
-                AGC_ramp = min(ramp_agc(i,1),max(-1*ramp_agc(i,1),(next_pump_RTD(1,1+i)-current_pump_agc(1,1+i))/(60*(next_pump_RTD(1,1) - agc_time))));
-                AGC_BASEPOINT(1+i)= max(0,current_pump_agc(1,1+i) + AGC_ramp*(t_AGC/60));
+                AGC_ramp = min(ramp_agc(i,1),max(-1*ramp_agc(i,1),(next_pump_RTD(1,1+find(storage_to_gen_index==i))-current_pump_agc(1,1+i))/(60*(next_pump_RTD(1,1) - agc_time))));
+                AGC_BASEPOINT(1+i)= min(0,current_pump_agc(1,1+i) + AGC_ramp*(t_AGC/60));
             else
                 AGC_ramp = min(ramp_agc(i,1),max(-1*ramp_agc(i,1),(next_RTD(1,1+i)-current_gen_agc(1,1+i))/(60*(next_RTD(1,1) - agc_time))));
-                if GENVALUE.val(i,gen_type) ~= 14 && GENVALUE.val(i,gen_type) ~= 16
+                if GENVALUE_VAL(i,gen_type) ~= interface_gen_type_index && GENVALUE_VAL(i,gen_type) ~= variable_dispatch_gen_type_index
                     AGC_BASEPOINT(1+i)= max(0,current_gen_agc(1,1+i) + AGC_ramp*(t_AGC/60));
                 else
                     AGC_BASEPOINT(1+i)= current_gen_agc(1,1+i) + AGC_ramp*(t_AGC/60);
@@ -108,6 +105,5 @@ for i=1:ngen
             
 end;
 
-AGC_SCHEDULE(AGC_interval_index,:)=AGC_BASEPOINT;
 
 

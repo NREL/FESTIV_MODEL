@@ -39,8 +39,8 @@ else
     X2=unique(X2);
     X0=cellstr(Alphabet);
     masterabc=[X0;X1;X2(1:15682)];
-    genrangeend=char(masterabc(size(GEN.uels,2)+1));
-    busrangeend=char(masterabc(size(BUS.uels,2)+1));
+    genrangeend=char(masterabc(size(GEN_VAL',2)+1));
+    busrangeend=char(masterabc(size(BUS_VAL',2)+1));
     acerangeend=char(masterabc(size(ACE,2)));
     reserverangeend=char(masterabc(size(RTD_RESERVE_FIELD,2)-1));
 
@@ -67,7 +67,7 @@ else
     set(Activesheet.Range('B4'),'Value',Revenue_Result_Total);
     set(Activesheet.Range('A5'),'Value','Profit');
     set(Activesheet.Range('B5'),'Value',Profit_Result_Total);
-    if size(STORAGE_UNITS,1) > 0 && sum(GENVALUE.val(:,gen_type)==6) > 0
+    if size(STORAGE_UNITS,1) > 0 && sum(GENVALUE_VAL(:,gen_type)==pumped_storage_gen_type_index) > 0
         set(Activesheet.Range('A6'),'Value','Adjusted for Storage Level');
         set(Activesheet.Range('B6'),'Value',adjusted_storage_cost);
     end
@@ -89,7 +89,7 @@ else
     set(Activesheet.Range('B15'),'Value',ACE(AGC_interval_index-1,integrated_ACE_index));
     set(Activesheet.Range('A18'),'Value','Total Generation By Unit');
     range=strcat('B17:',genrangeend,'17');
-    set(Activesheet.Range(range),'Value',GEN.uels);
+    set(Activesheet.Range(range),'Value',GEN_VAL');
     range=strcat('B18:',genrangeend,'18');
     set(Activesheet.Range(range),'Value',sum(ACTUAL_GENERATION(:,2:end)).*t_AGC./60./60);
     set(Activesheet.Range('A23'),'Value','Solve Time (seconds)');
@@ -207,7 +207,7 @@ else
     rtsced_reserve_prices.Name = 'rtsced_reserve_prices';
     reservehandles=[];
     for i=1:nreserve
-        reservesheet=strcat(RESERVETYPE.uels{i},'_Schedule');
+        reservesheet=strcat(RESERVETYPE_VAL{i},'_Schedule');
         Sheets.Add([], Sheets.Item(Sheets.Count));
         Hreservesheet=get(Sheets,'Item',i+12);
         Hreservesheet.Name = reservesheet;
@@ -216,19 +216,19 @@ else
 
     % write reserve sheets
     for r=1:nreserve
-        reservesheet=strcat(RESERVETYPE.uels{r},'_Schedule');
+        reservesheet=strcat(RESERVETYPE_VAL{r},'_Schedule');
         invoke(reservehandles(r), 'Activate');
         Activesheet = e.Activesheet;
         range=strcat('A2:',genrangeend,num2str(size(RTSCEDBINDINGRESERVE,1)+1));
         set(Activesheet.Range(range),'Value',RTSCEDBINDINGRESERVE(:,:,r));
         range=strcat('B1:',genrangeend,'1');
-        set(Activesheet.Range(range),'Value',GEN.uels);
+        set(Activesheet.Range(range),'Value',GEN_VAL');
     end;  
 
     % write agc schedules
     invoke(AGC_schedules, 'Activate');
     Activesheet = e.Activesheet;
-    set(Activesheet.Range(range),'Value',GEN.uels);
+    set(Activesheet.Range(range),'Value',GEN_VAL');
     range=strcat('A2:',genrangeend,num2str(size(AGC_SCHEDULE,1)+1));
     set(Activesheet.Range(range),'Value',AGC_SCHEDULE);
     
@@ -259,10 +259,10 @@ else
         range=strcat('A2:',busrangeend,num2str(size(RTSCEDBINDINGLMP,1)+1));
         set(Activesheet.Range(range),'Value',RTSCEDBINDINGLMP);
         range=strcat('B1:',busrangeend,'1');
-        set(Activesheet.Range(range),'Value',BUS.uels);
+        set(Activesheet.Range(range),'Value',BUS_VAL');
         invoke(dascuc_lmps, 'Activate');
         Activesheet = e.Activesheet;
-        set(Activesheet.Range(range),'Value',BUS.uels);
+        set(Activesheet.Range(range),'Value',BUS_VAL');
         range=strcat('A2:',busrangeend,num2str(size(DASCUCLMP,1)+1));
         set(Activesheet.Range(range),'Value',DASCUCLMP);
     else
@@ -288,9 +288,11 @@ else
     range=strcat('A2:A',num2str(size(DASCUCSCHEDULE,1)+1));
     set(Activesheet.Range(range),'Value',DASCUCSCHEDULE(:,1));
     range=strcat('B2:',genrangeend,num2str(size(DASCUCSCHEDULE,1)+1));
-    set(Activesheet.Range(range),'Value',DASCUCSCHEDULE(:,2:ngen+1)-DASCUCPUMPSCHEDULE(:,2:ngen+1));
+    temp=DASCUCSCHEDULE(:,2:ngen+1);
+    temp(:,storage_to_gen_index) = temp(:,storage_to_gen_index)  - DASCUCPUMPSCHEDULE(:,2:nESR+1);
+    set(Activesheet.Range(range),'Value',temp);
     range=strcat('B1:',genrangeend,'1');
-    set(Activesheet.Range(range),'Value',GEN.uels);
+    set(Activesheet.Range(range),'Value',GEN_VAL');
 
     % write rtscuc schedules
     invoke(rtscuc_schedules, 'Activate');
@@ -298,9 +300,11 @@ else
     range=strcat('A2:A',num2str(size(RTSCUCBINDINGSCHEDULE,1)+1));
     set(Activesheet.Range(range),'Value',RTSCUCBINDINGSCHEDULE(:,1));
     range=strcat('B2:',genrangeend,num2str(size(RTSCUCBINDINGSCHEDULE,1)+1));
-    set(Activesheet.Range(range),'Value',RTSCUCBINDINGSCHEDULE(:,2:ngen+1)-RTSCUCBINDINGPUMPSCHEDULE(:,2:ngen+1));
+    temp=RTSCUCBINDINGSCHEDULE(:,2:ngen+1);
+    temp(:,storage_to_gen_index) = temp(:,storage_to_gen_index)  - RTSCUCBINDINGPUMPSCHEDULE(:,2:nESR+1);
+    set(Activesheet.Range(range),'Value',temp);
     range=strcat('B1:',genrangeend,'1');
-    set(Activesheet.Range(range),'Value',GEN.uels);
+    set(Activesheet.Range(range),'Value',GEN_VAL');
 
     % write rtsced schedules
     invoke(rtsced_schedules, 'Activate');
@@ -308,9 +312,11 @@ else
     range=strcat('A2:A',num2str(size(RTSCEDBINDINGSCHEDULE,1)+1));
     set(Activesheet.Range(range),'Value',RTSCEDBINDINGSCHEDULE(:,1));
     range=strcat('B2:',genrangeend,num2str(size(RTSCEDBINDINGSCHEDULE,1)+1));
-    set(Activesheet.Range(range),'Value',RTSCEDBINDINGSCHEDULE(:,2:ngen+1)-RTSCEDBINDINGPUMPSCHEDULE(:,2:ngen+1));
+    temp=RTSCEDBINDINGSCHEDULE(:,2:ngen+1);
+    temp(:,storage_to_gen_index) = temp(:,storage_to_gen_index)  - RTSCEDBINDINGPUMPSCHEDULE(:,2:nESR+1);
+    set(Activesheet.Range(range),'Value',temp);
     range=strcat('B1:',genrangeend,'1');
-    set(Activesheet.Range(range),'Value',GEN.uels);
+    set(Activesheet.Range(range),'Value',GEN_VAL');
 
     % write realized generation
     invoke(realized_generation, 'Activate');
@@ -318,9 +324,11 @@ else
     range=strcat('A2:A',num2str(size(ACTUAL_GENERATION,1)+1));
     set(Activesheet.Range(range),'Value',ACTUAL_GENERATION(:,1));
     range=strcat('B2:',genrangeend,num2str(size(ACTUAL_GENERATION,1)+1));
-    set(Activesheet.Range(range),'Value',ACTUAL_GENERATION(:,2:ngen+1)-ACTUAL_PUMP(:,2:ngen+1));
+    temp=ACTUAL_GENERATION(:,2:ngen+1);
+    temp(:,storage_to_gen_index) = temp(:,storage_to_gen_index)  - ACTUAL_PUMP(:,2:nESR+1);
+    set(Activesheet.Range(range),'Value',temp);
     range=strcat('B1:',genrangeend,'1');
-    set(Activesheet.Range(range),'Value',GEN.uels);
+    set(Activesheet.Range(range),'Value',GEN_VAL');
 
     % write ACE sheet
     invoke(Area_Control_Error, 'Activate');
@@ -342,7 +350,7 @@ else
     set(Activesheet.Range('B4'),'Value',Revenue_Result_Total);
     set(Activesheet.Range('A5'),'Value','Profit');
     set(Activesheet.Range('B5'),'Value',Profit_Result_Total);
-    if size(STORAGE_UNITS,1) > 0 && sum(GENVALUE.val(:,gen_type)==6) > 0
+    if size(STORAGE_UNITS,1) > 0 && sum(GENVALUE_VAL(:,gen_type)==pumped_storage_gen_type_index) > 0
         set(Activesheet.Range('A6'),'Value','Adjusted for Storage Level');
         set(Activesheet.Range('B6'),'Value',adjusted_storage_cost);
     end
@@ -364,7 +372,7 @@ else
     set(Activesheet.Range('B15'),'Value',ACE(AGC_interval_index-1,integrated_ACE_index));
     set(Activesheet.Range('A18'),'Value','Total Generation By Unit');
     range=strcat('B17:',genrangeend,'17');
-    set(Activesheet.Range(range),'Value',GEN.uels);
+    set(Activesheet.Range(range),'Value',GEN_VAL');
     range=strcat('B18:',genrangeend,'18');
     set(Activesheet.Range(range),'Value',sum(ACTUAL_GENERATION(:,2:end)).*t_AGC./60./60);
     set(Activesheet.Range('A23'),'Value','Solve Time (seconds)');
@@ -443,7 +451,7 @@ else
     % check for ALFEE
     if monitor_ALFEE == 1
         xlswrite(dir1,{'ALFEE'},'Results_summary','A19');
-        xlswrite(dir1,BRANCH.uels,'Results_summary','B18');
+        xlswrite(dir1,BRANCH_VAL','Results_summary','B18');
         xlswrite(dir1,ALFEE,'Results_summary','B19');
         xlswrite(dir1,{'total line flow violations'},'Results_summary','A18');
         xlswrite(dir1,sum(LF_violation(:,2:nbranch+1)),'Results_summary','B18');
