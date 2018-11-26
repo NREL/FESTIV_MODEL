@@ -1,0 +1,6 @@
+=start
+GEN_GOV(GEN) = YES$(GENVALUE(GEN,"DROOP") GT 0);  
+
+GEN_NOGOV(GEN) = GEN(GEN) - GEN_GOV(GEN);  
+
+=end

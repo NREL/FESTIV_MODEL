@@ -1,0 +1,5 @@
+=start
+option solvelink=5;
+RTD.OptFile = 1;
+option limrow = 10000;
+=end

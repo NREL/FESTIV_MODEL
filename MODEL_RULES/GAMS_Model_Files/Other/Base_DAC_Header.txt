@@ -1,0 +1,5 @@
+=start
+** DASCUC MODEL **
+$onempty
+$SETGLOBAL SUSD_TRAJECTORY_CHECK "YES"
+=end

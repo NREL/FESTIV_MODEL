@@ -1,0 +1,6 @@
+
+=start=
+$GDXIN SHUT_DOWN_DELAY_FILE
+*LOAD RTSCUC SD DELAY
+$load DELAYSD
+=end=

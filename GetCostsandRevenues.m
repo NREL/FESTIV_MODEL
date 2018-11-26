@@ -1,6 +1,6 @@
 function[Cost_Result,DARevenue_Result,DARevenue_Result_Energy,DARevenue_Result_AS,RTRevenue_Result,RTRevenue_Result_Energy,RTRevenue_Result_AS,...
     Revenue_Result,Profit_Result,Total_SU_Costs,Total_Cum_Costs] = GetCostsandRevenues(ACTUAL_GENERATION,RTSCEDBINDINGLMP,RTSCEDBINDINGRESERVE,RTSCEDBINDINGRESERVEPRICE,...
-    DASCUCSCHEDULE,DASCUCLMP,DASCUCRESERVE,DASCUCRESERVEPRICE,COST,BLOCK,GENVALUE,ngen,nreserve,GENBUS,cost_hours,t_AGC,IRTD,IDAC)
+    DASCUCSCHEDULE,DASCUCLMP,DASCUCRESERVE,DASCUCRESERVEPRICE,BLOCK_COST_VAL,BLOCK_CAP_VAL,GENVALUE,ngen,nreserve,GENBUS_CALCS_VAL,cost_hours,t_AGC,IRTD,IDAC)
 
 
 %Options
@@ -40,8 +40,8 @@ global inc_cost capacity noload_cost su_cost mr_time md_time ramp_rate min_gen g
 No_Load_Cost = GENVALUE(:,noload_cost);
 Startup_Cost = GENVALUE(:,su_cost); %Currently this will not be correct for variable startupcost.
 Initial_Status = GENVALUE(:,initial_status);
-nblock = size(COST,2);
-genbus1(:,1)=1+GENBUS(:,1);
+nblock = size(BLOCK_COST_VAL,2);
+genbus1(:,1)=1+GENBUS_CALCS_VAL(:,2);
 for i=1:ngen
     % Day-Ahead Revenue
     for t2=1:DA_size
@@ -90,7 +90,7 @@ for t=1:ACT_size
         %    Cost_Result(h,i) = Cost_Result(h,i) + No_Load_Cost(i,1)*(t_AGC/3600);
         %end;
         if tfirst
-            if Positive_generation(i) && initial_status_off(i) ;
+            if Positive_generation(i) && initial_status_off(i) 
                 Cost_Result(h,i) = Cost_Result(h,i) + Startup_Cost(i,1);
                 Total_SU_Costs = Total_SU_Costs + Startup_Cost(i,1);
             end;
@@ -102,42 +102,42 @@ for t=1:ACT_size
         end;
         k=1;
         while k <=nblock
-            if ACTUAL_GENERATION(t,i+1) <= BLOCK(i,k)
+            if ACTUAL_GENERATION(t,i+1) <= BLOCK_CAP_VAL(i,k)
                 if k == 1
                     prev_block = 0;
                 else
-                    prev_block = BLOCK(i,k-1);
+                    prev_block = BLOCK_CAP_VAL(i,k-1);
                 end;
-                Cost_Result(h,i) = Cost_Result(h,i) + (ACTUAL_GENERATION(t,i+1) - prev_block)*COST(i,k)*(t_AGC/3600);
+                Cost_Result(h,i) = Cost_Result(h,i) + (ACTUAL_GENERATION(t,i+1) - prev_block)*BLOCK_COST_VAL(i,k)*(t_AGC/3600);
                 k=nblock;
             else
                 if k == 1
                     prev_block = 0;
                 else
-                    prev_block = BLOCK(i,k-1);
+                    prev_block = BLOCK_CAP_VAL(i,k-1);
                 end;
-                Cost_Result(h,i) = Cost_Result(h,i) + (BLOCK(i,k) - prev_block)*COST(i,k)*(t_AGC/3600);
+                Cost_Result(h,i) = Cost_Result(h,i) + (BLOCK_CAP_VAL(i,k) - prev_block)*BLOCK_COST_VAL(i,k)*(t_AGC/3600);
             end;
             k=k+1;
         end;
-    end; % i=1:ngen
-        RTRevenue_Result_Energy_TMP_(1,:) = ...
-          (ACTUAL_GENERATION(t,plus1)-DASCUCSCHEDULE(minDA,plus1)).* ...
-            max(-max_price,min(max_price,RTSCEDBINDINGLMP(minRT,genbus1(:))))*(t_AGC/3600);
-        RTRevenue_Result_Energy(minRT,:) = RTRevenue_Result_Energy(minRT,:) + ...
+        bus_index = 1+GENBUS_CALCS_VAL(find(GENBUS_CALCS_VAL(:,1)==i),2);
+        participation_factor_index = GENBUS_CALCS_VAL(find(GENBUS_CALCS_VAL(:,1)==i),3);
+        RTRevenue_Result_Energy_TMP_ = ...
+          (ACTUAL_GENERATION(t,i+1)-DASCUCSCHEDULE(minDA,i+1)).* ...
+            max(-max_price,min(max_price,RTSCEDBINDINGLMP(minRT,bus_index)*participation_factor_index))*(t_AGC/3600);
+        RTRevenue_Result_Energy(minRT,i) = RTRevenue_Result_Energy(minRT,i) + ...
             RTRevenue_Result_Energy_TMP_;
-        Diff_(:,:)=RTSCEDBINDINGRESERVE(minRT,plus1,1:nreserve)-DASCUCRESERVE(minDA,plus1,:);
-        RTRevenue_Result_AS_TMP_=zeros(size(Diff_));
-        for i=1:ngen; 
-            RTRevenue_Result_AS_TMP_(i,:) =  ...
-            (Diff_(i,:).*RTSCEDBINDINGRESERVEPRICE(minRT,2:end))*(t_AGC/3600); 
-        end % i=1:ngen
-        RTRevenue_Result(minRT,:) = RTRevenue_Result(minRT,:)+RTRevenue_Result_Energy_TMP_(1,:);
-        RTRevenue_Result_AS(minRT,1:ngen,:) = RTRevenue_Result_AS_TMP_(:,:);
-         sumRTrev_=sum(RTRevenue_Result_AS_TMP_,2)';
-          RTRevenue_Result(minRT,:) = RTRevenue_Result(minRT,:) + sumRTrev_;
-        Revenue_Result(minDA,:) = Revenue_Result(minDA,:) + RTRevenue_Result_Energy_TMP_ + sumRTrev_;
-        
+        RTRevenue_Result_AS_TMP_=0;
+        for r=1:nreserve
+            Diff_=RTSCEDBINDINGRESERVE(minRT,1+i,r)-DASCUCRESERVE(minDA,1+i,r);
+            RTRevenue_Result_AS_TMP_=zeros(size(Diff_));
+            RTRevenue_Result_AS_TMP_ =  RTRevenue_Result_AS_TMP_ + ...
+                (Diff_.*RTSCEDBINDINGRESERVEPRICE(minRT,1+r))*(t_AGC/3600);
+        end
+        RTRevenue_Result_AS(minRT,i) = RTRevenue_Result_AS_TMP_;
+        RTRevenue_Result(minRT,i) = RTRevenue_Result(minRT,i) + RTRevenue_Result_AS_TMP_;
+        Revenue_Result(minDA,i) = Revenue_Result(minDA,i) + RTRevenue_Result_Energy_TMP_ + RTRevenue_Result_AS_TMP_;
+    end; % i=1:ngen
     Total_Cum_Costs(t,1)=sum(sum(Cost_Result(1:h,:)));
     if t > 1 && (mod(ACTUAL_GENERATION(t,1),IDAC) - 0 < eps || 1-mod(ACTUAL_GENERATION(t,1),IDAC) < eps)
         h = h+1;

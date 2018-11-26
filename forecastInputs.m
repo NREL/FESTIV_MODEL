@@ -170,6 +170,7 @@ try
             end;
         else
             RESERVE_FULL=evalin('caller',sprintf('%s_RESERVE_FULL',model));
+            RESERVE_FIELD=evalin('caller',sprintf('%s_RESERVE_FIELD',model));
         end
     else
         RESERVE_FULL = zeros(24/t*H*simulation_days,nreserve+2);
@@ -179,7 +180,6 @@ try
         end;
         RESERVE_FIELD = [' ' ' ' RESERVETYPES];
     end;
-    RESERVE_FIELD = [' ' ' ' RESERVETYPES];
 catch
     RESERVE_FULL = zeros(24/t*H*simulation_days,nreserve+2);
     for d=1:simulation_days*round(24/t)

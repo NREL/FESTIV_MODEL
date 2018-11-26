@@ -12,96 +12,84 @@ uicontrol('parent',mainFigure,'style','text','fontname','courier','string','FEST
 % create input file request
 uicontrol('parent',mainFigure,'style','text','string','Input File:','units','normalized','position',[.02 .73 .1 .07],'fontunits','normalized','fontsize',0.3);
 inputFileEditBox=uicontrol('parent',mainFigure,'style','edit','units','normalized','position',[.12 .76 .64 .05],'fontunits','normalized','fontsize',0.4,'backgroundcolor','white','horizontalalignment','left');
-uicontrol('parent',mainFigure,'style','pushbutton','units','normalized','position',[.77 .76 .13 .05],'string','Browse','fontunits','normalized','fontsize',0.5,'callback',{@browseforfile});
+uicontrol('parent',mainFigure,'style','pushbutton','TooltipString', [' Select the appropriate input file from the list of files'],'units','normalized','position',[.77 .76 .13 .05],'string','Browse','fontunits','normalized','fontsize',0.5,'callback',{@browseforfile});
 autosavecheck_in=uicontrol('parent',mainFigure,'style','checkbox','unit','normalized','position',[.91 .735 .1 .1],'string','<html>auto<br>save</html>','callback',{@autosavecallback});
-try
-    inputPath = char(inifile(['Input',filesep,'FESTIV.inp'],'read',{'','','inputPath',''}));
-    [~, name, ext] = fileparts(inputPath);
-    displayname=strcat(name,ext);
-    set(inputFileEditBox,'string',displayname);
-    if strcmp(ext,'.h5')
-        assignin('base','useHDF5',1);
-    else
-        assignin('base','useHDF5',0);
-    end
-catch
-end
 
 % create DASCUC information request
 uipanel('parent',mainFigure,'Title','DASCUC','units','normalized','Position', [.03 .24 .30 .5],'fontunits','normalized','fontsize',0.040,'BackgroundColor',get(mainFigure,'color'));
-uicontrol('style','text','string','t_DAC:','units','normalized','position',[.04 .65 .08 .05],'fontunits','normalized','fontsize',0.35,'horizontalalignment','left');
-uicontrol('style','text','string','H_DAC:','units','normalized','position',[.04 .59 .08 .05],'fontunits','normalized','fontsize',0.35,'horizontalalignment','left');
-uicontrol('style','text','string','I_DAC:','units','normalized','position',[.18 .65 .08 .05],'fontunits','normalized','fontsize',0.35,'horizontalalignment','left');
-uicontrol('style','text','string','P_DAC:','units','normalized','position',[.18 .59 .08 .05],'fontunits','normalized','fontsize',0.35,'horizontalalignment','left');
-uicontrol('style','text','string','G_DAC:','units','normalized','position',[.04 .53 .08 .05],'fontunits','normalized','fontsize',0.35,'horizontalalignment','left');
-uicontrol('style','text','string','H_Type:','units','normalized','position',[.17 .538 .12 .043],'fontunits','normalized','fontsize',0.4,'horizontalalignment','left');
+uicontrol('style','text','string','t_DAC:','TooltipString', ['(hrs) Time between DASCUC updates'],'units','normalized','position',[.04 .65 .08 .05],'fontunits','normalized','fontsize',0.35,'horizontalalignment','left');
+uicontrol('style','text','string','H_DAC:','TooltipString', ['(hrs) DASCUC Scheduling Horizon'],'units','normalized','position',[.04 .59 .08 .05],'fontunits','normalized','fontsize',0.35,'horizontalalignment','left');
+uicontrol('style','text','string','I_DAC:','TooltipString', ['(hrs) DASCUC Interval length'],'units','normalized','position',[.18 .65 .08 .05],'fontunits','normalized','fontsize',0.35,'horizontalalignment','left');
+uicontrol('style','text','string','P_DAC:','TooltipString', ['(hrs) Model processing time'],'units','normalized','position',[.18 .59 .08 .05],'fontunits','normalized','fontsize',0.35,'horizontalalignment','left');
+uicontrol('style','text','string','G_DAC:','TooltipString', ['(hrs) Market Gate for DASCUC'],'units','normalized','position',[.04 .53 .08 .05],'fontunits','normalized','fontsize',0.35,'horizontalalignment','left');
+uicontrol('style','text','string','H_Type:','TooltipString', ['For different DASCUC solutions' char(10) 'Currently, only Type 1 has been thoroughly tested.'],'units','normalized','position',[.17 .538 .12 .043],'fontunits','normalized','fontsize',0.4,'horizontalalignment','left');
 tDAC_in_edit=uicontrol('style','edit','string','24','units','normalized','position',[.115 .673 .05 .03],'backgroundcolor','white');
 HDAC_in_edit=uicontrol('style','edit','string','24','units','normalized','position',[.115 .613 .05 .03],'backgroundcolor','white');
 IDAC_in_edit=uicontrol('style','edit','string','1','units','normalized','position',[.25 .673 .05 .03],'backgroundcolor','white');
 PDAC_in_edit=uicontrol('style','edit','string','1','units','normalized','position',[.25 .613 .05 .03],'backgroundcolor','white');
 GDAC_in_edit=uicontrol('style','edit','string','12','units','normalized','position',[.115 .553 .05 .03],'backgroundcolor','white');
 DAHORIZONTYPE_in_edit=uicontrol('style','popupmenu','units','normalized','position',[.24 .555 .08 .03],'string','Type 1|Type 2|Type 3|Type 4','backgroundcolor','white');
-uicontrol('parent',mainFigure,'style','text','string','Load Forecast','units','normalized','position',[.11 .5 .12 .04],'fontunits','normalized','fontsize',0.45);
+uicontrol('parent',mainFigure,'style','text','string','Load Forecast','TooltipString', ['1-From Data  File: This will read in the data that is given as a reference in the  Main Input File,' char(10) 'and lies in the TIMESERIES directory' char(10) '2-Perfect  Forecast:  This  will  create  Load  Forecasts  that  are  equal  to  the  average  Actual  Load,' char(10) 'based on averaging over the interval resolution, I.' char(10) '3-Persistance Forecast: This will create Load Forecasts that are equal to the load before the sub model' char(10) 'would  start  (i.e.,  time  –  P).  Note  that  this  method  will  not  work  for  DASCUC  Load' char(10) 'Forecasts, as persistence forecasts would not be plausible.' char(10) '4-Predefined  with  NDE:  This  will  create  Load  Forecasts  that  have  a  predefined  normally' char(10) 'distributed error randomly added to the Average Load for each interval in the sub-model'],'units','normalized','position',[.11 .5 .12 .04],'fontunits','normalized','fontsize',0.45);
 DASCUCLF=uicontrol('parent',mainFigure','style','popupmenu','units','normalized','position',[.06 .46 .22 .05],'string','1 - From Data File|2 - Perfect Forecast|3 - Persistence Forecast|4 - Predefined with NDE','backgroundcolor','white');
-uicontrol('parent',mainFigure,'style','text','string','VG Forecast','units','normalized','position',[.11 .43 .12 .04],'fontunits','normalized','fontsize',0.45);
+uicontrol('parent',mainFigure,'style','text','string','VG Forecast','TooltipString', ['1-From Data File: This will read in the data that is given as a reference in the  Main Input File,' char(10) 'and lies in the TIMESERIES directory' char(10) '2-Perfect Forecast: This will create VG Forecasts that are equal to the average  Actual VG, based ' char(10) 'on averaging over the interval resolution, I.  Note that if any VCR exists, an input file would still be needed.' char(10) '3-Persistance Forecast: This will create VG Forecasts that are equal to the VG output before the' char(10) 'sub-model  would  start  (i.e.,  time  –  P).  Note  that this  method  will not  work  for  DASCUC  VG' char(10) 'Forecasts, as persistence forecasts would not be plausible. Note that if any  VCR exists, an input' char(10) 'file would still be needed.' char(10) '4-Predefined  with  NDE:  This  will  create  VG  Forecasts  that  have  a  predefined  normally' char(10) 'distributed error randomly added to the Average VG for each interval in the sub-model. Note that' char(10) 'if any VCR exists, an input file would still be needed.'],'units','normalized','position',[.11 .43 .12 .04],'fontunits','normalized','fontsize',0.45);
 DASCUCVGF=uicontrol('parent',mainFigure','style','popupmenu','units','normalized','position',[.06 .39 .22 .05],'string','1 - From Data File|2 - Perfect Forecast|3 - Persistence Forecast|4 - Predefined with NDE','backgroundcolor','white');
-uicontrol('parent',mainFigure,'style','text','string','Reserve Levels','units','normalized','position',[.1 .36 .14 .04],'fontunits','normalized','fontsize',0.45);
+uicontrol('parent',mainFigure,'style','text','string','Reserve Levels','TooltipString', ['1-No reserve: This will set the reserve requirements at 0MW for all services (Day-ahead only' char(10) '2-From Day Ahead: This will set the reserve requirements in RTSCUC and RTSCED at the dayahead level for the corresponding time interval (RTSCUC and RTSCED only).' char(10) '3-From Data File: This will read in the data that is given as a reference in the  Main Input File,' char(10) 'and lies in the TIMESERIES directory (See Section 4.1 Main Input File)'],'units','normalized','position',[.1 .36 .14 .04],'fontunits','normalized','fontsize',0.45);
 DAC_RESERVE_FORECAST_MODE_in_GUI=uicontrol('parent',mainFigure','style','popupmenu','units','normalized','position',[.06 .32 .22 .05],'string','1 - No reserve|2 - From Data File','backgroundcolor','white','value',1);
 uicontrol('parent',mainFigure,'units','normalized','position',[.1 .27 .15 .05],'string','DASCUC Rules','fontunits','normalized','fontsize',0.4,'callback',{@dascuc_model_rules});
 
 % create RTSCUC information request
 uipanel('parent',mainFigure,'Title','RTSCUC','units','normalized','Position', [.35 .24 .30 .5],'fontunits','normalized','fontsize',0.040,'BackgroundColor',get(mainFigure,'color'));
-uicontrol('parent',mainFigure,'style','text','string','t_RTC:','units','normalized','position',[.37 .65 .08 .05],'horizontalalignment','left','fontunits','normalized','fontsize',0.34);
-uicontrol('parent',mainFigure,'style','text','string','H_RTC:','units','normalized','position',[.37 .59 .08 .05],'horizontalalignment','left','fontunits','normalized','fontsize',0.35);
-uicontrol('parent',mainFigure,'style','text','string','I_RTC:','units','normalized','position',[.51 .65 .08 .05],'horizontalalignment','left','fontunits','normalized','fontsize',0.34);
-uicontrol('parent',mainFigure,'style','text','string','P_RTC:','units','normalized','position',[.51 .59 .08 .05],'horizontalalignment','left','fontunits','normalized','fontsize',0.35);
+uicontrol('parent',mainFigure,'style','text','string','t_RTC:','TooltipString', ['(minutes) Time between RTSCUC updates'],'units','normalized','position',[.37 .65 .08 .05],'horizontalalignment','left','fontunits','normalized','fontsize',0.34);
+uicontrol('parent',mainFigure,'style','text','string','H_RTC:','TooltipString', ['(hrs) RTSCUC Scheduling Horizon'],'units','normalized','position',[.37 .59 .08 .05],'horizontalalignment','left','fontunits','normalized','fontsize',0.35);
+uicontrol('parent',mainFigure,'style','text','string','I_RTC:','TooltipString', ['(minutes) RTSCUC Interval length' char(10) 'Only simulations where t_RTC=I_RTC have been thoroughly tested'],'units','normalized','position',[.51 .65 .08 .05],'horizontalalignment','left','fontunits','normalized','fontsize',0.34);
+uicontrol('parent',mainFigure,'style','text','string','P_RTC:','TooltipString', ['(minutes) Model processing time'],'units','normalized','position',[.51 .59 .08 .05],'horizontalalignment','left','fontunits','normalized','fontsize',0.35);
 uicontrol('parent',mainFigure,'style','text','string','t_RTCSTART:','units','normalized','position',[.41 .53 .105 .05],'horizontalalignment','left','fontunits','normalized','fontsize',0.35);
 tRTC_in_edit=uicontrol('parent',mainFigure,'style','edit','string','15','units','normalized','position',[.445 .673 .05 .03],'backgroundcolor','white');
 HRTC_in_edit=uicontrol('parent',mainFigure,'style','edit','string','3','units','normalized','position',[.445 .613 .05 .03],'backgroundcolor','white');
 IRTC_in_edit=uicontrol('parent',mainFigure,'style','edit','string','15','units','normalized','position',[.58 .673 .05 .03],'backgroundcolor','white');
 PRTC_in_edit=uicontrol('parent',mainFigure,'style','edit','string','15','units','normalized','position',[.58 .613 .05 .03],'backgroundcolor','white');
 tRTCSTART_in_edit=uicontrol('parent',mainFigure,'style','edit','string','1','units','normalized','position',[.525 .553 .055 .03],'backgroundcolor','white');
-uicontrol('parent',mainFigure,'style','text','string','Load Forecast','units','normalized','position',[.44 .5 .12 .04],'fontunits','normalized','fontsize',0.45);
+uicontrol('parent',mainFigure,'style','text','string','Load Forecast','TooltipString', ['1-From Data  File: This will read in the data that is given as a reference in the  Main Input File,' char(10) 'and lies in the TIMESERIES directory' char(10) '2-Perfect  Forecast:  This  will  create  Load  Forecasts  that  are  equal  to  the  average  Actual  Load,' char(10) 'based on averaging over the interval resolution, I.' char(10) '3-Persistance Forecast: This will create Load Forecasts that are equal to the load before the sub model' char(10) 'would  start  (i.e.,  time  –  P).  Note  that  this  method  will  not  work  for  DASCUC  Load' char(10) 'Forecasts, as persistence forecasts would not be plausible.' char(10) '4-Predefined  with  NDE:  This  will  create  Load  Forecasts  that  have  a  predefined  normally' char(10) 'distributed error randomly added to the Average Load for each interval in the sub-model'],'units','normalized','position',[.44 .5 .12 .04],'fontunits','normalized','fontsize',0.45);
 RTSCUCLF=uicontrol('parent',mainFigure','style','popupmenu','units','normalized','position',[.39 .46 .22 .05],'string','1 - From Data File|2 - Perfect Forecast|3 - Persistence Forecast|4 - Predefined with NDE','backgroundcolor','white');
-uicontrol('parent',mainFigure,'style','text','string','VG Forecast','units','normalized','position',[.44 .43 .12 .04],'fontunits','normalized','fontsize',0.45);
+uicontrol('parent',mainFigure,'style','text','string','VG Forecast','TooltipString', ['1-From Data File: This will read in the data that is given as a reference in the  Main Input File,' char(10) 'and lies in the TIMESERIES directory' char(10) '2-Perfect Forecast: This will create VG Forecasts that are equal to the average  Actual VG, based ' char(10) 'on averaging over the interval resolution, I.  Note that if any VCR exists, an input file would still be needed.' char(10) '3-Persistance Forecast: This will create VG Forecasts that are equal to the VG output before the' char(10) 'sub-model  would  start  (i.e.,  time  –  P).  Note  that this  method  will not  work  for  DASCUC  VG' char(10) 'Forecasts, as persistence forecasts would not be plausible. Note that if any  VCR exists, an input' char(10) 'file would still be needed.' char(10) '4-Predefined  with  NDE:  This  will  create  VG  Forecasts  that  have  a  predefined  normally' char(10) 'distributed error randomly added to the Average VG for each interval in the sub-model. Note that' char(10) 'if any VCR exists, an input file would still be needed.'],'units','normalized','position',[.44 .43 .12 .04],'fontunits','normalized','fontsize',0.45);
 RTSCUCVGF=uicontrol('parent',mainFigure','style','popupmenu','units','normalized','position',[.39 .39 .22 .05],'string','1 - From Data File|2 - Perfect Forecast|3 - Persistence Forecast|4 - Predefined with NDE','backgroundcolor','white');
-uicontrol('parent',mainFigure,'style','text','string','Reserve Levels','units','normalized','position',[.43 .36 .14 .04],'fontunits','normalized','fontsize',0.45);
+uicontrol('parent',mainFigure,'style','text','string','Reserve Levels','TooltipString', ['1-No reserve: This will set the reserve requirements at 0MW for all services (Day-ahead only' char(10) '2-From Day Ahead: This will set the reserve requirements in RTSCUC and RTSCED at the dayahead level for the corresponding time interval (RTSCUC and RTSCED only).' char(10) '3-From Data File: This will read in the data that is given as a reference in the  Main Input File,' char(10) 'and lies in the TIMESERIES directory (See Section 4.1 Main Input File)'],'units','normalized','position',[.43 .36 .14 .04],'fontunits','normalized','fontsize',0.45);
 RTC_RESERVE_FORECAST_MODE_in_GUI=uicontrol('parent',mainFigure','style','popupmenu','units','normalized','position',[.39 .32 .22 .05],'string','1 - From Day Ahead|2 - From Data File','backgroundcolor','white','value',1);
 uicontrol('parent',mainFigure,'units','normalized','position',[.43 .27 .15 .05],'string','RTSCUC Rules','fontunits','normalized','fontsize',0.4,'callback',{@rtscuc_model_rules});
 
 % create RTSCED information request
 uipanel('parent',mainFigure,'Title','RTSCED','units','normalized','Position', [.67 .24 .30 .5],'fontunits','normalized','fontsize',0.040,'BackgroundColor',get(mainFigure,'color'));
-uicontrol('parent',mainFigure,'style','text','string','t_RTD:','units','normalized','position',[.69 .65 .08 .05],'horizontalalignment','left','fontunits','normalized','fontsize',0.34);
-uicontrol('parent',mainFigure,'style','text','string','H_RTD:','units','normalized','position',[.69 .59 .08 .05],'horizontalalignment','left','fontunits','normalized','fontsize',0.35);
-uicontrol('parent',mainFigure,'style','text','string','I_RTD:','units','normalized','position',[.83 .65 .08 .05],'horizontalalignment','left','fontunits','normalized','fontsize',0.34);
-uicontrol('parent',mainFigure,'style','text','string','P_RTD:','units','normalized','position',[.83 .59 .08 .05],'horizontalalignment','left','fontunits','normalized','fontsize',0.35);
-uicontrol('parent',mainFigure,'style','text','string','I_RTD_ADV:','units','normalized','position',[.74 .53 .105 .05],'horizontalalignment','left','fontunits','normalized','fontsize',0.35);
+uicontrol('parent',mainFigure,'style','text','string','t_RTD:','TooltipString', ['(minutes) Time between updates' char(10) ' Only  simulations  where t_RTD=I_RTD have  been  thoroughly  tested.'],'units','normalized','position',[.69 .65 .08 .05],'horizontalalignment','left','fontunits','normalized','fontsize',0.34);
+uicontrol('parent',mainFigure,'style','text','string','H_RTD:','TooltipString', ['(hrs) Scheduling Horizon'],'units','normalized','position',[.69 .59 .08 .05],'horizontalalignment','left','fontunits','normalized','fontsize',0.35);
+uicontrol('parent',mainFigure,'style','text','string','I_RTD:','TooltipString', ['(minutes) Interval length' char(10) ' Only  simulations  where t_RTD=I_RTD have  been  thoroughly  tested.'],'units','normalized','position',[.83 .65 .08 .05],'horizontalalignment','left','fontunits','normalized','fontsize',0.34);
+uicontrol('parent',mainFigure,'style','text','string','P_RTD:','TooltipString', ['(minutes) Model processing time'],'units','normalized','position',[.83 .59 .08 .05],'horizontalalignment','left','fontunits','normalized','fontsize',0.35);
+uicontrol('parent',mainFigure,'style','text','string','I_RTD_ADV:','TooltipString', ['(minutes) Interval length of advisory lookahead intervals'],'units','normalized','position',[.74 .53 .105 .05],'horizontalalignment','left','fontunits','normalized','fontsize',0.35);
 tRTD_in_edit=uicontrol('parent',mainFigure,'style','edit','string','5','units','normalized','position',[.76 .673 .05 .03],'backgroundcolor','white');
 HRTD_in_edit=uicontrol('parent',mainFigure,'style','edit','string','2','units','normalized','position',[.76 .613 .05 .03],'backgroundcolor','white');
 IRTD_in_edit=uicontrol('parent',mainFigure,'style','edit','string','5','units','normalized','position',[.9 .673 .05 .03],'backgroundcolor','white');
 PRTD_in_edit=uicontrol('parent',mainFigure,'style','edit','string','5','units','normalized','position',[.9 .613 .05 .03],'backgroundcolor','white');
 IRTDADV_in_edit=uicontrol('parent',mainFigure,'style','edit','string','15','units','normalized','position',[.845 .553 .055 .03],'backgroundcolor','white');
-uicontrol('parent',mainFigure,'style','text','string','Load Forecast','units','normalized','position',[.76 .5 .12 .04],'fontunits','normalized','fontsize',0.45);
+uicontrol('parent',mainFigure,'style','text','string','Load Forecast','TooltipString', ['1-From Data  File: This will read in the data that is given as a reference in the  Main Input File,' char(10) 'and lies in the TIMESERIES directory' char(10) '2-Perfect  Forecast:  This  will  create  Load  Forecasts  that  are  equal  to  the  average  Actual  Load,' char(10) 'based on averaging over the interval resolution, I.' char(10) '3-Persistance Forecast: This will create Load Forecasts that are equal to the load before the sub model' char(10) 'would  start  (i.e.,  time  –  P).  Note  that  this  method  will  not  work  for  DASCUC  Load' char(10) 'Forecasts, as persistence forecasts would not be plausible.' char(10) '4-Predefined  with  NDE:  This  will  create  Load  Forecasts  that  have  a  predefined  normally' char(10) 'distributed error randomly added to the Average Load for each interval in the sub-model'],'units','normalized','position',[.76 .5 .12 .04],'fontunits','normalized','fontsize',0.45);
 RTSCEDLF=uicontrol('parent',mainFigure','style','popupmenu','units','normalized','position',[.71 .46 .22 .05],'string','1 - From Data File|2 - Perfect Forecast|3 - Persistence Forecast|4 - Predefined with NDE','backgroundcolor','white');
-uicontrol('parent',mainFigure,'style','text','string','VG Forecast','units','normalized','position',[.76 .43 .12 .04],'fontunits','normalized','fontsize',0.45);
+uicontrol('parent',mainFigure,'style','text','string','VG Forecast','TooltipString', ['1-From Data File: This will read in the data that is given as a reference in the  Main Input File,' char(10) 'and lies in the TIMESERIES directory' char(10) '2-Perfect Forecast: This will create VG Forecasts that are equal to the average  Actual VG, based ' char(10) 'on averaging over the interval resolution, I.  Note that if any VCR exists, an input file would still be needed.' char(10) '3-Persistance Forecast: This will create VG Forecasts that are equal to the VG output before the' char(10) 'sub-model  would  start  (i.e.,  time  –  P).  Note  that this  method  will not  work  for  DASCUC  VG' char(10) 'Forecasts, as persistence forecasts would not be plausible. Note that if any  VCR exists, an input' char(10) 'file would still be needed.' char(10) '4-Predefined  with  NDE:  This  will  create  VG  Forecasts  that  have  a  predefined  normally' char(10) 'distributed error randomly added to the Average VG for each interval in the sub-model. Note that' char(10) 'if any VCR exists, an input file would still be needed.'],'units','normalized','position',[.76 .43 .12 .04],'fontunits','normalized','fontsize',0.45);
 RTSCEDVGF=uicontrol('parent',mainFigure','style','popupmenu','units','normalized','position',[.71 .39 .22 .05],'string','1 - From Data File|2 - Perfect Forecast|3 - Persistence Forecast|4 - Predefined with NDE','backgroundcolor','white');
-uicontrol('parent',mainFigure,'style','text','string','Reserve Levels','units','normalized','position',[.75 .36 .14 .04],'fontunits','normalized','fontsize',0.45);
+uicontrol('parent',mainFigure,'style','text','string','Reserve Levels','TooltipString', ['1-No reserve: This will set the reserve requirements at 0MW for all services (Day-ahead only' char(10) '2-From Day Ahead: This will set the reserve requirements in RTSCUC and RTSCED at the dayahead level for the corresponding time interval (RTSCUC and RTSCED only).' char(10) '3-From Data File: This will read in the data that is given as a reference in the  Main Input File,' char(10) 'and lies in the TIMESERIES directory (See Section 4.1 Main Input File)'],'units','normalized','position',[.75 .36 .14 .04],'fontunits','normalized','fontsize',0.45);
 RTD_RESERVE_FORECAST_MODE_in_GUI=uicontrol('parent',mainFigure','style','popupmenu','units','normalized','position',[.71 .32 .22 .05],'string','1 - From Day Ahead|2 - From Data File','backgroundcolor','white','value',1);
 uicontrol('parent',mainFigure,'units','normalized','position',[.75 .27 .15 .05],'string','RTSCED Rules','fontunits','normalized','fontsize',0.4,'callback',{@rtsced_model_rules});
 
 % create network check information request
 network_button_group=uibuttongroup('parent',mainFigure,'title','Network Check','units','normalized','position',[.67 .135 .145 .09],'fontunits','normalized','fontsize',0.15);
-radiobutton1=uicontrol('parent',network_button_group,'style','radiobutton','units','normalized','position',[.07 .35 .4 .45],'string','Yes','fontunits','normalized','fontsize',0.55);
-radiobutton2=uicontrol('parent',network_button_group,'style','radiobutton','units','normalized','position',[.57 .35 .4 .45],'string','No','fontunits','normalized','fontsize',0.55);
+radiobutton1=uicontrol('parent',network_button_group,'style','radiobutton','units','normalized','position',[.07 .35 .4 .45],'string','Yes','TooltipString', ['This radio button is used to select if the model will incorporate the normal network constraints in' char(10) 'the  DASCUC,  RTSCUC,  and  RTSCED  sub-models.  By  checking  Yes,  Network  Check  is' char(10) 'activated.  By  checking  no,  the  system  is  modeled  as  a  single  bus  without  transmission  flow' char(10) 'constraints.'],'fontunits','normalized','fontsize',0.55);
+radiobutton2=uicontrol('parent',network_button_group,'style','radiobutton','units','normalized','position',[.57 .35 .4 .45],'string','No','TooltipString', ['This radio button is used to select if the model will incorporate the normal network constraints in' char(10) 'the  DASCUC,  RTSCUC,  and  RTSCED  sub-models.  By  checking  Yes,  Network  Check  is' char(10) 'activated.  By  checking  no,  the  system  is  modeled  as  a  single  bus  without  transmission  flow' char(10) 'constraints.'],'fontunits','normalized','fontsize',0.55);
 
 % create contingency check information request
 ctgc_button_group=uibuttongroup('parent',mainFigure,'title','CTGC Check','units','normalized','position',[.825 .135 .145 .09],'fontunits','normalized','fontsize',0.15);
-radiobutton4=uicontrol('parent',ctgc_button_group,'style','radiobutton','units','normalized','position',[.07 .35 .4 .45],'string','Yes','fontunits','normalized','fontsize',0.55);
-radiobutton3=uicontrol('parent',ctgc_button_group,'style','radiobutton','units','normalized','position',[.57 .35 .4 .45],'string','No','fontunits','normalized','fontsize',0.55);
+radiobutton4=uicontrol('parent',ctgc_button_group,'style','radiobutton','units','normalized','position',[.07 .35 .4 .45],'string','Yes','TooltipString', ['This radio button is used to select if the model  will incorporate  network contingency  constraints.' char(10) 'By  checking  Yes, the  Contingency  Check  is  activated  and  DASCUC,  RTSCUC,  and  RTSCED' char(10) 'will ensure monitored network contingencies are enforced. By checking no, these models will not' char(10) 'enforce  any  contingency  constraints.  Note  that  Network  Check  must  be  checked  in  order  for' char(10) 'Contingency Check to be enabled.'],'fontunits','normalized','fontsize',0.55);
+radiobutton3=uicontrol('parent',ctgc_button_group,'style','radiobutton','units','normalized','position',[.57 .35 .4 .45],'string','No','TooltipString', ['This radio button is used to select if the model  will incorporate  network contingency  constraints.' char(10) 'By  checking  Yes, the  Contingency  Check  is  activated  and  DASCUC,  RTSCUC,  and  RTSCED' char(10) 'will ensure monitored network contingencies are enforced. By checking no, these models will not' char(10) 'enforce  any  contingency  constraints.  Note  that  Network  Check  must  be  checked  in  order  for' char(10) 'Contingency Check to be enabled.'],'fontunits','normalized','fontsize',0.55);
 
 % create AGC information request
 uipanel('parent',mainFigure,'Title','AGC','units','normalized','Position', [.03 .13 .3 .1],'fontunits','normalized','fontsize',0.15,'BackgroundColor',get(mainFigure,'color'));
-uicontrol('parent',mainFigure,'units','normalized','position',[.05 .15 .12 .05],'string','AGC Param','fontunits','normalized','fontsize',0.4,'callback',{@agc_input});
+uicontrol('parent',mainFigure,'units','normalized','position',[.05 .15 .12 .05],'string','AGC Param','TooltipString', ['Automatic Generation Control Parameters' char(10) 'This provides more options including CPS2 Options, Smoothed ACE Options, AGC Deadband, and AGC modes'],'fontunits','normalized','fontsize',0.4,'callback',{@agc_input});
 uicontrol('parent',mainFigure,'units','normalized','position',[.19 .15 .12 .05],'string','AGC Rules','fontunits','normalized','fontsize',0.4,'callback',{@agc_model_rules});
 
 % create simulation time request
@@ -116,14 +104,14 @@ uicontrol('parent',mainFigure,'style','text','string',':','units','normalized','
 
 % create extra options input request interfaces
 options=uipanel('parent',mainFigure,'Title','Extra Options','units','normalized','Position', [.03 .03 .725 .09],'fontunits','normalized','fontsize',0.2,'BackgroundColor',get(mainFigure,'color'));
-uicontrol('parent',options,'units','normalized','position',[.01 .15 .11 .8],'string','<html><center>RPU</center></html>','fontunits','normalized','fontsize',0.35,'callback',{@rpu_callback});
-uicontrol('parent',options,'units','normalized','position',[.135 .15 .11 .8],'string','<html><center>Multiple<br>Runs</center></html>','fontunits','normalized','fontsize',0.35,'callback',{@MultipleRuns_callback});
+uicontrol('parent',options,'units','normalized','position',[.01 .15 .11 .8],'string','<html><center>RPU</center></html>','TooltipString', ['Reserve Pick Up'], 'fontunits','normalized','fontsize',0.35,'callback',{@rpu_callback});
+uicontrol('parent',options,'units','normalized','position',[.135 .15 .11 .8],'string','<html><center>Multiple<br>Runs</center></html>','TooltipString', ['Run multiple scenarios  back-to-back  without the need' char(10) 'to re-enter all the information for each new run.'],'fontunits','normalized','fontsize',0.35,'callback',{@MultipleRuns_callback});
 uicontrol('parent',options,'units','normalized','position',[.260 .15 .11 .8],'string','<html><center>CTGC<br>Options</center></html>','fontunits','normalized','fontsize',0.35,'callback',{@contingencies_callback});
 uicontrol('parent',options,'units','normalized','position',[.385 .15 .11 .8],'string','<html><center>Debug</center></html>','fontunits','normalized','fontsize',0.35,'callback',{@debugging_callback});
 uicontrol('parent',options,'units','normalized','position',[.51 .15 .11 .8],'string','<html><center>Other<br>Rules</center></html>','fontunits','normalized','fontsize',0.35,'callback',{@other_rules_callback});
 uicontrol('parent',options,'units','normalized','position',[.635 .15 .11 .8],'string','<html><center>Save<br>Rules</center></html>','fontunits','normalized','fontsize',0.35,'callback',{@save_rules_callback});
 uicontrol('parent',options,'units','normalized','position',[.76 .15 .11 .8],'string','<html><center>Load<br>Rules</center></html>','fontunits','normalized','fontsize',0.35,'callback',{@load_rules_callback});
-uicontrol('parent',options,'units','normalized','position',[.885 .15 .11 .8],'string','<html><center>GAMS</center></html>','fontunits','normalized','fontsize',0.35,'callback',{@build_gams_models_callback});
+uicontrol('parent',options,'units','normalized','position',[.885 .15 .11 .8],'string','<html><center>Opt. Model</center></html>','fontunits','normalized','fontsize',0.35,'callback',{@build_gams_models_callback});
 uicontrol('Parent',mainFigure,'Style','pushbutton','String','<html><center>Cancel</center></html>','units','normalized','Position', [0.775 0.03 0.1 0.08],'fontunits','normalized','fontsize',0.35,'Callback', {@cancel_callback});
 uicontrol('Parent',mainFigure,'Style','pushbutton','String','<html><center>Go!</center></html>','units','normalized','Position', [.885 .03 0.1 .08],'fontunits','normalized','fontsize',0.40,'Callback',{@runFESTIV}); 
 
@@ -305,193 +293,193 @@ try
 catch
     assignin('base','DASCUC_RULES_PRE_in',[]);
     DASCUC_RULES_PRE_in=evalin('base','DASCUC_RULES_PRE_in');
-end
+end;
 try
     DASCUC_RULES_POST_in=evalin('base','DASCUC_RULES_POST_in');
 catch
     assignin('base','DASCUC_RULES_POST_in',[]);
     DASCUC_RULES_POST_in=evalin('base','DASCUC_RULES_POST_in');
-end
+end;
 try
     RTSCUC_RULES_PRE_in=evalin('base','RTSCUC_RULES_PRE_in');
 catch
     assignin('base','RTSCUC_RULES_PRE_in',[]);
     RTSCUC_RULES_PRE_in=evalin('base','RTSCUC_RULES_PRE_in');
-end
+end;
 try
     RTSCUC_RULES_POST_in=evalin('base','RTSCUC_RULES_POST_in');
 catch
     assignin('base','RTSCUC_RULES_POST_in',[]);
     RTSCUC_RULES_POST_in=evalin('base','RTSCUC_RULES_POST_in');
-end
+end;
 try
     RTSCED_RULES_PRE_in=evalin('base','RTSCED_RULES_PRE_in');
 catch
     assignin('base','RTSCED_RULES_PRE_in',[]);
     RTSCED_RULES_PRE_in=evalin('base','RTSCED_RULES_PRE_in');
-end
+end;
 try
     RTSCED_RULES_POST_in=evalin('base','RTSCED_RULES_POST_in');
 catch
     assignin('base','RTSCED_RULES_POST_in',[]);
     RTSCED_RULES_POST_in=evalin('base','RTSCED_RULES_POST_in');
-end
+end;
 try
     AGC_RULES_PRE_in=evalin('base','AGC_RULES_PRE_in');
 catch
     assignin('base','AGC_RULES_PRE_in',[]);
     AGC_RULES_PRE_in=evalin('base','AGC_RULES_PRE_in');
-end
+end;
 try
     AGC_RULES_POST_in=evalin('base','AGC_RULES_POST_in');
 catch
     assignin('base','AGC_RULES_POST_in',[]);
     AGC_RULES_POST_in=evalin('base','AGC_RULES_POST_in');
-end
+end;
 try
     RPU_RULES_PRE_in=evalin('base','RPU_RULES_PRE_in');
 catch
     assignin('base','RPU_RULES_PRE_in',[]);
     RPU_RULES_PRE_in=evalin('base','RPU_RULES_PRE_in');
-end
+end;
 try
     RPU_RULES_POST_in=evalin('base','RPU_RULES_POST_in');
 catch
     assignin('base','RPU_RULES_POST_in',[]);
     RPU_RULES_POST_in=evalin('base','RPU_RULES_POST_in');
-end
+end;
 try
     DATA_INITIALIZE_PRE_in=evalin('base','DATA_INITIALIZE_PRE_in');
 catch
     assignin('base','DATA_INITIALIZE_PRE_in',[]);
     DATA_INITIALIZE_PRE_in=evalin('base','DATA_INITIALIZE_PRE_in');
-end
+end;
 try
     DATA_INITIALIZE_POST_in=evalin('base','DATA_INITIALIZE_POST_in');
 catch
     assignin('base','DATA_INITIALIZE_POST_in',[]);
     DATA_INITIALIZE_POST_in=evalin('base','DATA_INITIALIZE_POST_in');
-end
+end;
 try
     FORECASTING_PRE_in=evalin('base','FORECASTING_PRE_in');
 catch
     assignin('base','FORECASTING_PRE_in',[]);
     FORECASTING_PRE_in=evalin('base','FORECASTING_PRE_in');
-end
+end;
 try
     FORECASTING_POST_in=evalin('base','FORECASTING_POST_in');
 catch
     assignin('base','FORECASTING_POST_in',[]);
     FORECASTING_POST_in=evalin('base','FORECASTING_POST_in');
-end
+end;
 try
     POST_PROCESSING_PRE_in=evalin('base','POST_PROCESSING_PRE_in');
 catch
     assignin('base','POST_PROCESSING_PRE_in',[]);
     POST_PROCESSING_PRE_in=evalin('base','POST_PROCESSING_PRE_in');
-end
+end;
 try
     POST_PROCESSING_POST_in=evalin('base','POST_PROCESSING_POST_in');
 catch
     assignin('base','POST_PROCESSING_POST_in',[]);
     POST_PROCESSING_POST_in=evalin('base','POST_PROCESSING_POST_in');
-end
+end;
 try
     RT_LOOP_PRE_in=evalin('base','RT_LOOP_PRE_in');
 catch
     assignin('base','RT_LOOP_PRE_in',[]);
     RT_LOOP_PRE_in=evalin('base','RT_LOOP_PRE_in');
-end
+end;
 try
     RT_LOOP_POST_in=evalin('base','RT_LOOP_POST_in');
 catch
     assignin('base','RT_LOOP_POST_in',[]);
     RT_LOOP_POST_in=evalin('base','RT_LOOP_POST_in');
-end
+end;
 try
     ACE_PRE_in=evalin('base','ACE_PRE_in');
 catch
     assignin('base','ACE_PRE_in',[]);
     ACE_PRE_in=evalin('base','ACE_PRE_in');
-end
+end;
 try
     ACE_POST_in=evalin('base','ACE_POST_in');
 catch
     assignin('base','ACE_POST_in',[]);
     ACE_POST_in=evalin('base','ACE_POST_in');
-end
+end;
 try
     FORCED_OUTAGE_PRE_in=evalin('base','FORCED_OUTAGE_PRE_in');
 catch
     assignin('base','FORCED_OUTAGE_PRE_in',[]);
     FORCED_OUTAGE_PRE_in=evalin('base','FORCED_OUTAGE_PRE_in');
-end
+end;
 try
     FORCED_OUTAGE_POST_in=evalin('base','FORCED_OUTAGE_POST_in');
 catch
     assignin('base','FORCED_OUTAGE_POST_in',[]);
     FORCED_OUTAGE_POST_in=evalin('base','FORCED_OUTAGE_POST_in');
-end
+end;
 try
     SHIFT_FACTOR_PRE_in=evalin('base','SHIFT_FACTOR_PRE_in');
 catch
     assignin('base','SHIFT_FACTOR_PRE_in',[]);
     SHIFT_FACTOR_PRE_in=evalin('base','SHIFT_FACTOR_PRE_in');
-end
+end;
 try
     SHIFT_FACTOR_POST_in=evalin('base','SHIFT_FACTOR_POST_in');
 catch
     assignin('base','SHIFT_FACTOR_POST_in',[]);
     SHIFT_FACTOR_POST_in=evalin('base','SHIFT_FACTOR_POST_in');
-end
+end;
 try
     ACTUAL_OUTPUT_PRE_in=evalin('base','ACTUAL_OUTPUT_PRE_in');
 catch
     assignin('base','ACTUAL_OUTPUT_PRE_in',[]);
     ACTUAL_OUTPUT_PRE_in=evalin('base','ACTUAL_OUTPUT_PRE_in');
-end
+end;
 try
     ACTUAL_OUTPUT_POST_in=evalin('base','ACTUAL_OUTPUT_POST_in');
 catch
     assignin('base','ACTUAL_OUTPUT_POST_in',[]);
     ACTUAL_OUTPUT_POST_in=evalin('base','ACTUAL_OUTPUT_POST_in');
-end
+end;
 try
     RELIABILITY_PRE_in=evalin('base','RELIABILITY_PRE_in');
 catch
     assignin('base','RELIABILITY_PRE_in',[]);
     RELIABILITY_PRE_in=evalin('base','RELIABILITY_PRE_in');
-end
+end;
 try
     RELIABILITY_POST_in=evalin('base','RELIABILITY_POST_in');
 catch
     assignin('base','RELIABILITY_POST_in',[]);
     RELIABILITY_POST_in=evalin('base','RELIABILITY_POST_in');
-end
+end;
 try
     COST_PRE_in=evalin('base','COST_PRE_in');
 catch
     assignin('base','COST_PRE_in',[]);
     COST_PRE_in=evalin('base','COST_PRE_in');
-end
+end;
 try
     COST_POST_in=evalin('base','COST_POST_in');
 catch
     assignin('base','COST_POST_in',[]);
     COST_POST_in=evalin('base','COST_POST_in');
-end
+end;
 try
     SAVING_PRE_in=evalin('base','SAVING_PRE_in');
 catch
     assignin('base','SAVING_PRE_in',[]);
     SAVING_PRE_in=evalin('base','SAVING_PRE_in');
-end
+end;
 try
     SAVING_POST_in=evalin('base','SAVING_POST_in');
 catch
     assignin('base','SAVING_POST_in',[]);
     SAVING_POST_in=evalin('base','SAVING_POST_in');
-end
+end;
 autoSaveName_edit=[];
 dac_modelinputFolderEditBox=[];
 dac_modelinputLocationListBox=[];
@@ -528,170 +516,184 @@ try
     a=evalin('base','HDAC_in');
     set(HDAC_in_edit,'string',num2str(a));
 catch
-end
+end;
 try
     a=evalin('base','IDAC_in');
     set(IDAC_in_edit,'string',num2str(a))
 catch
-end
+end;
 try 
     a=evalin('base','tDAC_in');
     set(tDAC_in_edit,'string',num2str(a));
 catch
-end
+end;
 try 
     a=evalin('base','GDAC_in');
     set(GDAC_in_edit,'string',num2str(a));
 catch
-end
+end;
 try 
     a=evalin('base','PDAC_in');
     set(PDAC_in_edit,'string',num2str(a));
 catch
-end
+end;
 try 
     a=evalin('base','DAHORIZONTYPE_in');
     set(DAHORIZONTYPE_in_edit,'value',a);
 catch
-end
+end;
 try 
     a=evalin('base','HRTC_in');
     set(HRTC_in_edit,'string',num2str(a));
 catch
-end
+end;
 try 
     a=evalin('base','IRTC_in');
     set(IRTC_in_edit,'string',num2str(a));
 catch
-end
+end;
 try 
     a=evalin('base','tRTC_in');
     set(tRTC_in_edit,'string',num2str(a));
 catch
-end
+end;
 try a=evalin('base','HRTD_in');
     set(HRTD_in_edit,'string',num2str(a));
 catch
-end
+end;
 try 
     a=evalin('base','IRTD_in');
     set(IRTD_in_edit,'string',num2str(a));
 catch
-end
+end;
 try 
     a=evalin('base','tRTD_in');
     set(tRTD_in_edit,'string',num2str(a));
 catch
-end
+end;
 try 
     a=evalin('base','daystosimulate');
     set(days_to_simulate_edit,'string',num2str(a));
 catch
-end
+end;
 
 
 try 
     a=evalin('base','hours_to_simulate_in');
     set(hours_to_simulate_edit,'string',num2str(a));
 catch
-end
+end;
 try 
     a=evalin('base','minutes_to_simulate_in');
     set(minutes_to_simulate_edit,'string',num2str(a));
 catch
-end
+end;
 try 
     a=evalin('base','seconds_to_simulate_in');
     set(seconds_to_simulate_edit,'string',num2str(a));
 catch
-end
+end;
 try 
     a=evalin('base','checkthenetwork');
     if strcmp(a,'YES')
     set(radiobutton1,'value',1)
     else
     set(radiobutton2,'value',1)
-    end
+    end;
 catch
-end
+end;
 try 
     a=evalin('base','contingencycheck');
     if strcmp(a,'YES')
     set(radiobutton4,'value',1)
     else
     set(radiobutton3,'value',1)
-    end
+    end;
 catch
-end
+end;
 try 
     a=evalin('base','PRTC_in');
     set(PRTC_in_edit,'string',num2str(a));
 catch
-end
+end;
 try 
     a=evalin('base','tRTCSTART_in');
     set(tRTCSTART_in_edit,'string',num2str(a));
 catch
-end
+end;
 try 
     a=evalin('base','PRTD_in');
     set(PRTD_in_edit,'string',num2str(a));
 catch
-end
+end;
 try 
     a=evalin('base','IRTDADV_in');
     set(IRTDADV_in_edit,'string',num2str(a));
 catch
-end
+end;
 try 
     a=evalin('base','DAC_load_forecast_data_create_in');
     set(DASCUCLF,'value',a);
 catch
-end
+end;
 try 
     a=evalin('base','DAC_vg_forecast_data_create_in');
     set(DASCUCVGF,'value',a);
 catch
-end
+end;
 try 
     a=evalin('base','RTC_load_forecast_data_create_in');
     set(RTSCUCLF,'value',a);
 catch
-end
+end;
 try 
     a=evalin('base','RTC_vg_forecast_data_create_in');
     set(RTSCUCVGF,'value',a);
 catch
-end
+end;
 try 
     a=evalin('base','RTD_load_forecast_data_create_in');
     set(RTSCEDLF,'value',a);
 catch
-end
+end;
 try
     a=evalin('base','RTD_vg_forecast_data_create_in');
     set(RTSCEDVGF,'value',a);
 catch
-end
+end;
 try
     a=evalin('base','DAC_RESERVE_FORECAST_MODE_in');
     set(DAC_RESERVE_FORECAST_MODE_in_GUI,'value',a);
 catch
-end
+end;
 try 
     a=evalin('base','RTC_RESERVE_FORECAST_MODE_in');
     set(RTC_RESERVE_FORECAST_MODE_in_GUI,'value',a);
 catch
-end
+end;
 try
     a=evalin('base','RTD_RESERVE_FORECAST_MODE_in');
     set(RTD_RESERVE_FORECAST_MODE_in_GUI,'value',a);
 catch
-end
+end;
+try
+    a=evalin('base','inputPath');
+    [~, name, ext] = fileparts(a);
+    displayname=strcat(name,ext);
+    set(inputFileEditBox,'string',displayname);
+    if strcmp(ext,'.h5')
+        assignin('base','useHDF5',1);
+    else
+        assignin('base','useHDF5',0);
+    end
+catch
+    set(inputFileEditBox,'string','Browse for File');
+end;
 set(autosavecheck_in,'value',0);
 dac_default_checked();
 rtc_default_checked();
 rtd_default_checked();
+create_gams_rules();
 
 %% ~~ CALLBACKS ~~ 
 
@@ -718,7 +720,7 @@ function browseforfile(~,~)
         assignin('base','useHDF5',0);
     end
     set(inputFileEditBox, 'string', inputFile);
-    inifile(['Input',filesep,'FESTIV.inp'],'write',{'','','inputPath',inputPath});
+    assignin('base','inputPath',inputPath);
 end
 
 %% Create and open the L10 help dialog box
@@ -746,7 +748,7 @@ function MultipleRuns_callback(~,~)
     browseformultiple=uicontrol('parent',multipleRuns_figure,'units','normalized','position',[.855 .86 .10 .05],'string','Browse','style','pushbutton','fontunits','normalized','fontsize',0.4,'callback',{@browseformultiplefiles}); 
     uicontrol('parent',multipleRuns_figure,'units','normalized','position',[.87 .01 .10 .1],'string','Done','style','pushbutton','fontunits','normalized','fontsize',0.3,'callback',{@donemultiplefiles}); 
     uicontrol('parent',multipleRuns_figure,'units','normalized','position',[.03 .01 .10 .1],'string','Remove','style','pushbutton','fontunits','normalized','fontsize',0.3,'callback',{@removemultiplefiles}); 
-    try set(inputfilenamesformultiple,'string',get(inputFileEditBox,'string'));catch;end
+    try set(inputfilenamesformultiple,'string',get(inputFileEditBox,'string'));catch;end;
     x=evalin('base','MRcheck');
     set(multiplerunscheck,'value',x)
     if get(multiplerunscheck,'value')==1
@@ -767,8 +769,8 @@ function MultipleRuns_callback(~,~)
        set(inputfilenamesformultiple,'enable','off');
        set(browseformultiple,'enable','off');
     end
-    try inputfiles=evalin('base','tabledata');catch;end
-    try set(simulationQueue,'data',inputfiles);catch;end
+    try inputfiles=evalin('base','tabledata');catch;end;
+    try set(simulationQueue,'data',inputfiles);catch;end;
 end
 
 %% Remove run from multiple runs dialog box
@@ -797,7 +799,7 @@ function browseformultiplefiles(~,~)
         inputPath = [inputDir,inputFile];
     end
     set(inputfilenamesformultiple, 'string', inputFile);
-    inifile(['Input',filesep,'FESTIV.inp'],'write',{'','','inputPath',inputPath});
+    assignin('base','inputPath',inputPath);
 end
 
 %% Prepare input dialog for multiple run inputs
@@ -980,7 +982,7 @@ function addruns_callback(~,~)
     assignin('base','ACE_POST_in',ACE_POST_in);
     
     assignin('base','cancel',0);
-    inputPath = char(inifile(['Input',filesep,'FESTIV.inp'],'read',{'','','inputPath',''}));
+    inputPath=evalin('base','inputPath');
     completeinputpathname=inputPath;
     assignin('base','completeinputpathname',completeinputpathname);
     useHDF5=evalin('base','useHDF5');
@@ -1006,6 +1008,7 @@ end
 %% Create the final workspace prior to exiting
 function runFESTIV(~,~)
     if multiplerunscheckvalue==0
+        inputPath=evalin('base','inputPath');
         checkthenetwork=get(radiobutton1,'value');
         if checkthenetwork==1
             checkthenetwork='YES';
@@ -1078,6 +1081,7 @@ function runFESTIV(~,~)
         SIMULATE_CONTINGENCIES_in=evalin('base','SIMULATE_CONTINGENCIES_in');
         gen_outage_time_in=evalin('base','gen_outage_time_in');
 
+        assignin('base','inputPath',inputPath);
         assignin('base','HDAC_in',HDAC_in);
         assignin('base','HDACtest',HDAC_in);
         assignin('base','IDAC_in',IDAC_in);
@@ -1146,8 +1150,8 @@ function runFESTIV(~,~)
         assignin('base','multiplefilecheck',multiplefilecheck);
         useHDF5=evalin('base','useHDF5');
         close(gcf);
-        save('tempws', '-regexp', '^((?!button).)*$'); %Save without any button objects
-%BP not needed?        save('tempws1', '-regexp', '^((?!button).)*$'); %Save without any button objects
+        save tempws;
+        save tempws1;
     else
         if numberoffiles-1 <= 1
             warndlg(sprintf('''Multiple Runs'' checked but there are less than two runs in the queue.\nPlease uncheck ''Multiple Runs'' or add more runs to the queue.'),'!! Warning !!')
@@ -1195,12 +1199,12 @@ function dascuc_model_rules(~,~)
         temp1=evalin('base','DASCUC_RULES_PRE_in');
         set(dascucmodel_pre_list,'data',temp1);
     catch
-    end
+    end;
     try
         temp2=evalin('base','DASCUC_RULES_POST_in');
         set(dascucmodel_post_list,'data',temp2);
     catch
-    end
+    end;
     
     
 end
@@ -1229,12 +1233,12 @@ function rtscuc_model_rules(~,~)
         temp1=evalin('base','RTSCUC_RULES_PRE_in');
         set(rtscucmodel_pre_list,'data',temp1);
     catch
-    end
+    end;
     try
         temp2=evalin('base','RTSCUC_RULES_POST_in');
         set(rtscucmodel_post_list,'data',temp2);
     catch
-    end
+    end;
 end
 
 %% Create additional RTSCED Model Rules dialog box
@@ -1261,7 +1265,7 @@ function rtsced_model_rules(~,~)
         temp1=evalin('base','RTSCED_RULES_PRE_in');
         set(rtscedmodel_pre_list,'data',temp1);
     catch
-    end
+    end;
     try
         temp2=evalin('base','RTSCED_RULES_POST_in');
         set(rtscedmodel_post_list,'data',temp2);
@@ -2398,7 +2402,7 @@ function agc_input(~,~)
     K1_in_edit=uicontrol('parent',sacepanel,'units','normalized','position',[.55 .42 .30 .15],'style','edit','string','0.5','fontunits','normalized','fontsize',0.6,'backgroundcolor','white');
     K2_in_edit=uicontrol('parent',sacepanel,'units','normalized','position',[.55 .12 .30 .15],'style','edit','string','0.5','fontunits','normalized','fontsize',0.6,'backgroundcolor','white');
     
-    uicontrol('parent',agcpanel,'style','text','units','normalized','position',[.05 .4 .3 .33],'string','AGC Mode:','fontunits','normalized','fontsize',0.9);
+    uicontrol('parent',agcpanel,'style','text','units','normalized','position',[.05 .4 .3 .33],'string','AGC Mode:','TooltipString', ['1-Blind Mode: Generators ignore the ACE signal and do not participate in AGC.' char(10) '2-Fast Mode: Generators follow the unfiltered, high frequency ACE signal. This mode essentially tries to correct the real time, raw imbalance. ' char(10) '3-Smooth Mode: Generators  follow  a  filtered,  low  frequency  ACE  signal.  This  low  frequency  signal' char(10) 'is produced by passing the raw ACE signal through a PI filter whose parameters are defined in the right' char(10) 'hand side of the ‘AGC Input Options’.' char(10) '4-Lazy Mode: Regulation only occurs if there is an expected CPS2 violation. If there is an expected' char(10) 'violation, the generators will participate in mode 3 regulation;  otherwise they participate in mode 1 regulation.' char(10) '5-Individual Mode: Each  generator  receives  its own  AGC signal as  defined  by  the ‘GEN_AGC_MODE’' char(10) 'column on the GEN input sheet.'],'fontunits','normalized','fontsize',0.9);
     agcmodes=uicontrol('parent',agcpanel,'style','popupmenu','string','1 - Blind Mode|2 - Fast Mode|3 - Smooth Mode|4 - Lazy Mode|5 - Individual Modes|6 - Other','units','normalized','position',[.38 .75 .58 .04],'backgroundcolor','white');
     
     uicontrol('parent',agcdeadbandpanel,'style','text','units','normalized','position',[.05 .05 .60 .70],'string','Deadband [MW]:','fontunits','normalized','fontsize',0.5);
@@ -2409,37 +2413,37 @@ function agc_input(~,~)
         a=evalin('base','CPS2_interval_in');
     	set(CPS2_interval_in_edit,'string',num2str(a));
     catch
-    end
+    end;
     try 
         a=evalin('base','L10_in');
     	set(L10_in_edit,'string',num2str(a));
     catch
-    end
+    end;
     try 
         a=evalin('base','Type3_integral_in');
     	set(Type3_integral_in_edit,'string',num2str(a));
     catch
-    end
+    end;
     try 
         a=evalin('base','K1_in');
     	set(K1_in_edit,'string',num2str(a));
     catch
-    end
+    end;
     try 
         a=evalin('base','K2_in');
     	set(K2_in_edit,'string',num2str(a));
     catch
-    end
+    end;
     try 
         a=evalin('base','agcmode');
     	set(agcmodes,'value',a);
     catch
-    end
+    end;
     try
         a=evalin('base','agc_deadband_in');
         set(agc_deadband_in_edit,'string',num2str(a));
     catch
-    end
+    end;
 end
 
 %% Gather the AGC parameters
@@ -2477,24 +2481,24 @@ function rpu_callback(~,~)
     rpuotherpanel=uipanel('parent',RPU_figure,'units','normalized','position',[.05 .17 .90 .3],'title','RPU Operating Parameters');
 
     % create RPU button group
-    uicontrol('parent',allowrpubuttongroup,'style','text','string','Should a Reserve Pick Up be allowed?','units','normalized','fontunits','normalized','position',[.03 .05 .60 .8],'fontsize',.48,'horizontalalignment','left');
+    uicontrol('parent',allowrpubuttongroup,'style','text','string','Should a Reserve Pick Up be allowed?','TooltipString', ['This will provide the user with option if the RPU should be used or not.'],'units','normalized','fontunits','normalized','position',[.03 .05 .60 .8],'fontsize',.48,'horizontalalignment','left');
     radiobutton5=uicontrol('parent',allowrpubuttongroup,'style','radiobutton','units','normalized','position',[.68 .25 .20 .80],'string','Yes','fontunits','normalized','fontsize',0.55,'value',0);
     uicontrol('parent',allowrpubuttongroup,'style','radiobutton','units','normalized','position',[.85 .25 .15 .80],'string','No','fontunits','normalized','fontsize',0.55,'value',1);
 
     % create RPU timing parameters
-    uicontrol('parent',rputimingpanel,'style','text','string','HRPU:','units','normalized','position',[.03 .05 .12 .70],'fontunits','normalized','fontsize',0.4,'horizontalalignment','left');    
+    uicontrol('parent',rputimingpanel,'style','text','string','HRPU:','TooltipString', ['(minutes) Scheduling Horizon'], 'units','normalized','position',[.03 .05 .12 .70],'fontunits','normalized','fontsize',0.4,'horizontalalignment','left');    
     HRPU_in_edit=uicontrol('parent',rputimingpanel,'style','edit','string','6','units','normalized','position',[.17 .275 .1  .55],'fontunits','normalized','fontsize',0.6,'backgroundcolor','white');    
-    uicontrol('parent',rputimingpanel,'style','text','string','IRPU:','units','normalized','position',[.40 .05 .12 .70],'fontunits','normalized','fontsize',0.4,'horizontalalignment','left');    
+    uicontrol('parent',rputimingpanel,'style','text','string','IRPU:','TooltipString', ['(minutes) Interval length'],'units','normalized','position',[.40 .05 .12 .70],'fontunits','normalized','fontsize',0.4,'horizontalalignment','left');    
     IRPU_in_edit=uicontrol('parent',rputimingpanel,'style','edit','string','10','units','normalized','position',[.52 .275 .1  .55],'fontunits','normalized','fontsize',0.6,'backgroundcolor','white');    
-    uicontrol('parent',rputimingpanel,'style','text','string','PRPU:','units','normalized','position',[.73 .05 .12 .70],'fontunits','normalized','fontsize',0.4,'horizontalalignment','left');    
+    uicontrol('parent',rputimingpanel,'style','text','string','PRPU:','TooltipString', ['(minutes) Model processing time'],'units','normalized','position',[.73 .05 .12 .70],'fontunits','normalized','fontsize',0.4,'horizontalalignment','left');    
     PRPU_in_edit=uicontrol('parent',rputimingpanel,'style','edit','string','1','units','normalized','position',[.85 .275 .1  .55],'fontunits','normalized','fontsize',0.6,'backgroundcolor','white');    
 
     % create other RPU parameters
-    uicontrol('parent',rpuotherpanel,'style','text','string','ACE Threshold in MW:','units','normalized','position',[.025 .45 .4 .45],'fontunits','normalized','fontsize',0.45,'horizontalalignment','left');    
+    uicontrol('parent',rpuotherpanel,'style','text','string','ACE Threshold in MW:','TooltipString', ['(MW) The threshold of ACE where if it exceeds an operator would run an RPU'],'units','normalized','position',[.025 .45 .4 .45],'fontunits','normalized','fontsize',0.45,'horizontalalignment','left');    
     ACE_RPU_THRESHOLD_MW_in_edit=uicontrol('parent',rpuotherpanel,'style','edit','string','1000','units','normalized','position',[.38 .6 .1 .35],'fontunits','normalized','fontsize',0.5,'backgroundcolor','white');
-    uicontrol('parent',rpuotherpanel,'style','text','string','ACE Threshold in AGC intervals:','units','normalized','position',[.1925 0 .55 .43],'fontunits','normalized','fontsize',0.5,'horizontalalignment','left');    
+    uicontrol('parent',rpuotherpanel,'style','text','string','ACE Threshold in AGC intervals:','TooltipString', ['The number of AGC intervals that the ACE Threshold is required to be exceeded before RPU is run.'],'units','normalized','position',[.1925 0 .55 .43],'fontunits','normalized','fontsize',0.5,'horizontalalignment','left');    
     ACE_RPU_THRESHOLD_T_in_edit=uicontrol('parent',rpuotherpanel,'style','edit','string','2','units','normalized','position',[.705 .105 .1 .35],'fontunits','normalized','fontsize',0.5,'backgroundcolor','white');    
-    uicontrol('parent',rpuotherpanel,'style','text','string','Time Restriction [min]:','units','normalized','position',[.52 .45 .4 .45],'fontunits','normalized','fontsize',0.45,'horizontalalignment','left');    
+    uicontrol('parent',rpuotherpanel,'style','text','string','Time Restriction [min]:','TooltipString', ['(minutes) The time between which two RPUs would be run to avoid overuse'], 'units','normalized','position',[.52 .45 .4 .45],'fontunits','normalized','fontsize',0.45,'horizontalalignment','left');    
     restrict_multiple_rpu_time_in_edit=uicontrol('parent',rpuotherpanel,'style','edit','string','10','units','normalized','position',[.875 .58 .1 .35],'fontunits','normalized','fontsize',0.5,'backgroundcolor','white');    
 
     % create other buttons
@@ -2507,38 +2511,38 @@ function rpu_callback(~,~)
         a=evalin('base','HRPU_in');
         set(HRPU_in_edit,'string',num2str(a));
     catch
-    end
+    end;
     try 
         a=evalin('base','IRPU_in');
     	set(IRPU_in_edit,'string',num2str(a));
     catch
-    end
+    end;
     try 
         a=evalin('base','PRPU_in');
     	set(PRPU_in_edit,'string',num2str(a));
     catch
-    end
+    end;
     try 
         a=evalin('base','ACE_RPU_THRESHOLD_MW_in');
     	set(ACE_RPU_THRESHOLD_MW_in_edit,'string',num2str(a));
     catch
-    end
+    end;
     try 
         a=evalin('base','ACE_RPU_THRESHOLD_T_in');
     	set(ACE_RPU_THRESHOLD_T_in_edit,'string',num2str(a));
     catch
-    end
+    end;
     try 
         a=evalin('base','restrict_multiple_rpu_time_in');
     	set(restrict_multiple_rpu_time_in_edit,'string',num2str(a));
     catch
-    end
+    end;
     try
         if strcmp(evalin('base','ALLOW_RPU_in'),'YES')
             set(radiobutton5,'value',1)
         end
     catch
-    end
+    end;
 end
 
 %% Gather the RPU parameters
@@ -2575,7 +2579,7 @@ function contingencies_callback(~,~)
     movegui(ctgc_figure,'center');
 
     % determine list of generators
-    inputPath = char(inifile(['Input',filesep,'FESTIV.inp'],'read',{'','','inputPath',''}));
+    inputPath = evalin('base','inputPath');
     [~,~,c1]=fileparts(inputPath);
     if strcmp(c1,'.h5')
         x=h5read(inputPath,'/Main Input File/GEN');
@@ -2869,7 +2873,7 @@ end
 function build_gams_models_callback(~,~)
     warning('off','MATLAB:uitabgroup:OldVersion');
     warning('off','MATLAB:warn_r14_stucture_assignment');
-    gams_model_figure = figure('name','Create GAMS Models','NumberTitle','off','menubar','none','color','white','position',[50 50 900 700]);
+    gams_model_figure = figure('name','Modify Optimization Formulation','NumberTitle','off','menubar','none','color','white','position',[50 50 900 700]);
     assignin('base','gams_model_figure',gams_model_figure);
     tgroup = uitabgroup('Parent', gams_model_figure);
     [matversion, matverdatestr] = version;
@@ -2878,7 +2882,7 @@ function build_gams_models_callback(~,~)
     set(tgroup,'SelectionChangeFcn',{@tab_changed_fcn});
     else
     set(tgroup,'SelectionChange',{@tab_changed_fcn});
-    end
+    end;
     assignin('base','tgroup',tgroup);
     tab1 = uitab('Parent', tgroup, 'Title', 'DASCUC');
     tab2 = uitab('Parent', tgroup, 'Title', 'RTSCUC');
@@ -2890,7 +2894,7 @@ function build_gams_models_callback(~,~)
     dac_modelinputFolderEditBox=uicontrol('parent',tab1,'style','edit','units','normalized','position',[.20 .94 .60 .05],'fontunits','normalized','fontsize',0.45,'backgroundcolor','white','horizontalalignment','left');
     uicontrol('parent',tab1,'style','pushbutton','units','normalized','position',[.82 .9405 .13 .05],'string','Browse','fontunits','normalized','fontsize',.45,'callback',{@browseforgamsfolder});
     uicontrol('parent',tab1,'style','text','string','Select Location:','units','normalized','position',[.01 .86 .25 .05],'fontunits','normalized','fontsize',0.45);
-    dac_modelinputLocationListBox=uicontrol('parent',tab1,'style','popupmenu','units','normalized','position',[.20 .87 .75 .05],'fontunits','normalized','fontsize',0.45,'backgroundcolor','white','horizontalalignment','left','string','Header|User_Defined_1|Load_Inputs|User_Defined_2|Define_Inputs|User_Defined_3|Manipulate_Inputs|User_Defined_4|Declare_Variables|User_Defined_5|Declare_Equations|User_Defined_6|Define_Constraints|User_Defined_7|Model_Definition|User_Defined_8|Solver_Options|User_Defined_9|Solve_Statement|User_Defined_10|Post_Processing|User_Defined_11|Footer','callback',{@dacSectionChange});
+    dac_modelinputLocationListBox=uicontrol('parent',tab1,'style','popupmenu','units','normalized','position',[.20 .87 .75 .05],'fontunits','normalized','fontsize',0.45,'backgroundcolor','white','horizontalalignment','left','string','Header|User_Defined_1|Declare_Sets|User_Defined_2|Declare_Parameters|User_Defined_3|Load_Inputs|User_Defined_4|Define_Sets|User_Defined_5|Define_Parameters|User_Defined_6|Declare_Variables|User_Defined_7|Define_Variables|User_Defined_8|Declare_Equations|User_Defined_9|Define_Equations|User_Defined_10|Define_Model|User_Defined_11|Solver_Options|User_Defined_12|Solve_Statement|User_Defined_13|Post_Processing|User_Defined_14|Footer','callback',{@dacSectionChange});
     uicontrol('parent',tab1,'units','normalized','position',[.59 .53 .05 .05],'string','>','style','pushbutton','fontunits','normalized','fontsize',0.35,'callback',{@add_dac_gams_rule}); 
     uicontrol('parent',tab1,'units','normalized','position',[.59 .47 .05 .05],'string','<','style','pushbutton','fontunits','normalized','fontsize',0.35,'callback',{@remove_dac_gams_rule}); 
     dac_list_of_gams_rules=uicontrol('Parent',tab1,'Style','listbox','Max',10,'units','normalized','Position',[0.28 .13 .30 .71],'FontName','Courier','String','','Max',10,'value',[]);
@@ -2910,7 +2914,7 @@ function build_gams_models_callback(~,~)
     rtc_modelinputFolderEditBox=uicontrol('parent',tab2,'style','edit','units','normalized','position',[.20 .94 .60 .05],'fontunits','normalized','fontsize',0.45,'backgroundcolor','white','horizontalalignment','left');
     uicontrol('parent',tab2,'style','pushbutton','units','normalized','position',[.82 .9405 .13 .05],'string','Browse','fontunits','normalized','fontsize',.45,'callback',{@browseforgamsfolder});
     uicontrol('parent',tab2,'style','text','string','Select Location:','units','normalized','position',[.01 .86 .25 .05],'fontunits','normalized','fontsize',0.45);
-    rtc_modelinputLocationListBox=uicontrol('parent',tab2,'style','popupmenu','units','normalized','position',[.20 .87 .75 .05],'fontunits','normalized','fontsize',0.45,'backgroundcolor','white','horizontalalignment','left','string','Header|User_Defined_1|Load_Inputs|User_Defined_2|Define_Inputs|User_Defined_3|Manipulate_Inputs|User_Defined_4|Declare_Variables|User_Defined_5|Declare_Equations|User_Defined_6|Define_Constraints|User_Defined_7|Model_Definition|User_Defined_8|Solver_Options|User_Defined_9|Solve_Statement|User_Defined_10|Post_Processing|User_Defined_11|Footer','callback',{@rtcSectionChange});
+    rtc_modelinputLocationListBox=uicontrol('parent',tab2,'style','popupmenu','units','normalized','position',[.20 .87 .75 .05],'fontunits','normalized','fontsize',0.45,'backgroundcolor','white','horizontalalignment','left','string','Header|User_Defined_1|Declare_Sets|User_Defined_2|Declare_Parameters|User_Defined_3|Load_Inputs|User_Defined_4|Define_Sets|User_Defined_5|Define_Parameters|User_Defined_6|Declare_Variables|User_Defined_7|Define_Variables|User_Defined_8|Declare_Equations|User_Defined_9|Define_Equations|User_Defined_10|Define_Model|User_Defined_11|Solver_Options|User_Defined_12|Solve_Statement|User_Defined_13|Post_Processing|User_Defined_14|Footer','callback',{@rtcSectionChange});
     uicontrol('parent',tab2,'units','normalized','position',[.59 .53 .05 .05],'string','>','style','pushbutton','fontunits','normalized','fontsize',0.35,'callback',{@add_rtc_gams_rule}); 
     uicontrol('parent',tab2,'units','normalized','position',[.59 .47 .05 .05],'string','<','style','pushbutton','fontunits','normalized','fontsize',0.35,'callback',{@remove_rtc_gams_rule}); 
     rtc_list_of_gams_rules=uicontrol('Parent',tab2,'Style','listbox','Max',10,'units','normalized','Position',[0.28 .13 .30 .71],'FontName','Courier','String','','Max',10,'value',[]);
@@ -2929,7 +2933,7 @@ function build_gams_models_callback(~,~)
     rtd_modelinputFolderEditBox=uicontrol('parent',tab3,'style','edit','units','normalized','position',[.20 .94 .60 .05],'fontunits','normalized','fontsize',0.45,'backgroundcolor','white','horizontalalignment','left');
     uicontrol('parent',tab3,'style','pushbutton','units','normalized','position',[.82 .9405 .13 .05],'string','Browse','fontunits','normalized','fontsize',.45,'callback',{@browseforgamsfolder});
     uicontrol('parent',tab3,'style','text','string','Select Location:','units','normalized','position',[.01 .86 .25 .05],'fontunits','normalized','fontsize',0.45);
-    rtd_modelinputLocationListBox=uicontrol('parent',tab3,'style','popupmenu','units','normalized','position',[.20 .87 .75 .05],'fontunits','normalized','fontsize',0.45,'backgroundcolor','white','horizontalalignment','left','string','Header|User_Defined_1|Load_Inputs|User_Defined_2|Define_Inputs|User_Defined_3|Manipulate_Inputs|User_Defined_4|Declare_Variables|User_Defined_5|Declare_Equations|User_Defined_6|Define_Constraints|User_Defined_7|Model_Definition|User_Defined_8|Solver_Options|User_Defined_9|Solve_Statement|User_Defined_10|Post_Processing|User_Defined_11|Footer','callback',{@rtdSectionChange});
+    rtd_modelinputLocationListBox=uicontrol('parent',tab3,'style','popupmenu','units','normalized','position',[.20 .87 .75 .05],'fontunits','normalized','fontsize',0.45,'backgroundcolor','white','horizontalalignment','left','string','Header|User_Defined_1|Declare_Sets|User_Defined_2|Declare_Parameters|User_Defined_3|Load_Inputs|User_Defined_4|Define_Sets|User_Defined_5|Define_Parameters|User_Defined_6|Declare_Variables|User_Defined_7|Define_Variables|User_Defined_8|Declare_Equations|User_Defined_9|Define_Equations|User_Defined_10|Define_Model|User_Defined_11|Solver_Options|User_Defined_12|Solve_Statement|User_Defined_13|Post_Processing|User_Defined_14|Footer','callback',{@rtdSectionChange});
     uicontrol('parent',tab3,'units','normalized','position',[.59 .53 .05 .05],'string','>','style','pushbutton','fontunits','normalized','fontsize',0.35,'callback',{@add_rtd_gams_rule}); 
     uicontrol('parent',tab3,'units','normalized','position',[.59 .47 .05 .05],'string','<','style','pushbutton','fontunits','normalized','fontsize',0.35,'callback',{@remove_rtd_gams_rule}); 
     rtd_list_of_gams_rules=uicontrol('Parent',tab3,'Style','listbox','Max',10,'units','normalized','Position',[0.28 .13 .30 .71],'FontName','Courier','String','','Max',10,'value',[]);
@@ -2994,7 +2998,7 @@ function display_summary(~,~)
         open_Option='w+';
         for i=1:size(names_fields,1)
             if ~isempty(names.(sprintf('%s',names_fields{i})))
-                fid=fopen(['TEMP',filesep,'GAMS_Summary_Temp.txt'],open_Option);
+                fid=fopen(['TEMP',filesep,'Formulation_Summary_Temp.txt'],open_Option);
                 if strcmp(open_Option,'w+')
                     fprintf(fid,'=========================================\r\n\r\n             DASCUC SUMMARY\r\n\r\n=========================================\r\n\r\n');
                 end
@@ -3018,7 +3022,7 @@ function display_summary(~,~)
         open_Option='a+';first_Write=1;
         for i=1:size(names_fields,1)
             if ~isempty(names.(sprintf('%s',names_fields{i})))
-                fid=fopen(['TEMP',filesep,'GAMS_Summary_Temp.txt'],open_Option);
+                fid=fopen(['TEMP',filesep,'Formulation_Summary_Temp.txt'],open_Option);
                 if first_Write
                     fprintf(fid,'=========================================\r\n\r\n             RTSCUC SUMMARY\r\n\r\n=========================================\r\n\r\n');
                 end
@@ -3043,7 +3047,7 @@ function display_summary(~,~)
         open_Option='a+';first_Write=1;
         for i=1:size(names_fields,1)
             if ~isempty(names.(sprintf('%s',names_fields{i})))
-                fid=fopen(['TEMP',filesep,'GAMS_Summary_Temp.txt'],open_Option);
+                fid=fopen(['TEMP',filesep,'Formulation_Summary_Temp.txt'],open_Option);
                 if first_Write
                     fprintf(fid,'=========================================\r\n\r\n             RTSCED SUMMARY\r\n\r\n=========================================\r\n\r\n');
                 end
@@ -3065,12 +3069,12 @@ function display_summary(~,~)
     if empty == 3
         warndlg('All models are empty!');
     else
-        system(['start ',pwd,filesep,'TEMP',filesep,'GAMS_Summary_Temp.txt']);
+        system(['start ',pwd,filesep,'TEMP',filesep,'Formulation_Summary_Temp.txt']);
     end
 end
 
 function load_gams_setup(~,~)
-    [GamsFileName,GamsPathName,~] = uigetfile(['TEMP',filesep,'*.mat']);
+    [GamsFileName,GamsPathName,~] = uigetfile(['MODEL_RULES',filesep,'GAMS_Model_Files',filesep,'Saved_GAMS_Models',filesep,'*.mat']);
     load_command=[GamsPathName,GamsFileName];
     evalin('base',['load(''',load_command,''')']);
     tgroup=evalin('base','tgroup');
@@ -3122,9 +3126,119 @@ function save_gams_setup(~,~)
     gamsFilesNames_DAC=evalin('base','gamsFilesNames_DAC');
     gamsFilesNames_RTC=evalin('base','gamsFilesNames_RTC');
     gamsFilesNames_RTD=evalin('base','gamsFilesNames_RTD');
-    saveName=inputdlg('Input file name:','Save GAMS Setup');
+    [saveName,saveDirectory]=uiputfile(['MODEL_RULES',filesep,'GAMS_Model_Files',filesep,'Saved_GAMS_Models',filesep,'*.mat',],'Save Formulation');
     if ~isempty(saveName)
-        save(['TEMP',filesep,cell2mat(saveName)],'gamsFilesPaths_DAC','gamsFilesPaths_RTC','gamsFilesPaths_RTD','gamsFilesNames_DAC','gamsFilesNames_RTC','gamsFilesNames_RTD');
+        save([saveDirectory saveName],'gamsFilesPaths_DAC','gamsFilesPaths_RTC','gamsFilesPaths_RTD','gamsFilesNames_DAC','gamsFilesNames_RTC','gamsFilesNames_RTD');
+    end
+end
+
+function create_gams_rules(~,~)
+    for model=1:3
+        if model==1
+            gamsFilesPaths=evalin('base','gamsFilesPaths_DAC');GAMS_FILE_NAME='DASCUC.gms';
+        elseif model==2
+            gamsFilesPaths=evalin('base','gamsFilesPaths_RTC');GAMS_FILE_NAME='RTSCUC.gms';
+        else
+            gamsFilesPaths=evalin('base','gamsFilesPaths_RTD');GAMS_FILE_NAME='RTSCED.gms';
+        end
+        if ~isempty(gamsFilesPaths)
+            GAMSsectionNames=fieldnames(gamsFilesPaths);
+            clear data_to_write
+            for i=1:size(GAMSsectionNames,1)
+                temp_name=eval('(sprintf(''gamsFilesPaths.%s'',GAMSsectionNames{i}))');
+                temp_size=size(eval(temp_name),1);
+                user_count=1;
+                for j=1:temp_size
+                    temp_dir=cell2mat(eval([temp_name,sprintf('(%d,:)',j)]));temp_dir2=pwd;
+                    if strcmp(temp_dir(1:3),temp_dir2(1:3))
+                        temp_data=getGamsDefinitions('=start','=end',cell2mat(eval([temp_name,sprintf('(%d,:)',j)])));
+                    else
+                        temp_data=getGamsDefinitions('=start','=end',cell2mat(strcat(pwd,filesep,eval([temp_name,sprintf('(%d,:)',j)]))));
+                    end
+                    for k=1:size(fieldnames(temp_data),1)
+                        data_to_write.(sprintf('section_%d',i)).(sprintf('definition_%d',user_count))=temp_data.(sprintf('definition_%d',k)).constraint;
+                        user_count=user_count+1;
+                    end
+                end
+            end
+            writableGAMSsectionNames=fieldnames(data_to_write);
+            firstWrite=1;
+            for i=1:size(GAMSsectionNames,1)
+               if ~isempty(find(strcmp(sprintf('section_%d',i),writableGAMSsectionNames),1))
+                   if firstWrite==1
+                       openOption='w+';
+                   else
+                       openOption='a+';
+                   end
+                   if i == 1 % Write header
+                       writeGamsDefinitions(GAMS_FILE_NAME,openOption,sprintf('*     %s     *',GAMSsectionNames{i}),data_to_write.(sprintf('section_%d',i)));
+                       firstWrite=0;
+                   elseif i == 3 || i == 9 || i == 11
+                       for j=1:size(fieldnames(eval(sprintf('data_to_write.section_%d',i))),1)
+                           if ~isempty(data_to_write.(sprintf('section_%d',i)).(sprintf('definition_%d',j)))
+                                data_to_write_tmp=data_to_write.(sprintf('section_%d',i)).(sprintf('definition_%d',j));
+                                fid=fopen(GAMS_FILE_NAME,openOption);
+                                for k=1:size(data_to_write_tmp,1)
+                                    fprintf(fid,'%s',[data_to_write_tmp{k,1}]);
+                                    fprintf(fid,'\r\n');
+                                end
+                                fprintf(fid,'\r\n');
+                                fclose(fid);
+                            %writeGamsLists(GAMS_FILE_NAME,openOption,sprintf('*     Load %ss     *',data_type),data_to_write.(sprintf('section_%d',i)).(sprintf('definition_%d',j)));
+                           end
+                       end
+                   elseif i == 5 || i == 7 || i == 13 || i == 15 || i == 17 || i == 19 || i == 21 || i == 23
+                       writeGamsDefinitions(GAMS_FILE_NAME,openOption,sprintf('*     %s     *',GAMSsectionNames{i}),data_to_write.(sprintf('section_%d',i)));
+                   %{
+                    elseif i == 9 || i == 11
+                       if i == 9
+                            max_size=size(fieldnames(data_to_write.section_9),1);
+                       else
+                            max_size=size(fieldnames(data_to_write.section_11),1);
+                       end
+                       for j=1:max_size
+                           if j==1 && i == 9
+                               data_type='VARIABLE';use_final_semicolon=1;
+                           elseif j==2 && i == 9
+                               data_type = 'POSITIVE VARIABLE';use_final_semicolon=1;
+                           elseif i == 9
+                               data_type = ' ';use_final_semicolon=0;
+                           elseif j == 1 && i == 11
+                               data_type = 'EQUATION';use_final_semicolon=0;
+                           elseif j == max_size && i == 11
+                               data_type = ' ';use_final_semicolon = 1;
+                           else
+                               data_type = ' ';use_final_semicolon = 0;
+                           end
+                           data_to_write_tmp=data_to_write.(sprintf('section_%d',i)).(sprintf('definition_%d',j));
+                           fid=fopen(GAMS_FILE_NAME,openOption);
+                           for k=1:size(data_to_write_tmp,1)
+                               fprintf(fid,'%s',[data_to_write_tmp{k,1}]);
+                               fprintf(fid,'\r\n');
+                           end
+                           fprintf(fid,'\r\n');
+                           fclose(fid);
+                        end
+                       %}
+                   else
+                       writeGamsDefinitions(GAMS_FILE_NAME,openOption,sprintf('*     %s     *',GAMSsectionNames{i}),data_to_write.(sprintf('section_%d',i)));
+                   end
+               end
+            end
+        else
+            if model==1    
+                disp('DASCUC GAMS description is empty!');
+            elseif model==2
+                disp('RTSCUC GAMS description is empty!');
+            else
+                disp('RTSCED GAMS description is empty!');
+            end
+        end
+    end
+    try
+        gams_model_figure=evalin('base','gams_model_figure');
+        close(gams_model_figure);
+    catch
     end
 end
 
@@ -3139,6 +3253,9 @@ function browseforgamsfolder(~,~)
     set(dac_modelinputFolderEditBox,'string',dname);
     set(rtc_modelinputFolderEditBox,'string',dname);
     set(rtd_modelinputFolderEditBox,'string',dname);
+    set(dac_list_of_gams_rules,'Value',1);
+    set(rtc_list_of_gams_rules,'Value',1);
+    set(rtd_list_of_gams_rules,'Value',1);
     set(dac_list_of_gams_rules,'string',listOfFiles);
     set(rtc_list_of_gams_rules,'string',listOfFiles);
     set(rtd_list_of_gams_rules,'string',listOfFiles);
@@ -3151,10 +3268,15 @@ function add_dac_gams_rule(~,~)
     datatemp=get(dac_list_of_selected_gams_rules,'string');
     datatemp=[datatemp;temp2(temp,:)];
     set(dac_list_of_selected_gams_rules,'string',datatemp);
-    fullpaths=strcat(repmat(dname,size(temp2,2),1),filesep,temp2(temp,:));
+    if strcat(dname(1:size(cd,2)),cd)
+        fullpaths=strcat(dname(size(cd,2)+2:end),filesep,temp2(temp,:));
+    else
+        fullpaths=strcat(repmat(dname,size(temp2,2),1),filesep,temp2(temp,:));
+    end;
     sectionName1=get(dac_modelinputLocationListBox,'value');
     sectionName2=cellstr(get(dac_modelinputLocationListBox,'string'));
     temp3=sectionName2(sectionName1);
+    gamsFilesPaths_DAC=evalin('base','gamsFilesPaths_DAC');
     fullpaths_temp=gamsFilesPaths_DAC.(sprintf('%s',temp3{:}));
     fullpaths=[fullpaths_temp;fullpaths];
     gamsFilesPaths_DAC.(sprintf('%s',temp3{:}))=fullpaths;
@@ -3168,6 +3290,7 @@ function remove_dac_gams_rule(~,~)
     temp=get(dac_list_of_selected_gams_rules,'value');
     temp2=get(dac_list_of_selected_gams_rules,'string');
     temp2(temp,:)=[];
+    set(dac_list_of_selected_gams_rules,'value',max(1,temp-1));
     set(dac_list_of_selected_gams_rules,'string',temp2);
     sectionName1=get(dac_modelinputLocationListBox,'value');
     sectionName2=cellstr(get(dac_modelinputLocationListBox,'string'));
@@ -3178,7 +3301,6 @@ function remove_dac_gams_rule(~,~)
     gamsFilesNames_DAC=evalin('base','gamsFilesNames_DAC');
     gamsFilesNames_DAC.(sprintf('%s',temp3{:}))=temp2;
     assignin('base','gamsFilesNames_DAC',gamsFilesNames_DAC);
-    set(dac_list_of_selected_gams_rules,'value',max(1,temp-1));
 end
 
 function dacSectionChange(~,~)
@@ -3196,84 +3318,8 @@ function dacSectionChange(~,~)
 end
 
 function dac_default_checked(~,~)
-    gamsFilesNames_DAC.Header={'Base_DAC_Header.txt'};
-    gamsFilesNames_DAC.User_Defined_1={};
-    gamsFilesNames_DAC.Load_Inputs={'Base_DAC_Scalar_Declarations.txt';'Base_DAC_Set_Declarations.txt';'Base_DAC_Parameter_Declarations.txt';'Base_DAC_Table_Declarations.txt'};
-    gamsFilesNames_DAC.User_Defined_2={};
-    gamsFilesNames_DAC.Define_Inputs={'Base_DAC_Set_Definitions.txt';'Base_DAC_Parameter_Definitions.txt';'Base_DAC_Table_Definitions.txt'};
-    gamsFilesNames_DAC.User_Defined_3={};
-    gamsFilesNames_DAC.Manipulate_Inputs={'Base_DAC_Convert_To_PU.txt'};
-    gamsFilesNames_DAC.User_Defined_4={};
-    gamsFilesNames_DAC.Declare_Variables={'Base_DAC_Variable_Declarations.txt';'Base_DAC_Variable_Definitions.txt'};
-    gamsFilesNames_DAC.User_Defined_5={};
-    gamsFilesNames_DAC.Declare_Equations={'Base_DAC_Equation_Declarations.txt';'Base_DAC_Storage_Equation_Declarations.txt'};
-    gamsFilesNames_DAC.User_Defined_6={};
-    gamsFilesNames_DAC.Define_Constraints={'Base_DAC_Contingency_Equations.txt';
-                                           'Base_DAC_Objective_Function.txt';
-                                           'Base_DAC_Gen_Reserve_Capabilities_Equations.txt';
-                                           'Base_DAC_Generator_Commitment_Equations.txt';
-                                           'Base_DAC_Load_Flow_Equations.txt';
-                                           'Base_DAC_Normal_Generator_Limits_Equations.txt';
-                                           'Base_DAC_Phase_Shifter_Equations.txt';
-                                           'Base_DAC_Storage_Commitment_Equations.txt';
-                                           'Base_DAC_Storage_Efficiency_Equations.txt';
-                                           'Base_DAC_Storage_Equations.txt';
-                                           'Base_DAC_System_Equations.txt';
-                                           'Base_DAC_Unconventional_Storage_Equations.txt';
-                                           'Base_DAC_Variable_Startup_Equations.txt'};
-    gamsFilesNames_DAC.User_Defined_7={};
-    gamsFilesNames_DAC.Model_Definition={'Base_DAC_Model_Definition.txt'};
-    gamsFilesNames_DAC.User_Defined_8={};
-    gamsFilesNames_DAC.Solver_Options={'Base_DAC_Solver_Options.txt'};
-    gamsFilesNames_DAC.User_Defined_9={};
-    gamsFilesNames_DAC.Solve_Statement={'Base_DAC_Solve_Statement.txt'};
-    gamsFilesNames_DAC.User_Defined_10={};
-    gamsFilesNames_DAC.Post_Processing={'Base_DAC_Post_Processing.txt';'Base_DAC_Storage_Post_Processing.txt'};
-    gamsFilesNames_DAC.User_Defined_11={};
-    gamsFilesNames_DAC.Footer={'Base_DAC_Footer.txt'};
-
-    gamsFilesPaths_DAC.Header={['MODEL_RULES',filesep,'GAMS_Model_Files',filesep,'Base_DAC_Files',filesep,'Base_DAC_Header.txt']};
-    gamsFilesPaths_DAC.User_Defined_1={};
-    gamsFilesPaths_DAC.Load_Inputs={['MODEL_RULES',filesep,'GAMS_Model_Files',filesep,'Base_DAC_Files',filesep,'Base_DAC_Scalar_Declarations.txt'];
-                                    ['MODEL_RULES',filesep,'GAMS_Model_Files',filesep,'Base_DAC_Files',filesep,'Base_DAC_Set_Declarations.txt'];
-                                    ['MODEL_RULES',filesep,'GAMS_Model_Files',filesep,'Base_DAC_Files',filesep,'Base_DAC_Parameter_Declarations.txt'];
-                                    ['MODEL_RULES',filesep,'GAMS_Model_Files',filesep,'Base_DAC_Files',filesep,'Base_DAC_Table_Declarations.txt']};
-    gamsFilesPaths_DAC.User_Defined_2={};
-    gamsFilesPaths_DAC.Define_Inputs={['MODEL_RULES',filesep,'GAMS_Model_Files',filesep,'Base_DAC_Files',filesep,'Base_DAC_Set_Definitions.txt'];
-                                      ['MODEL_RULES',filesep,'GAMS_Model_Files',filesep,'Base_DAC_Files',filesep,'Base_DAC_Parameter_Definitions.txt'];
-                                      ['MODEL_RULES',filesep,'GAMS_Model_Files',filesep,'Base_DAC_Files',filesep,'Base_DAC_Table_Definitions.txt']};
-    gamsFilesPaths_DAC.User_Defined_3={};
-    gamsFilesPaths_DAC.Manipulate_Inputs={['MODEL_RULES',filesep,'GAMS_Model_Files',filesep,'Base_DAC_Files',filesep,'Base_DAC_Convert_To_PU.txt']};
-    gamsFilesPaths_DAC.User_Defined_4={};
-    gamsFilesPaths_DAC.Declare_Variables={['MODEL_RULES',filesep,'GAMS_Model_Files',filesep,'Base_DAC_Files',filesep,'Base_DAC_Variable_Declarations.txt'];['MODEL_RULES',filesep,'GAMS_Model_Files',filesep,'Base_DAC_Files',filesep,'Base_DAC_Variable_Definitions.txt']};
-    gamsFilesPaths_DAC.User_Defined_5={};
-    gamsFilesPaths_DAC.Declare_Equations={['MODEL_RULES',filesep,'GAMS_Model_Files',filesep,'Base_DAC_Files',filesep,'Base_DAC_Equation_Declarations.txt'];['MODEL_RULES',filesep,'GAMS_Model_Files',filesep,'Base_DAC_Files',filesep,'Base_DAC_Storage_Equation_Declarations.txt']};
-    gamsFilesPaths_DAC.User_Defined_6={};
-    gamsFilesPaths_DAC.Define_Constraints={['MODEL_RULES',filesep,'GAMS_Model_Files',filesep,'Base_DAC_Files',filesep,'Base_DAC_Contingency_Equations.txt'];
-                                           ['MODEL_RULES',filesep,'GAMS_Model_Files',filesep,'Base_DAC_Files',filesep,'Base_DAC_Objective_Function.txt'];
-                                           ['MODEL_RULES',filesep,'GAMS_Model_Files',filesep,'Base_DAC_Files',filesep,'Base_DAC_Gen_Reserve_Capabilities_Equations.txt'];
-                                           ['MODEL_RULES',filesep,'GAMS_Model_Files',filesep,'Base_DAC_Files',filesep,'Base_DAC_Generator_Commitment_Equations.txt'];
-                                           ['MODEL_RULES',filesep,'GAMS_Model_Files',filesep,'Base_DAC_Files',filesep,'Base_DAC_Load_Flow_Equations.txt'];
-                                           ['MODEL_RULES',filesep,'GAMS_Model_Files',filesep,'Base_DAC_Files',filesep,'Base_DAC_Normal_Generator_Limits_Equations.txt'];
-                                           ['MODEL_RULES',filesep,'GAMS_Model_Files',filesep,'Base_DAC_Files',filesep,'Base_DAC_Phase_Shifter_Equations.txt'];
-                                           ['MODEL_RULES',filesep,'GAMS_Model_Files',filesep,'Base_DAC_Files',filesep,'Base_DAC_Storage_Commitment_Equations.txt'];
-                                           ['MODEL_RULES',filesep,'GAMS_Model_Files',filesep,'Base_DAC_Files',filesep,'Base_DAC_Storage_Efficiency_Equations.txt'];
-                                           ['MODEL_RULES',filesep,'GAMS_Model_Files',filesep,'Base_DAC_Files',filesep,'Base_DAC_Storage_Equations.txt'];
-                                           ['MODEL_RULES',filesep,'GAMS_Model_Files',filesep,'Base_DAC_Files',filesep,'Base_DAC_System_Equations.txt'];
-                                           ['MODEL_RULES',filesep,'GAMS_Model_Files',filesep,'Base_DAC_Files',filesep,'Base_DAC_Unconventional_Storage_Equations.txt'];
-                                           ['MODEL_RULES',filesep,'GAMS_Model_Files',filesep,'Base_DAC_Files',filesep,'Base_DAC_Variable_Startup_Equations.txt']};
-    gamsFilesPaths_DAC.User_Defined_7={};
-    gamsFilesPaths_DAC.Model_Definition={['MODEL_RULES',filesep,'GAMS_Model_Files',filesep,'Base_DAC_Files',filesep,'Base_DAC_Model_Definition.txt']};
-    gamsFilesPaths_DAC.User_Defined_8={};
-    gamsFilesPaths_DAC.Solver_Options={['MODEL_RULES',filesep,'GAMS_Model_Files',filesep,'Base_DAC_Files',filesep,'Base_DAC_Solver_Options.txt']};
-    gamsFilesPaths_DAC.User_Defined_9={};
-    gamsFilesPaths_DAC.Solve_Statement={['MODEL_RULES',filesep,'GAMS_Model_Files',filesep,'Base_DAC_Files',filesep,'Base_DAC_Solve_Statement.txt']};
-    gamsFilesPaths_DAC.User_Defined_10={};
-    gamsFilesPaths_DAC.Post_Processing={['MODEL_RULES',filesep,'GAMS_Model_Files',filesep,'Base_DAC_Files',filesep,'Base_DAC_Post_Processing.txt'];['MODEL_RULES',filesep,'GAMS_Model_Files',filesep,'Base_DAC_Files',filesep,'Base_DAC_Storage_Post_Processing.txt']};
-    gamsFilesPaths_DAC.User_Defined_11={};
-    gamsFilesPaths_DAC.Footer={['MODEL_RULES',filesep,'GAMS_Model_Files',filesep,'Base_DAC_Files',filesep,'Base_DAC_Footer.txt']};
-    assignin('base','gamsFilesNames_DAC',gamsFilesNames_DAC);
-    assignin('base','gamsFilesPaths_DAC',gamsFilesPaths_DAC);
+    load_command=['MODEL_RULES',filesep,'GAMS_Model_Files',filesep,'Saved_GAMS_Models',filesep,'Default_Formulation'];
+    evalin('base',['load(''',load_command,''')']);
     try
         sectionName1=get(dac_modelinputLocationListBox,'value');
         sectionName2=cellstr(get(dac_modelinputLocationListBox,'string'));
@@ -3287,82 +3333,8 @@ function dac_default_checked(~,~)
 end
 
 function rtc_default_checked(~,~)
-    gamsFilesNames_RTC.Header={'Base_RTC_Header.txt'};
-    gamsFilesNames_RTC.User_Defined_1={};
-    gamsFilesNames_RTC.Load_Inputs={'Base_RTC_Scalar_Declarations.txt';'Base_RTC_Set_Declarations.txt';'Base_RTC_Parameter_Declarations.txt'};
-    gamsFilesNames_RTC.User_Defined_2={};
-    gamsFilesNames_RTC.Define_Inputs={'Base_RTC_Set_Definitions.txt';'Base_RTC_Parameter_Definitions.txt'};
-    gamsFilesNames_RTC.User_Defined_3={};
-    gamsFilesNames_RTC.Manipulate_Inputs={'Base_RTC_Convert_To_PU.txt'};
-    gamsFilesNames_RTC.User_Defined_4={};
-    gamsFilesNames_RTC.Declare_Variables={'Base_RTC_Variable_Declarations.txt';'Base_RTC_Variable_Definitions.txt'};
-    gamsFilesNames_RTC.User_Defined_5={};
-    gamsFilesNames_RTC.Declare_Equations={'Base_RTC_Equation_Declarations.txt';'Base_RTC_Storage_Equation_Declarations.txt'};
-    gamsFilesNames_RTC.User_Defined_6={};
-    gamsFilesNames_RTC.Define_Constraints={'Base_RTC_Contingency_Equations.txt';
-                                           'Base_RTC_Objective_Function.txt';
-                                           'Base_RTC_Gen_Reserve_Capabilities_Equations.txt';
-                                           'Base_RTC_Generator_Commitment_Equations.txt';
-                                           'Base_RTC_Load_Flow_Equations.txt';
-                                           'Base_RTC_Normal_Generator_Limits_Equations.txt';
-                                           'Base_RTC_Phase_Shifter_Equations.txt';
-                                           'Base_RTC_Storage_Commitment_Equations.txt';
-                                           'Base_RTC_Storage_Efficiency_Equations.txt';
-                                           'Base_RTC_Storage_Equations.txt';
-                                           'Base_RTC_System_Equations.txt';
-                                           'Base_RTC_Interval_1_Equations.txt';
-                                           'Base_RTC_SUSD_Trajectory_Equations.txt'};
-    gamsFilesNames_RTC.User_Defined_7={};
-    gamsFilesNames_RTC.Model_Definition={'Base_RTC_Model_Definition.txt'};
-    gamsFilesNames_RTC.User_Defined_8={};
-    gamsFilesNames_RTC.Solver_Options={'Base_RTC_Solver_Options.txt'};
-    gamsFilesNames_RTC.User_Defined_9={};
-    gamsFilesNames_RTC.Solve_Statement={'Base_RTC_Solve_Statement.txt'};
-    gamsFilesNames_RTC.User_Defined_10={};
-    gamsFilesNames_RTC.Post_Processing={'Base_RTC_Post_Processing.txt';'Base_RTC_Storage_Post_Processing.txt'};
-    gamsFilesNames_RTC.User_Defined_11={};
-    gamsFilesNames_RTC.Footer={'Base_RTC_Footer.txt'};
-
-    gamsFilesPaths_RTC.Header={['MODEL_RULES',filesep,'GAMS_Model_Files',filesep,'Base_RTC_Files',filesep,'Base_RTC_Header.txt']};
-    gamsFilesPaths_RTC.User_Defined_1={};
-    gamsFilesPaths_RTC.Load_Inputs={['MODEL_RULES',filesep,'GAMS_Model_Files',filesep,'Base_RTC_Files',filesep,'Base_RTC_Scalar_Declarations.txt'];
-                                    ['MODEL_RULES',filesep,'GAMS_Model_Files',filesep,'Base_RTC_Files',filesep,'Base_RTC_Set_Declarations.txt'];
-                                    ['MODEL_RULES',filesep,'GAMS_Model_Files',filesep,'Base_RTC_Files',filesep,'Base_RTC_Parameter_Declarations.txt']};
-    gamsFilesPaths_RTC.User_Defined_2={};
-    gamsFilesPaths_RTC.Define_Inputs={['MODEL_RULES',filesep,'GAMS_Model_Files',filesep,'Base_RTC_Files',filesep,'Base_RTC_Set_Definitions.txt'];
-                                      ['MODEL_RULES',filesep,'GAMS_Model_Files',filesep,'Base_RTC_Files',filesep,'Base_RTC_Parameter_Definitions.txt']};
-    gamsFilesPaths_RTC.User_Defined_3={};
-    gamsFilesPaths_RTC.Manipulate_Inputs={['MODEL_RULES',filesep,'GAMS_Model_Files',filesep,'Base_RTC_Files',filesep,'Base_RTC_Convert_To_PU.txt']};
-    gamsFilesPaths_RTC.User_Defined_4={};
-    gamsFilesPaths_RTC.Declare_Variables={['MODEL_RULES',filesep,'GAMS_Model_Files',filesep,'Base_RTC_Files',filesep,'Base_RTC_Variable_Declarations.txt'];['MODEL_RULES',filesep,'GAMS_Model_Files',filesep,'Base_RTC_Files',filesep,'Base_RTC_Variable_Definitions.txt']};
-    gamsFilesPaths_RTC.User_Defined_5={};
-    gamsFilesPaths_RTC.Declare_Equations={['MODEL_RULES',filesep,'GAMS_Model_Files',filesep,'Base_RTC_Files',filesep,'Base_RTC_Equation_Declarations.txt'];['MODEL_RULES',filesep,'GAMS_Model_Files',filesep,'Base_RTC_Files',filesep,'Base_RTC_Storage_Equation_Declarations.txt']};
-    gamsFilesPaths_RTC.User_Defined_6={};
-    gamsFilesPaths_RTC.Define_Constraints={['MODEL_RULES',filesep,'GAMS_Model_Files',filesep,'Base_RTC_Files',filesep,'Base_RTC_Contingency_Equations.txt'];
-                                           ['MODEL_RULES',filesep,'GAMS_Model_Files',filesep,'Base_RTC_Files',filesep,'Base_RTC_Objective_Function.txt'];
-                                           ['MODEL_RULES',filesep,'GAMS_Model_Files',filesep,'Base_RTC_Files',filesep,'Base_RTC_Gen_Reserve_Capabilities_Equations.txt'];
-                                           ['MODEL_RULES',filesep,'GAMS_Model_Files',filesep,'Base_RTC_Files',filesep,'Base_RTC_Generator_Commitment_Equations.txt'];
-                                           ['MODEL_RULES',filesep,'GAMS_Model_Files',filesep,'Base_RTC_Files',filesep,'Base_RTC_Load_Flow_Equations.txt'];
-                                           ['MODEL_RULES',filesep,'GAMS_Model_Files',filesep,'Base_RTC_Files',filesep,'Base_RTC_Normal_Generator_Limits_Equations.txt'];
-                                           ['MODEL_RULES',filesep,'GAMS_Model_Files',filesep,'Base_RTC_Files',filesep,'Base_RTC_Phase_Shifter_Equations.txt'];
-                                           ['MODEL_RULES',filesep,'GAMS_Model_Files',filesep,'Base_RTC_Files',filesep,'Base_RTC_Storage_Commitment_Equations.txt'];
-                                           ['MODEL_RULES',filesep,'GAMS_Model_Files',filesep,'Base_RTC_Files',filesep,'Base_RTC_Storage_Efficiency_Equations.txt'];
-                                           ['MODEL_RULES',filesep,'GAMS_Model_Files',filesep,'Base_RTC_Files',filesep,'Base_RTC_Storage_Equations.txt'];
-                                           ['MODEL_RULES',filesep,'GAMS_Model_Files',filesep,'Base_RTC_Files',filesep,'Base_RTC_System_Equations.txt'];
-                                           ['MODEL_RULES',filesep,'GAMS_Model_Files',filesep,'Base_RTC_Files',filesep,'Base_RTC_Interval_1_Equations.txt'];
-                                           ['MODEL_RULES',filesep,'GAMS_Model_Files',filesep,'Base_RTC_Files',filesep,'Base_RTC_SUSD_Trajectory_Equations.txt']};
-    gamsFilesPaths_RTC.User_Defined_7={};
-    gamsFilesPaths_RTC.Model_Definition={['MODEL_RULES',filesep,'GAMS_Model_Files',filesep,'Base_RTC_Files',filesep,'Base_RTC_Model_Definition.txt']};
-    gamsFilesPaths_RTC.User_Defined_8={};
-    gamsFilesPaths_RTC.Solver_Options={['MODEL_RULES',filesep,'GAMS_Model_Files',filesep,'Base_RTC_Files',filesep,'Base_RTC_Solver_Options.txt']};
-    gamsFilesPaths_RTC.User_Defined_9={};
-    gamsFilesPaths_RTC.Solve_Statement={['MODEL_RULES',filesep,'GAMS_Model_Files',filesep,'Base_RTC_Files',filesep,'Base_RTC_Solve_Statement.txt']};
-    gamsFilesPaths_RTC.User_Defined_10={};
-    gamsFilesPaths_RTC.Post_Processing={['MODEL_RULES',filesep,'GAMS_Model_Files',filesep,'Base_RTC_Files',filesep,'Base_RTC_Post_Processing.txt']};
-    gamsFilesPaths_RTC.User_Defined_11={};
-    gamsFilesPaths_RTC.Footer={['MODEL_RULES',filesep,'GAMS_Model_Files',filesep,'Base_RTC_Files',filesep,'Base_RTC_Footer.txt']};
-    assignin('base','gamsFilesNames_RTC',gamsFilesNames_RTC);
-    assignin('base','gamsFilesPaths_RTC',gamsFilesPaths_RTC);
+    load_command=['MODEL_RULES',filesep,'GAMS_Model_Files',filesep,'Saved_GAMS_Models',filesep,'Default_Formulation'];
+    evalin('base',['load(''',load_command,''')']);
     try
         sectionName1=get(rtc_modelinputLocationListBox,'value');
         sectionName2=cellstr(get(rtc_modelinputLocationListBox,'string'));
@@ -3382,10 +3354,15 @@ function add_rtc_gams_rule(~,~)
     datatemp=get(rtc_list_of_selected_gams_rules,'string');
     datatemp=[datatemp;temp2(temp,:)];
     set(rtc_list_of_selected_gams_rules,'string',datatemp);
-    fullpaths=strcat(repmat(dname,size(temp2,2),1),filesep,temp2(temp,:));
+    if strcat(dname(1:size(cd,2)),cd)
+        fullpaths=strcat(dname(size(cd,2)+2:end),filesep,temp2(temp,:));
+    else
+        fullpaths=strcat(repmat(dname,size(temp2,2),1),filesep,temp2(temp,:));
+    end;
     sectionName1=get(rtc_modelinputLocationListBox,'value');
     sectionName2=cellstr(get(rtc_modelinputLocationListBox,'string'));
     temp3=sectionName2(sectionName1);
+    gamsFilesPaths_RTC=evalin('base','gamsFilesPaths_RTC');
     fullpaths_temp=gamsFilesPaths_RTC.(sprintf('%s',temp3{:}));
     fullpaths=[fullpaths_temp;fullpaths];
     gamsFilesPaths_RTC.(sprintf('%s',temp3{:}))=fullpaths;
@@ -3399,6 +3376,7 @@ function remove_rtc_gams_rule(~,~)
     temp=get(rtc_list_of_selected_gams_rules,'value');
     temp2=get(rtc_list_of_selected_gams_rules,'string');
     temp2(temp,:)=[];
+    set(rtc_list_of_selected_gams_rules,'value',max(1,temp-1));
     set(rtc_list_of_selected_gams_rules,'string',temp2);
     sectionName1=get(rtc_modelinputLocationListBox,'value');
     sectionName2=cellstr(get(rtc_modelinputLocationListBox,'string'));
@@ -3409,7 +3387,6 @@ function remove_rtc_gams_rule(~,~)
     gamsFilesNames_RTC=evalin('base','gamsFilesNames_RTC');
     gamsFilesNames_RTC.(sprintf('%s',temp3{:}))=temp2;
     assignin('base','gamsFilesNames_RTC',gamsFilesNames_RTC);
-    set(rtc_list_of_selected_gams_rules,'value',max(1,temp-1));
 end
 
 function rtcSectionChange(~,~)
@@ -3428,74 +3405,8 @@ end
 
 
 function rtd_default_checked(~,~)
-    gamsFilesNames_RTD.Header={'Base_RTD_Header.txt'};
-    gamsFilesNames_RTD.User_Defined_1={};
-    gamsFilesNames_RTD.Load_Inputs={'Base_RTD_Scalar_Declarations.txt';'Base_RTD_Set_Declarations.txt';'Base_RTD_Parameter_Declarations.txt'};
-    gamsFilesNames_RTD.User_Defined_2={};
-    gamsFilesNames_RTD.Define_Inputs={'Base_RTD_Set_Definitions.txt';'Base_RTD_Parameter_Definitions.txt'};
-    gamsFilesNames_RTD.User_Defined_3={};
-    gamsFilesNames_RTD.Manipulate_Inputs={'Base_RTD_Convert_To_PU.txt'};
-    gamsFilesNames_RTD.User_Defined_4={};
-    gamsFilesNames_RTD.Declare_Variables={'Base_RTD_Variable_Declarations.txt';'Base_RTD_Variable_Definitions.txt'};
-    gamsFilesNames_RTD.User_Defined_5={};
-    gamsFilesNames_RTD.Declare_Equations={'Base_RTD_Equation_Declarations.txt';'Base_RTD_Storage_Equation_Declarations.txt'};
-    gamsFilesNames_RTD.User_Defined_6={};
-    gamsFilesNames_RTD.Define_Constraints={'Base_RTD_Contingency_Equations.txt';
-                                           'Base_RTD_Objective_Function.txt';
-                                           'Base_RTD_Gen_Reserve_Capabilities_Equations.txt';
-                                           'Base_RTD_Load_Flow_Equations.txt';
-                                           'Base_RTD_Normal_Generator_Limits_Equations.txt';
-                                           'Base_RTD_Phase_Shifter_Equations.txt';
-                                           'Base_RTD_Storage_Equations.txt';
-                                           'Base_RTD_System_Equations.txt';
-                                           'Base_RTD_Interval_1_Equations.txt'};
-    gamsFilesNames_RTD.User_Defined_7={};
-    gamsFilesNames_RTD.Model_Definition={'Base_RTD_Model_Definition.txt'};
-    gamsFilesNames_RTD.User_Defined_8={};
-    gamsFilesNames_RTD.Solver_Options={'Base_RTD_Solver_Options.txt'};
-    gamsFilesNames_RTD.User_Defined_9={};
-    gamsFilesNames_RTD.Solve_Statement={'Base_RTD_Solve_Statement.txt'};
-    gamsFilesNames_RTD.User_Defined_10={};
-    gamsFilesNames_RTD.Post_Processing={'Base_RTD_Post_Processing.txt';'Base_RTD_Storage_Post_Processing.txt'};
-    gamsFilesNames_RTD.User_Defined_11={};
-    gamsFilesNames_RTD.Footer={'Base_RTD_Footer.txt'};
-
-    gamsFilesPaths_RTD.Header={['MODEL_RULES',filesep,'GAMS_Model_Files',filesep,'Base_RTD_Files',filesep,'Base_RTD_Header.txt']};
-    gamsFilesPaths_RTD.User_Defined_1={};
-    gamsFilesPaths_RTD.Load_Inputs={['MODEL_RULES',filesep,'GAMS_Model_Files',filesep,'Base_RTD_Files',filesep,'Base_RTD_Scalar_Declarations.txt'];
-                                    ['MODEL_RULES',filesep,'GAMS_Model_Files',filesep,'Base_RTD_Files',filesep,'Base_RTD_Set_Declarations.txt'];
-                                    ['MODEL_RULES',filesep,'GAMS_Model_Files',filesep,'Base_RTD_Files',filesep,'Base_RTD_Parameter_Declarations.txt']};
-    gamsFilesPaths_RTD.User_Defined_2={};
-    gamsFilesPaths_RTD.Define_Inputs={['MODEL_RULES',filesep,'GAMS_Model_Files',filesep,'Base_RTD_Files',filesep,'Base_RTD_Set_Definitions.txt'];
-                                      ['MODEL_RULES',filesep,'GAMS_Model_Files',filesep,'Base_RTD_Files',filesep,'Base_RTD_Parameter_Definitions.txt']};
-    gamsFilesPaths_RTD.User_Defined_3={};
-    gamsFilesPaths_RTD.Manipulate_Inputs={['MODEL_RULES',filesep,'GAMS_Model_Files',filesep,'Base_RTD_Files',filesep,'Base_RTD_Convert_To_PU.txt']};
-    gamsFilesPaths_RTD.User_Defined_4={};
-    gamsFilesPaths_RTD.Declare_Variables={['MODEL_RULES',filesep,'GAMS_Model_Files',filesep,'Base_RTD_Files',filesep,'Base_RTD_Variable_Declarations.txt'];['MODEL_RULES',filesep,'GAMS_Model_Files',filesep,'Base_RTD_Files',filesep,'Base_RTD_Variable_Definitions.txt']};
-    gamsFilesPaths_RTD.User_Defined_5={};
-    gamsFilesPaths_RTD.Declare_Equations={['MODEL_RULES',filesep,'GAMS_Model_Files',filesep,'Base_RTD_Files',filesep,'Base_RTD_Equation_Declarations.txt'];['MODEL_RULES',filesep,'GAMS_Model_Files',filesep,'Base_RTD_Files',filesep,'Base_RTD_Storage_Equation_Declarations.txt']};
-    gamsFilesPaths_RTD.User_Defined_6={};
-    gamsFilesPaths_RTD.Define_Constraints={['MODEL_RULES',filesep,'GAMS_Model_Files',filesep,'Base_RTD_Files',filesep,'Base_RTD_Contingency_Equations.txt'];
-                                           ['MODEL_RULES',filesep,'GAMS_Model_Files',filesep,'Base_RTD_Files',filesep,'Base_RTD_Objective_Function.txt'];
-                                           ['MODEL_RULES',filesep,'GAMS_Model_Files',filesep,'Base_RTD_Files',filesep,'Base_RTD_Generator_Reserve_Capabilities_Equations.txt'];
-                                           ['MODEL_RULES',filesep,'GAMS_Model_Files',filesep,'Base_RTD_Files',filesep,'Base_RTD_Load_Flow_Equations.txt'];
-                                           ['MODEL_RULES',filesep,'GAMS_Model_Files',filesep,'Base_RTD_Files',filesep,'Base_RTD_Normal_Generator_Limits_Equations.txt'];
-                                           ['MODEL_RULES',filesep,'GAMS_Model_Files',filesep,'Base_RTD_Files',filesep,'Base_RTD_Phase_Shifter_Equations.txt'];
-                                           ['MODEL_RULES',filesep,'GAMS_Model_Files',filesep,'Base_RTD_Files',filesep,'Base_RTD_Storage_Equations.txt'];
-                                           ['MODEL_RULES',filesep,'GAMS_Model_Files',filesep,'Base_RTD_Files',filesep,'Base_RTD_System_Equations.txt'];
-                                           ['MODEL_RULES',filesep,'GAMS_Model_Files',filesep,'Base_RTD_Files',filesep,'Base_RTD_Interval_1_Equations.txt']};
-    gamsFilesPaths_RTD.User_Defined_7={};
-    gamsFilesPaths_RTD.Model_Definition={['MODEL_RULES',filesep,'GAMS_Model_Files',filesep,'Base_RTD_Files',filesep,'Base_RTD_Model_Definition.txt']};
-    gamsFilesPaths_RTD.User_Defined_8={};
-    gamsFilesPaths_RTD.Solver_Options={['MODEL_RULES',filesep,'GAMS_Model_Files',filesep,'Base_RTD_Files',filesep,'Base_RTD_Solver_Options.txt']};
-    gamsFilesPaths_RTD.User_Defined_9={};
-    gamsFilesPaths_RTD.Solve_Statement={['MODEL_RULES',filesep,'GAMS_Model_Files',filesep,'Base_RTD_Files',filesep,'Base_RTD_Solve_Statement.txt']};
-    gamsFilesPaths_RTD.User_Defined_10={};
-    gamsFilesPaths_RTD.Post_Processing={['MODEL_RULES',filesep,'GAMS_Model_Files',filesep,'Base_RTD_Files',filesep,'Base_RTD_Post_Processing.txt']};
-    gamsFilesPaths_RTD.User_Defined_11={};
-    gamsFilesPaths_RTD.Footer={['MODEL_RULES',filesep,'GAMS_Model_Files',filesep,'Base_RTD_Files',filesep,'Base_RTD_Footer.txt']};
-    assignin('base','gamsFilesNames_RTD',gamsFilesNames_RTD);
-    assignin('base','gamsFilesPaths_RTD',gamsFilesPaths_RTD);
+    load_command=['MODEL_RULES',filesep,'GAMS_Model_Files',filesep,'Saved_GAMS_Models',filesep,'Default_Formulation'];
+    evalin('base',['load(''',load_command,''')']);
     try
         sectionName1=get(rtd_modelinputLocationListBox,'value');
         sectionName2=cellstr(get(rtd_modelinputLocationListBox,'string'));
@@ -3515,10 +3426,15 @@ function add_rtd_gams_rule(~,~)
     datatemp=get(rtd_list_of_selected_gams_rules,'string');
     datatemp=[datatemp;temp2(temp,:)];
     set(rtd_list_of_selected_gams_rules,'string',datatemp);
-    fullpaths=strcat(repmat(dname,size(temp2,2),1),filesep,temp2(temp,:));
+    if strcat(dname(1:size(cd,2)),cd)
+        fullpaths=strcat(dname(size(cd,2)+2:end),filesep,temp2(temp,:));
+    else
+        fullpaths=strcat(repmat(dname,size(temp2,2),1),filesep,temp2(temp,:));
+    end;
     sectionName1=get(rtd_modelinputLocationListBox,'value');
     sectionName2=cellstr(get(rtd_modelinputLocationListBox,'string'));
     temp3=sectionName2(sectionName1);
+    gamsFilesPaths_RTD=evalin('base','gamsFilesPaths_RTD');
     fullpaths_temp=gamsFilesPaths_RTD.(sprintf('%s',temp3{:}));
     fullpaths=[fullpaths_temp;fullpaths];
     gamsFilesPaths_RTD.(sprintf('%s',temp3{:}))=fullpaths;
@@ -3532,6 +3448,7 @@ function remove_rtd_gams_rule(~,~)
     temp=get(rtd_list_of_selected_gams_rules,'value');
     temp2=get(rtd_list_of_selected_gams_rules,'string');
     temp2(temp,:)=[];
+    set(rtd_list_of_selected_gams_rules,'value',max(1,temp-1));
     set(rtd_list_of_selected_gams_rules,'string',temp2);
     sectionName1=get(rtd_modelinputLocationListBox,'value');
     sectionName2=cellstr(get(rtd_modelinputLocationListBox,'string'));
@@ -3542,7 +3459,6 @@ function remove_rtd_gams_rule(~,~)
     gamsFilesNames_RTD=evalin('base','gamsFilesNames_RTD');
     gamsFilesNames_RTD.(sprintf('%s',temp3{:}))=temp2;
     assignin('base','gamsFilesNames_RTD',gamsFilesNames_RTD);
-    set(rtd_list_of_selected_gams_rules,'value',max(1,temp-1));
 end
 
 function rtdSectionChange(~,~)
@@ -3562,28 +3478,35 @@ end
 function clear_dac_gams(~,~)
     gamsFilesNames_DAC=evalin('base','gamsFilesNames_DAC');
     gamsFilesNames_DAC.Header={};gamsFilesNames_DAC.User_Defined_1={};
-    gamsFilesNames_DAC.Load_Inputs={};gamsFilesNames_DAC.User_Defined_2={};
-    gamsFilesNames_DAC.Define_Inputs={};gamsFilesNames_DAC.User_Defined_3={};
-    gamsFilesNames_DAC.Manipulate_Inputs={};gamsFilesNames_DAC.User_Defined_4={};
-    gamsFilesNames_DAC.Declare_Variables={};gamsFilesNames_DAC.User_Defined_5={};
-    gamsFilesNames_DAC.Declare_Equations={};gamsFilesNames_DAC.User_Defined_6={};
-    gamsFilesNames_DAC.Define_Constraints={};gamsFilesNames_DAC.User_Defined_7={};
-    gamsFilesNames_DAC.Model_Definition={};gamsFilesNames_DAC.User_Defined_8={};
-    gamsFilesNames_DAC.Solver_Options={};gamsFilesNames_DAC.User_Defined_9={};
-    gamsFilesNames_DAC.Solve_Statement={};gamsFilesNames_DAC.User_Defined_10={};
-    gamsFilesNames_DAC.Post_Processing={};gamsFilesNames_DAC.User_Defined_11={};
+    gamsFilesNames_DAC.Declare_Sets={};gamsFilesNames_DAC.User_Defined_2={};
+    gamsFilesNames_DAC.Declare_Parameters={};gamsFilesNames_DAC.User_Defined_3={};
+    gamsFilesNames_DAC.Load_Inputs={};gamsFilesNames_DAC.User_Defined_4={};
+    gamsFilesNames_DAC.Define_Sets={};gamsFilesNames_DAC.User_Defined_5={};
+    gamsFilesNames_DAC.Define_Parameters={};gamsFilesNames_DAC.User_Defined_6={};
+    gamsFilesNames_DAC.Declare_Variables={};gamsFilesNames_DAC.User_Defined_7={};
+    gamsFilesNames_DAC.Define_Variables={};gamsFilesNames_DAC.User_Defined_8={};
+    gamsFilesNames_DAC.Declare_Equations={};gamsFilesNames_DAC.User_Defined_9={};
+    gamsFilesNames_DAC.Define_Equations={};gamsFilesNames_DAC.User_Defined_10={};
+    gamsFilesNames_DAC.Define_Model={};gamsFilesNames_DAC.User_Defined_11={};
+    gamsFilesNames_DAC.Solver_Options={};gamsFilesNames_DAC.User_Defined_12={};
+    gamsFilesNames_DAC.Solve_Statement={};gamsFilesNames_DAC.User_Defined_13={};
+    gamsFilesNames_DAC.Post_Processing={};gamsFilesNames_DAC.User_Defined_14={};
     gamsFilesNames_DAC.Footer={};
     gamsFilesPaths_DAC.Header={};gamsFilesPaths_DAC.User_Defined_1={};
-    gamsFilesPaths_DAC.Load_Inputs={};gamsFilesPaths_DAC.User_Defined_2={};
-    gamsFilesPaths_DAC.Define_Inputs={};gamsFilesPaths_DAC.User_Defined_3={};
-    gamsFilesPaths_DAC.Manipulate_Inputs={};gamsFilesPaths_DAC.User_Defined_4={};
-    gamsFilesPaths_DAC.Declare_Variables={};gamsFilesPaths_DAC.User_Defined_5={};
-    gamsFilesPaths_DAC.Declare_Equations={};gamsFilesPaths_DAC.User_Defined_6={};
-    gamsFilesPaths_DAC.Define_Constraints={};gamsFilesPaths_DAC.User_Defined_7={};
-    gamsFilesPaths_DAC.Model_Definition={};gamsFilesPaths_DAC.User_Defined_8={};
-    gamsFilesPaths_DAC.Solver_Options={};gamsFilesPaths_DAC.User_Defined_9={};
-    gamsFilesPaths_DAC.Solve_Statement={};gamsFilesPaths_DAC.User_Defined_10={};
-    gamsFilesPaths_DAC.Post_Processing={};gamsFilesPaths_DAC.User_Defined_11={};
+    gamsFilesPaths_DAC.Header={};gamsFilesPaths_DAC.User_Defined_1={};
+    gamsFilesPaths_DAC.Declare_Sets={};gamsFilesPaths_DAC.User_Defined_2={};
+    gamsFilesPaths_DAC.Declare_Parameters={};gamsFilesPaths_DAC.User_Defined_3={};
+    gamsFilesPaths_DAC.Load_Inputs={};gamsFilesPaths_DAC.User_Defined_4={};
+    gamsFilesPaths_DAC.Define_Sets={};gamsFilesPaths_DAC.User_Defined_5={};
+    gamsFilesPaths_DAC.Define_Parameters={};gamsFilesPaths_DAC.User_Defined_6={};
+    gamsFilesPaths_DAC.Declare_Variables={};gamsFilesPaths_DAC.User_Defined_7={};
+    gamsFilesPaths_DAC.Define_Variables={};gamsFilesPaths_DAC.User_Defined_8={};
+    gamsFilesPaths_DAC.Declare_Equations={};gamsFilesPaths_DAC.User_Defined_9={};
+    gamsFilesPaths_DAC.Define_Equations={};gamsFilesPaths_DAC.User_Defined_10={};
+    gamsFilesPaths_DAC.Define_Model={};gamsFilesPaths_DAC.User_Defined_11={};
+    gamsFilesPaths_DAC.Solver_Options={};gamsFilesPaths_DAC.User_Defined_12={};
+    gamsFilesPaths_DAC.Solve_Statement={};gamsFilesPaths_DAC.User_Defined_13={};
+    gamsFilesPaths_DAC.Post_Processing={};gamsFilesPaths_DAC.User_Defined_14={};
     gamsFilesPaths_DAC.Footer={};
     assignin('base','gamsFilesNames_DAC',gamsFilesNames_DAC);
     dacSectionChange();
@@ -3592,28 +3515,35 @@ end
 function clear_rtc_gams(~,~)
     gamsFilesNames_RTC=evalin('base','gamsFilesNames_RTC');
     gamsFilesNames_RTC.Header={};gamsFilesNames_RTC.User_Defined_1={};
-    gamsFilesNames_RTC.Load_Inputs={};gamsFilesNames_RTC.User_Defined_2={};
-    gamsFilesNames_RTC.Define_Inputs={};gamsFilesNames_RTC.User_Defined_3={};
-    gamsFilesNames_RTC.Manipulate_Inputs={};gamsFilesNames_RTC.User_Defined_4={};
-    gamsFilesNames_RTC.Declare_Variables={};gamsFilesNames_RTC.User_Defined_5={};
-    gamsFilesNames_RTC.Declare_Equations={};gamsFilesNames_RTC.User_Defined_6={};
-    gamsFilesNames_RTC.Define_Constraints={};gamsFilesNames_RTC.User_Defined_7={};
-    gamsFilesNames_RTC.Model_Definition={};gamsFilesNames_RTC.User_Defined_8={};
-    gamsFilesNames_RTC.Solver_Options={};gamsFilesNames_RTC.User_Defined_9={};
-    gamsFilesNames_RTC.Solve_Statement={};gamsFilesNames_RTC.User_Defined_10={};
-    gamsFilesNames_RTC.Post_Processing={};gamsFilesNames_RTC.User_Defined_11={};
+    gamsFilesNames_RTC.Declare_Sets={};gamsFilesNames_RTC.User_Defined_2={};
+    gamsFilesNames_RTC.Declare_Parameters={};gamsFilesNames_RTC.User_Defined_3={};
+    gamsFilesNames_RTC.Load_Inputs={};gamsFilesNames_RTC.User_Defined_4={};
+    gamsFilesNames_RTC.Define_Sets={};gamsFilesNames_RTC.User_Defined_5={};
+    gamsFilesNames_RTC.Define_Parameters={};gamsFilesNames_RTC.User_Defined_6={};
+    gamsFilesNames_RTC.Declare_Variables={};gamsFilesNames_RTC.User_Defined_7={};
+    gamsFilesNames_RTC.Define_Variables={};gamsFilesNames_RTC.User_Defined_8={};
+    gamsFilesNames_RTC.Declare_Equations={};gamsFilesNames_RTC.User_Defined_9={};
+    gamsFilesNames_RTC.Define_Equations={};gamsFilesNames_RTC.User_Defined_10={};
+    gamsFilesNames_RTC.Define_Model={};gamsFilesNames_RTC.User_Defined_11={};
+    gamsFilesNames_RTC.Solver_Options={};gamsFilesNames_RTC.User_Defined_12={};
+    gamsFilesNames_RTC.Solve_Statement={};gamsFilesNames_RTC.User_Defined_13={};
+    gamsFilesNames_RTC.Post_Processing={};gamsFilesNames_RTC.User_Defined_14={};
     gamsFilesNames_RTC.Footer={};
     gamsFilesPaths_RTC.Header={};gamsFilesPaths_RTC.User_Defined_1={};
-    gamsFilesPaths_RTC.Load_Inputs={};gamsFilesPaths_RTC.User_Defined_2={};
-    gamsFilesPaths_RTC.Define_Inputs={};gamsFilesPaths_RTC.User_Defined_3={};
-    gamsFilesPaths_RTC.Manipulate_Inputs={};gamsFilesPaths_RTC.User_Defined_4={};
-    gamsFilesPaths_RTC.Declare_Variables={};gamsFilesPaths_RTC.User_Defined_5={};
-    gamsFilesPaths_RTC.Declare_Equations={};gamsFilesPaths_RTC.User_Defined_6={};
-    gamsFilesPaths_RTC.Define_Constraints={};gamsFilesPaths_RTC.User_Defined_7={};
-    gamsFilesPaths_RTC.Model_Definition={};gamsFilesPaths_RTC.User_Defined_8={};
-    gamsFilesPaths_RTC.Solver_Options={};gamsFilesPaths_RTC.User_Defined_9={};
-    gamsFilesPaths_RTC.Solve_Statement={};gamsFilesPaths_RTC.User_Defined_10={};
-    gamsFilesPaths_RTC.Post_Processing={};gamsFilesPaths_RTC.User_Defined_11={};
+    gamsFilesPaths_RTC.Header={};gamsFilesPaths_RTC.User_Defined_1={};
+    gamsFilesPaths_RTC.Declare_Sets={};gamsFilesPaths_RTC.User_Defined_2={};
+    gamsFilesPaths_RTC.Declare_Parameters={};gamsFilesPaths_RTC.User_Defined_3={};
+    gamsFilesPaths_RTC.Load_Inputs={};gamsFilesPaths_RTC.User_Defined_4={};
+    gamsFilesPaths_RTC.Define_Sets={};gamsFilesPaths_RTC.User_Defined_5={};
+    gamsFilesPaths_RTC.Define_Parameters={};gamsFilesPaths_RTC.User_Defined_6={};
+    gamsFilesPaths_RTC.Declare_Variables={};gamsFilesPaths_RTC.User_Defined_7={};
+    gamsFilesPaths_RTC.Define_Variables={};gamsFilesPaths_RTC.User_Defined_8={};
+    gamsFilesPaths_RTC.Declare_Equations={};gamsFilesPaths_RTC.User_Defined_9={};
+    gamsFilesPaths_RTC.Define_Equations={};gamsFilesPaths_RTC.User_Defined_10={};
+    gamsFilesPaths_RTC.Define_Model={};gamsFilesPaths_RTC.User_Defined_11={};
+    gamsFilesPaths_RTC.Solver_Options={};gamsFilesPaths_RTC.User_Defined_12={};
+    gamsFilesPaths_RTC.Solve_Statement={};gamsFilesPaths_RTC.User_Defined_13={};
+    gamsFilesPaths_RTC.Post_Processing={};gamsFilesPaths_RTC.User_Defined_14={};
     gamsFilesPaths_RTC.Footer={};
     assignin('base','gamsFilesNames_RTC',gamsFilesNames_RTC);
     rtcSectionChange();
@@ -3622,28 +3552,35 @@ end
 function clear_rtd_gams(~,~)
     gamsFilesNames_RTD=evalin('base','gamsFilesNames_RTD');
     gamsFilesNames_RTD.Header={};gamsFilesNames_RTD.User_Defined_1={};
-    gamsFilesNames_RTD.Load_Inputs={};gamsFilesNames_RTD.User_Defined_2={};
-    gamsFilesNames_RTD.Define_Inputs={};gamsFilesNames_RTD.User_Defined_3={};
-    gamsFilesNames_RTD.Manipulate_Inputs={};gamsFilesNames_RTD.User_Defined_4={};
-    gamsFilesNames_RTD.Declare_Variables={};gamsFilesNames_RTD.User_Defined_5={};
-    gamsFilesNames_RTD.Declare_Equations={};gamsFilesNames_RTD.User_Defined_6={};
-    gamsFilesNames_RTD.Define_Constraints={};gamsFilesNames_RTD.User_Defined_7={};
-    gamsFilesNames_RTD.Model_Definition={};gamsFilesNames_RTD.User_Defined_8={};
-    gamsFilesNames_RTD.Solver_Options={};gamsFilesNames_RTD.User_Defined_9={};
-    gamsFilesNames_RTD.Solve_Statement={};gamsFilesNames_RTD.User_Defined_10={};
-    gamsFilesNames_RTD.Post_Processing={};gamsFilesNames_RTD.User_Defined_11={};
+    gamsFilesNames_RTD.Declare_Sets={};gamsFilesNames_RTD.User_Defined_2={};
+    gamsFilesNames_RTD.Declare_Parameters={};gamsFilesNames_RTD.User_Defined_3={};
+    gamsFilesNames_RTD.Load_Inputs={};gamsFilesNames_RTD.User_Defined_4={};
+    gamsFilesNames_RTD.Define_Sets={};gamsFilesNames_RTD.User_Defined_5={};
+    gamsFilesNames_RTD.Define_Parameters={};gamsFilesNames_RTD.User_Defined_6={};
+    gamsFilesNames_RTD.Declare_Variables={};gamsFilesNames_RTD.User_Defined_7={};
+    gamsFilesNames_RTD.Define_Variables={};gamsFilesNames_RTD.User_Defined_8={};
+    gamsFilesNames_RTD.Declare_Equations={};gamsFilesNames_RTD.User_Defined_9={};
+    gamsFilesNames_RTD.Define_Equations={};gamsFilesNames_RTD.User_Defined_10={};
+    gamsFilesNames_RTD.Define_Model={};gamsFilesNames_RTD.User_Defined_11={};
+    gamsFilesNames_RTD.Solver_Options={};gamsFilesNames_RTD.User_Defined_12={};
+    gamsFilesNames_RTD.Solve_Statement={};gamsFilesNames_RTD.User_Defined_13={};
+    gamsFilesNames_RTD.Post_Processing={};gamsFilesNames_RTD.User_Defined_14={};
     gamsFilesNames_RTD.Footer={};
     gamsFilesPaths_RTD.Header={};gamsFilesPaths_RTD.User_Defined_1={};
-    gamsFilesPaths_RTD.Load_Inputs={};gamsFilesPaths_RTD.User_Defined_2={};
-    gamsFilesPaths_RTD.Define_Inputs={};gamsFilesPaths_RTD.User_Defined_3={};
-    gamsFilesPaths_RTD.Manipulate_Inputs={};gamsFilesPaths_RTD.User_Defined_4={};
-    gamsFilesPaths_RTD.Declare_Variables={};gamsFilesPaths_RTD.User_Defined_5={};
-    gamsFilesPaths_RTD.Declare_Equations={};gamsFilesPaths_RTD.User_Defined_6={};
-    gamsFilesPaths_RTD.Define_Constraints={};gamsFilesPaths_RTD.User_Defined_7={};
-    gamsFilesPaths_RTD.Model_Definition={};gamsFilesPaths_RTD.User_Defined_8={};
-    gamsFilesPaths_RTD.Solver_Options={};gamsFilesPaths_RTD.User_Defined_9={};
-    gamsFilesPaths_RTD.Solve_Statement={};gamsFilesPaths_RTD.User_Defined_10={};
-    gamsFilesPaths_RTD.Post_Processing={};gamsFilesPaths_RTD.User_Defined_11={};
+    gamsFilesPaths_RTD.Header={};gamsFilesPaths_RTD.User_Defined_1={};
+    gamsFilesPaths_RTD.Declare_Sets={};gamsFilesPaths_RTD.User_Defined_2={};
+    gamsFilesPaths_RTD.Declare_Parameters={};gamsFilesPaths_RTD.User_Defined_3={};
+    gamsFilesPaths_RTD.Load_Inputs={};gamsFilesPaths_RTD.User_Defined_4={};
+    gamsFilesPaths_RTD.Define_Sets={};gamsFilesPaths_RTD.User_Defined_5={};
+    gamsFilesPaths_RTD.Define_Parameters={};gamsFilesPaths_RTD.User_Defined_6={};
+    gamsFilesPaths_RTD.Declare_Variables={};gamsFilesPaths_RTD.User_Defined_7={};
+    gamsFilesPaths_RTD.Define_Variables={};gamsFilesPaths_RTD.User_Defined_8={};
+    gamsFilesPaths_RTD.Declare_Equations={};gamsFilesPaths_RTD.User_Defined_9={};
+    gamsFilesPaths_RTD.Define_Equations={};gamsFilesPaths_RTD.User_Defined_10={};
+    gamsFilesPaths_RTD.Define_Model={};gamsFilesPaths_RTD.User_Defined_11={};
+    gamsFilesPaths_RTD.Solver_Options={};gamsFilesPaths_RTD.User_Defined_12={};
+    gamsFilesPaths_RTD.Solve_Statement={};gamsFilesPaths_RTD.User_Defined_13={};
+    gamsFilesPaths_RTD.Post_Processing={};gamsFilesPaths_RTD.User_Defined_14={};
     gamsFilesPaths_RTD.Footer={};
     assignin('base','gamsFilesNames_RTD',gamsFilesNames_RTD);
     rtdSectionChange();
@@ -3682,18 +3619,99 @@ function save_rules_callback(~,~)
     COST_POST_in=evalin('base','COST_POST_in');
     SAVING_PRE_in=evalin('base','SAVING_PRE_in');
     SAVING_POST_in=evalin('base','SAVING_POST_in');
+    
+    ALLOW_RPU_in=evalin('base','ALLOW_RPU_in');
+    HRPU_in=evalin('base','HRPU_in');
+    IRPU_in=evalin('base','IRPU_in');
+    PRPU_in=evalin('base','PRPU_in');
+    ACE_RPU_THRESHOLD_MW_in=evalin('base','ACE_RPU_THRESHOLD_MW_in');
+    ACE_RPU_THRESHOLD_T_in=evalin('base','ACE_RPU_THRESHOLD_T_in');
+    restrict_multiple_rpu_time_in=evalin('base','restrict_multiple_rpu_time_in');
+ 
+    % The following lines will save the valuse on AGC Param Panel
+    % First 4 lines are from the original GUI.m, the rest are additions
+    agcmode=evalin('base','agcmode');
+    agc_deadband_in=evalin('base','agc_deadband_in');
+    CPS2_interval_in=evalin('base','CPS2_interval_in');
+    L10_in=evalin('base','L10_in');
+    Type3_integral_in=evalin('base','Type3_integral_in');
+    K1_in=evalin('base','K1_in');
+    K2_in=evalin('base','K2_in');
+    
+    % The following lines will save the values on the current GUI
+    HDAC_in=str2double(get(HDAC_in_edit,'string'));
+    IDAC_in=str2double(get(IDAC_in_edit,'string'));
+    tDAC_in=str2double(get(tDAC_in_edit,'string'));
+    GDAC_in=str2double(get(GDAC_in_edit,'string'));
+    PDAC_in=str2double(get(PDAC_in_edit,'string'));
+    DAHORIZONTYPE_in=get(DAHORIZONTYPE_in_edit,'value');
+    HRTC_in=str2double(get(HRTC_in_edit,'string'));
+    IRTC_in=str2double(get(IRTC_in_edit,'string'));
+    tRTC_in=str2double(get(tRTC_in_edit,'string'));
+    PRTC_in=str2double(get(PRTC_in_edit,'string'));
+    tRTCSTART_in=str2double(get(tRTCSTART_in_edit,'string'));
+    HRTD_in=str2double(get(HRTD_in_edit,'string'));
+    IRTD_in=str2double(get(IRTD_in_edit,'string'));
+    tRTD_in=str2double(get(tRTD_in_edit,'string'));
+    PRTD_in=str2double(get(PRTD_in_edit,'string'));
+    IRTDADV_in=str2double(get(IRTDADV_in_edit,'string'));
+
+    DAC_load_forecast_data_create_in=get(DASCUCLF,'value');
+    DAC_vg_forecast_data_create_in=get(DASCUCVGF,'value');
+    RTC_load_forecast_data_create_in=get(RTSCUCLF,'value');
+    RTC_vg_forecast_data_create_in=get(RTSCUCVGF,'value');
+    RTD_load_forecast_data_create_in=get(RTSCEDLF,'value');
+    RTD_vg_forecast_data_create_in=get(RTSCEDVGF,'value');
+
+    DAC_RESERVE_FORECAST_MODE_in = get(DAC_RESERVE_FORECAST_MODE_in_GUI,'value');
+    RTC_RESERVE_FORECAST_MODE_in = get(RTC_RESERVE_FORECAST_MODE_in_GUI,'value');
+    RTD_RESERVE_FORECAST_MODE_in = get(RTD_RESERVE_FORECAST_MODE_in_GUI,'value');
+
+    radiobutton1_in =get(radiobutton1,'value');
+    radiobutton2_in =get(radiobutton2,'value');
+    radiobutton3_in =get(radiobutton3,'value');
+    radiobutton4_in =get(radiobutton4,'value');
+
+    days_to_simulate=str2double(get(days_to_simulate_edit,'string'));
+    hours_to_simulate=str2double(get(hours_to_simulate_edit,'string'));
+    minutes_to_simulate=str2double(get(minutes_to_simulate_edit,'string'));
+    seconds_to_simulate=str2double(get(seconds_to_simulate_edit,'string'));
+
+        
+        
     answer = inputdlg('Save name:');
-    save(cell2mat(['TEMP',filesep,answer]),...        
+    
+    % EDIT BY GP 3/10/2017
+    % The variables are included in the list below
+    save(cell2mat(['MODEL_RULES',filesep,answer]),...        
     'RPU_RULES_PRE_in','RPU_RULES_POST_in','AGC_RULES_PRE_in','AGC_RULES_POST_in',...
     'RTSCED_RULES_PRE_in','RTSCED_RULES_POST_in','RTSCUC_RULES_PRE_in','RTSCUC_RULES_POST_in',...
     'DASCUC_RULES_PRE_in','DASCUC_RULES_POST_in','DATA_INITIALIZE_PRE_in','DATA_INITIALIZE_POST_in',...
     'FORECASTING_PRE_in','FORECASTING_POST_in','RT_LOOP_PRE_in','RT_LOOP_POST_in','POST_PROCESSING_PRE_in',...
     'POST_PROCESSING_POST_in','ACE_PRE_in','ACE_POST_in','FORCED_OUTAGE_PRE_in','FORCED_OUTAGE_POST_in',...
     'SHIFT_FACTOR_PRE_in','SHIFT_FACTOR_POST_in','ACTUAL_OUTPUT_PRE_in','ACTUAL_OUTPUT_POST_in',...
-    'RELIABILITY_PRE_in','RELIABILITY_POST_in','COST_PRE_in','COST_POST_in','SAVING_PRE_in','SAVING_POST_in');
+    'RELIABILITY_PRE_in','RELIABILITY_POST_in','COST_PRE_in','COST_POST_in','SAVING_PRE_in','SAVING_POST_in',...
+    'agcmode','agc_deadband_in','Type3_integral_in','K1_in','K2_in','CPS2_interval_in','L10_in','HRPU_in','IRPU_in','PRPU_in','HDAC_in','IDAC_in','tDAC_in','GDAC_in','PDAC_in','DAHORIZONTYPE_in',...
+    'HRTC_in','IRTC_in','tRTC_in','PRTC_in','tRTCSTART_in','HRTD_in','IRTD_in','tRTD_in','PRTD_in','IRTDADV_in','DAC_load_forecast_data_create_in','DAC_vg_forecast_data_create_in',...
+    'RTC_load_forecast_data_create_in','RTC_vg_forecast_data_create_in','RTD_load_forecast_data_create_in','RTD_vg_forecast_data_create_in','DAC_RESERVE_FORECAST_MODE_in',...
+    'RTC_RESERVE_FORECAST_MODE_in','RTD_RESERVE_FORECAST_MODE_in','radiobutton1_in','radiobutton2_in',...
+    'radiobutton3_in','radiobutton4_in', 'days_to_simulate','hours_to_simulate','minutes_to_simulate','seconds_to_simulate',...
+    'ALLOW_RPU_in','ACE_RPU_THRESHOLD_MW_in','ACE_RPU_THRESHOLD_T_in','restrict_multiple_rpu_time_in');
 end
 
 function load_rules_callback(~,~)
+    
+    % Questionare
+    % Loading the rules will overwrite all settings. 
+    % Ask the user if he/she approves.
+    choice = questdlg('Loading rules will overwrite all settings. Do you want to continue?', ...
+        'Loading new rules', ...
+        'YES','NO / CANCEL','NO / CANCEL');
+    switch choice
+        case 'YES'
+           
+    %% NOTE BY GP - 3/10/2017
+    % INITIALIZATION MAY NOT  BE NECESSARY, BUT IT DOESN'T HURT.
     RPU_RULES_PRE_in=[];RPU_RULES_POST_in=[];AGC_RULES_PRE_in=[];AGC_RULES_POST_in=[];
     RTSCED_RULES_PRE_in=[];RTSCED_RULES_POST_in=[];RTSCUC_RULES_PRE_in=[];RTSCUC_RULES_POST_in=[];
     DASCUC_RULES_PRE_in=[];DASCUC_RULES_POST_in=[];DATA_INITIALIZE_PRE_in=[];DATA_INITIALIZE_POST_in=[];
@@ -3702,23 +3720,49 @@ function load_rules_callback(~,~)
     FORCED_OUTAGE_PRE_in=[];FORCED_OUTAGE_POST_in=[];SHIFT_FACTOR_PRE_in=[];SHIFT_FACTOR_POST_in=[];
     ACTUAL_OUTPUT_PRE_in=[];ACTUAL_OUTPUT_POST_in=[];RELIABILITY_PRE_in=[];RELIABILITY_POST_in=[];
     COST_PRE_in=[];COST_POST_in=[];SAVING_PRE_in=[];SAVING_POST_in=[];
-    [RulesFileName,RulesPathName,~] = uigetfile(['TEMP',filesep,'*.mat']);
+    agcmode=[];CPS2_interval_in=[];L10_in=[];HRPU_in=[];IRPU_in=[];PRPU_in=[];HDAC_in=[];IDAC_in=[];tDAC_in=[];GDAC_in=[];PDAC_in=[];DAHORIZONTYPE_in=[];
+    HRTC_in=[];IRTC_in=[];tRTC_in=[];PRTC_in=[];tRTCSTART_in=[];HRTD_in=[];IRTD_in=[];tRTD_in=[];PRTD_in=[];IRTDADV_in=[];DAC_load_forecast_data_create_in=[];DAC_vg_forecast_data_create_in=[];
+    RTC_load_forecast_data_create_in=[];RTC_vg_forecast_data_create_in=[];RTD_load_forecast_data_create_in=[];RTD_vg_forecast_data_create_in=[];DAC_RESERVE_FORECAST_MODE_in=[];RTC_RESERVE_FORECAST_MODE_in=[];RTD_RESERVE_FORECAST_MODE_in=[];
+    
+    % EDIT BY GP
+    % Variables are initialized here
+    radiobutton1_in=[];radiobutton2_in=[];radiobutton3_in=[];radiobutton4_in=[];
+    days_to_simulate=[];hours_to_simulate=[];minutes_to_simulate=[];seconds_to_simulate=[];
+    agc_deadband_in=[];Type3_integral_in=[];K1_in=[];K2_in=[];
+    ALLOW_RPU_in=[];ACE_RPU_THRESHOLD_MW_in=[];ACE_RPU_THRESHOLD_T_in=[];restrict_multiple_rpu_time_in=[];
+    
+    %%
+    [RulesFileName,RulesPathName,~] = uigetfile(['MODEL_RULES',filesep,'*.mat']);
     load_command=[RulesPathName,RulesFileName];
-    temp=load(load_command,...        
-    'RPU_RULES_PRE_in','RPU_RULES_POST_in','AGC_RULES_PRE_in','AGC_RULES_POST_in',...
-    'RTSCED_RULES_PRE_in','RTSCED_RULES_POST_in','RTSCUC_RULES_PRE_in','RTSCUC_RULES_POST_in',...
-    'DASCUC_RULES_PRE_in','DASCUC_RULES_POST_in','DATA_INITIALIZE_PRE_in','DATA_INITIALIZE_POST_in',...
-    'FORECASTING_PRE_in','FORECASTING_POST_in','RT_LOOP_PRE_in','RT_LOOP_POST_in','POST_PROCESSING_PRE_in',...
-    'POST_PROCESSING_POST_in','ACE_PRE_in','ACE_POST_in','FORCED_OUTAGE_PRE_in','FORCED_OUTAGE_POST_in',...
-    'SHIFT_FACTOR_PRE_in','SHIFT_FACTOR_POST_in','ACTUAL_OUTPUT_PRE_in','ACTUAL_OUTPUT_POST_in',...
-    'RELIABILITY_PRE_in','RELIABILITY_POST_in','COST_PRE_in','COST_POST_in','SAVING_PRE_in','SAVING_POST_in');
+    if load_command == 0
+        temp = '';
+    else
+    temp=load(load_command);        
+    %temp=load(load_command,...        
+    %'RPU_RULES_PRE_in','RPU_RULES_POST_in','AGC_RULES_PRE_in','AGC_RULES_POST_in',...
+    %'RTSCED_RULES_PRE_in','RTSCED_RULES_POST_in','RTSCUC_RULES_PRE_in','RTSCUC_RULES_POST_in',...
+    %'DASCUC_RULES_PRE_in','DASCUC_RULES_POST_in','DATA_INITIALIZE_PRE_in','DATA_INITIALIZE_POST_in',...
+    %'FORECASTING_PRE_in','FORECASTING_POST_in','RT_LOOP_PRE_in','RT_LOOP_POST_in','POST_PROCESSING_PRE_in',...
+    %'POST_PROCESSING_POST_in','ACE_PRE_in','ACE_POST_in','FORCED_OUTAGE_PRE_in','FORCED_OUTAGE_POST_in',...
+    %'SHIFT_FACTOR_PRE_in','SHIFT_FACTOR_POST_in','ACTUAL_OUTPUT_PRE_in','ACTUAL_OUTPUT_POST_in',...
+    %'RELIABILITY_PRE_in','RELIABILITY_POST_in','COST_PRE_in','COST_POST_in','SAVING_PRE_in','SAVING_POST_in');
     x=fieldnames(temp);
+    
+    % EDIT BY GP
+    % The old form of the code evaluates the existing data in the variables
+    % and add the new data from the rules loaded.
+    % It didn't overwrite the variable.
+    % The new form of the code doesn't evaluate the existing data 
+    % and simply overwrite everything from the file loaded.
     for i=1:size(x,1)
         if ~isempty(temp.(sprintf('%s',x{i,1})))
-            eval_command_1=sprintf('%s=evalin(''base'',''%s'');',x{i,1},x{i,1});
-            eval_command_2=sprintf('%s=[%s;temp.%s];',x{i,1},x{i,1},x{i,1});
-            eval_command_3=sprintf('%s=unique(%s);',x{i,1},x{i,1});
-            eval(eval_command_1);eval(eval_command_2);eval(eval_command_3);
+%             eval_command_1=sprintf('%s=evalin(''base'',''%s'');',x{i,1},x{i,1});
+%             eval_command_2=sprintf('%s=[%s;temp.%s];',x{i,1},x{i,1},x{i,1});
+              eval_command_2=sprintf('%s=temp.%s;',x{i,1},x{i,1});
+%             eval_command_3=sprintf('%s=unique(%s);',x{i,1},x{i,1});
+%             eval(eval_command_1);
+              eval(eval_command_2);
+%             eval(eval_command_3);
         end
     end
     assignin('base','RPU_RULES_PRE_in',RPU_RULES_PRE_in);
@@ -3753,6 +3797,110 @@ function load_rules_callback(~,~)
     assignin('base','COST_POST_in',COST_POST_in);
     assignin('base','SAVING_PRE_in',SAVING_PRE_in);
     assignin('base','SAVING_POST_in',SAVING_POST_in);
+    assignin('base','agcmode',agcmode);
+    assignin('base','ALLOW_RPU_in',ALLOW_RPU_in);
+    assignin('base','agc_deadband_in',agc_deadband_in);
+    assignin('base','CPS2_interval_in',CPS2_interval_in);
+    assignin('base','L10_in',L10_in);
+    assignin('base','HRPU_in',HRPU_in);
+    assignin('base','IRPU_in',IRPU_in);
+    assignin('base','PRPU_in',PRPU_in);
+   
+    assignin('base','HDAC_in_edit',HDAC_in);
+    assignin('base','IDAC_in',IDAC_in);
+    assignin('base','tDAC_in',tDAC_in);
+    assignin('base','GDAC_in',GDAC_in);
+    assignin('base','PDAC_in',PDAC_in);
+    assignin('base','DAHORIZONTYPE_in',DAHORIZONTYPE_in);
+    assignin('base','HRTC_in',HRTC_in);
+    assignin('base','IRTC_in',IRTC_in);
+    assignin('base','tRTC_in',tRTC_in);
+    assignin('base','PRTC_in',PRTC_in);
+    assignin('base','tRTCSTART_in',tRTCSTART_in);
+    assignin('base','HRTD_in',HRTD_in);
+    assignin('base','IRTD_in',IRTD_in);
+    assignin('base','tRTD_in',tRTD_in);
+    assignin('base','PRTD_in',PRTD_in);
+    assignin('base','IRTDADV_in',IRTDADV_in);
+
+    assignin('base','DAC_load_forecast_data_create_in',DAC_load_forecast_data_create_in);
+    assignin('base','DAC_vg_forecast_data_create_in',DAC_vg_forecast_data_create_in);
+    assignin('base','RTC_load_forecast_data_create_in',RTC_load_forecast_data_create_in);
+    assignin('base','RTC_vg_forecast_data_create_in',RTC_vg_forecast_data_create_in);
+    assignin('base','RTD_load_forecast_data_create_in',RTD_load_forecast_data_create_in);
+    assignin('base','RTD_vg_forecast_data_create_in',RTD_vg_forecast_data_create_in);
+
+    assignin('base','DAC_RESERVE_FORECAST_MODE_in',DAC_RESERVE_FORECAST_MODE_in);
+    assignin('base','RTC_RESERVE_FORECAST_MODE_in',RTC_RESERVE_FORECAST_MODE_in);
+    assignin('base','RTD_RESERVE_FORECAST_MODE_in',RTD_RESERVE_FORECAST_MODE_in);
+    
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %CODE BY GP STARTS HERE
+    
+    % The following lines will assgign in the values to the base workspace
+    assignin('base','radiobutton1_in',radiobutton1_in);
+    assignin('base','radiobutton2_in',radiobutton2_in);
+    assignin('base','radiobutton3_in',radiobutton3_in);
+    assignin('base','radiobutton4_in',radiobutton4_in);
+    assignin('base','days_to_simulate',days_to_simulate);
+    assignin('base','hours_to_simulate',hours_to_simulate);
+    assignin('base','minutes_to_simulate',minutes_to_simulate);
+    assignin('base','seconds_to_simulate',seconds_to_simulate);
+    assignin('base','agc_deadband_in',agc_deadband_in);
+    assignin('base','Type3_integral_in',Type3_integral_in);
+    assignin('base','K1_in',K1_in);
+    assignin('base','K2_in',K2_in);
+    assignin('base','ACE_RPU_THRESHOLD_MW_in',ACE_RPU_THRESHOLD_MW_in);
+    assignin('base','ACE_RPU_THRESHOLD_T_in',ACE_RPU_THRESHOLD_T_in);
+    assignin('base','restrict_multiple_rpu_time_in',restrict_multiple_rpu_time_in);
+
+    % The following lines will update the values on the current GUI with
+    % the ones loaded.
+    
+    % Update editable boxes on DASCUC, RTSCUC, and RTSCED panels
+    set(HDAC_in_edit,'string',HDAC_in);
+    set(IDAC_in_edit,'string',IDAC_in);
+    set(tDAC_in_edit,'string',tDAC_in);
+    set(GDAC_in_edit,'string',GDAC_in);
+    set(PDAC_in_edit,'string',PDAC_in);
+    set(HRTC_in_edit,'string',HRTC_in);
+    set(IRTC_in_edit,'string',IRTC_in);
+    set(tRTC_in_edit,'string',tRTC_in);
+    set(PRTC_in_edit,'string',PRTC_in);
+    set(tRTCSTART_in_edit,'string',tRTCSTART_in);
+    set(HRTD_in_edit,'string',HRTD_in);
+    set(IRTD_in_edit,'string',IRTD_in);
+    set(tRTD_in_edit,'string',tRTD_in);
+    set(PRTD_in_edit,'string',PRTD_in);
+    set(IRTDADV_in_edit,'string',IRTDADV_in);
+    
+    % Update Dropdown menus on DASCUC, RTSCUC, and RTSCED panels
+    set(DAHORIZONTYPE_in_edit,'value',DAHORIZONTYPE_in);
+    set(DASCUCLF,'value',DAC_load_forecast_data_create_in);
+    set(DASCUCVGF,'value',DAC_vg_forecast_data_create_in);
+    set(RTSCUCLF,'value',RTC_load_forecast_data_create_in);
+    set(RTSCUCVGF,'value',RTC_vg_forecast_data_create_in);
+    set(RTSCEDLF,'value',RTD_load_forecast_data_create_in);
+    set(RTSCEDVGF,'value',RTD_vg_forecast_data_create_in);
+    set(DAC_RESERVE_FORECAST_MODE_in_GUI,'value',DAC_RESERVE_FORECAST_MODE_in);
+    set(RTC_RESERVE_FORECAST_MODE_in_GUI,'value',RTC_RESERVE_FORECAST_MODE_in);
+    set(RTD_RESERVE_FORECAST_MODE_in_GUI,'value',RTD_RESERVE_FORECAST_MODE_in);
+
+    % Update Simulation Time, Network and CTGC Check Panels
+    set(radiobutton1,'value',radiobutton1_in);
+    set(radiobutton2,'value',radiobutton2_in);
+    set(radiobutton3,'value',radiobutton3_in);
+    set(radiobutton4,'value',radiobutton4_in);
+    set(days_to_simulate_edit,'string',days_to_simulate);
+    set(hours_to_simulate_edit,'string',hours_to_simulate);
+    set(minutes_to_simulate_edit,'string',minutes_to_simulate);
+    set(seconds_to_simulate_edit,'string',seconds_to_simulate);
+    end
+    
+    
+    % If the user selects NO on the questionare, then do nothing. 
+    case 'NO / CANCEL'
+    end
 end
 
 

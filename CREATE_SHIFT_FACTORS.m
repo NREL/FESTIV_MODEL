@@ -1,56 +1,19 @@
 %Create a PTDF matrix for use for the rest of the study.
 
-SLACKBUS = SYSTEMVALUE.val(slack_bus,1);
-MVA_PERUNIT = SYSTEMVALUE.val(mva_pu,1);
+%Suppress singular matrix warning
+warning('off','MATLAB:singularMatrix')
 
-BRANCHBUS=zeros(nbranch,3);
-if useHDF5==0
-    [~,BRANCH_DATA]=xlsread(inputPath,'BRANCHDATA','A2:B10000'); 
-else
-    x=h5read(fileName,'/Main Input File/BRANCHDATA');
-    BRANCH_DATA=[x.NAME1 x.BRANCHBUS];
-end
-listofbuses=cell(size(BRANCH_DATA,1),1);
-listoffrombuses=cell(size(BRANCH_DATA,1),1);
-listoftobuses=cell(size(BRANCH_DATA,1),1);
-SEPERATED_BRANCH_DATA=cell(size(BRANCH_DATA,1),3);
-for i=1:size(BRANCH_DATA,1)
-    [~,rem2]=strtok(BRANCH_DATA{i,2},'.');
-    listofbuses(i,1)={rem2(1,2:end)};
-end
-for i=1:size(BRANCH_DATA,1)
-    [tok,rem2]=strtok(listofbuses{i,1},'.');
-    listoffrombuses(i,1)={tok};
-    listoftobuses(i,1)={rem2(1,2:end)};
-end
-SEPERATED_BRANCH_DATA(:,1)=BRANCH_DATA(:,1);
-SEPERATED_BRANCH_DATA(:,2)=listoffrombuses(:,1);
-SEPERATED_BRANCH_DATA(:,3)=listoftobuses(:,1);
-for i=1:nbranch
-    BRANCHBUS(i,1)=i;
-    for j=1:nbus
-        if strcmp(SEPERATED_BRANCH_DATA(i,2),BUS_VAL(j,1))
-            BRANCHBUS(i,2)=j;
-        end
-    end
-    for j=1:nbus
-        if strcmp(SEPERATED_BRANCH_DATA(i,3),BUS_VAL(j,1))
-            BRANCHBUS(i,3)=j;
-        end
-    end
-end
-
-X=BRANCHDATA.val(:,branch_type);
+X=BRANCHDATA_VAL(:,branch_type);
 Y=(X==2|X==3);
-Z=BRANCHBUS(Y,:);
+Z=BRANCHBUS_CALC_VAL(Y,:);
 bgamma=zeros(nbus,nbranch);fromadmittances=0;toadmittances=0;
 for i=1:size(Z,1)
     for j=1:nbus
-        if j==BRANCHBUS(Z(i),2)
-            fromadmittances=fromadmittances+(1/BRANCHDATA.val(Z(i),reactance));
+        if j==BRANCHBUS_CALC_VAL(Z(i),2)
+            fromadmittances=fromadmittances+(1/BRANCHDATA_VAL(Z(i),reactance));
         end
-        if j==BRANCHBUS(Z(i),3)
-            toadmittances=toadmittances+(1/BRANCHDATA.val(Z(i),reactance));
+        if j==BRANCHBUS_CALC_VAL(Z(i),3)
+            toadmittances=toadmittances+(1/BRANCHDATA_VAL(Z(i),reactance));
         end
         bgamma(j,Z(i))=-fromadmittances+toadmittances;
         fromadmittances=0;
@@ -60,16 +23,16 @@ end
 
 %Determine slack bus for analysis
 n = 1; %if there are any problems with the string then will default to the first bus.
-if isa(SLACKBUS,'numeric')
-    if SLACKBUS <= nbus && SLACKBUS >=1
-        slack=SLACKBUS;
+if isa(SYSTEMVALUE_VAL(slack_bus,1),'numeric')
+    if SYSTEMVALUE_VAL(slack_bus,1) <= nbus && SYSTEMVALUE_VAL(slack_bus,1) >=1
+        slack=SYSTEMVALUE_VAL(slack_bus,1);
     else
         slack=1;
     end;
 else
     slack = 1;
     while(n<=nbus)
-        if (strcmp(BUS.uels(1,n),BUS_VAL{SLACKBUS}))
+        if (strcmp(BUS.uels(1,n),BUS_VAL{SYSTEMVALUE_VAL(slack_bus,1)}))
             slack = n;
             n=nbus;
         end;
@@ -81,16 +44,16 @@ end;
 bus = zeros(nbus,13);
 bus(:,1) = (1:nbus)';
 branch = zeros(nbranch,11);
-branch(:,1:2) = BRANCHBUS(:,2:3);
-branch(:,4) = BRANCHDATA.val(:,reactance);
+branch(:,1:2) = BRANCHBUS_CALC_VAL(:,2:3);
+branch(:,4) = BRANCHDATA_VAL(:,reactance);
 for b=1:nbranch
-    if(BRANCHDATA.val(b,branch_type) == 4)
+    if(BRANCHDATA_VAL(b,branch_type) == HVDC_branch_type_index)
         branch(b,11) = 0;
     else
         branch(b,11) = 1;
     end;
 end;
-PTDF_VAL = makePTDF(MVA_PERUNIT,bus,branch,slack);
+PTDF_VAL = makePTDF(SYSTEMVALUE_VAL(mva_pu,1),bus,branch,slack);
 PTDF.name = 'PTDF';
 PTDF.val = PTDF_VAL;
 PTDF.uels = {BRANCH.uels BUS.uels};
@@ -100,8 +63,8 @@ DEFAULT_DATA.PTDF=PTDF;
 
 %PTDF for phase angle regulators
 for b=1:nbranch
-    if(BRANCHDATA.val(b,branch_type) == 2 || BRANCHDATA.val(b,branch_type) == 3)
-        B = makeB(MVA_PERUNIT,bus,branch,2);
+    if(BRANCHDATA_VAL(b,branch_type) == fixed_par_branch_type_index || BRANCHDATA_VAL(b,branch_type) == adj_par_branch_type_index)
+        B = makeB(SYSTEMVALUE_VAL(mva_pu,1),bus,branch,2);
         B_adj = B;
         B_adj(slack,:) =[];
         B_adj(:,slack) = [];
@@ -119,9 +82,9 @@ for b=1:nbranch
         end;
         for b1=1:nbranch
             if(b1==b)
-                PTDF_PAR_VAL(b1,b) = (theta(branch(b1,1),1) - theta(branch(b1,2),1) - 1)/BRANCHDATA.val(b1,reactance);
+                PTDF_PAR_VAL(b1,b) = (theta(branch(b1,1),1) - theta(branch(b1,2),1) - 1)/BRANCHDATA_VAL(b1,reactance);
             else
-                PTDF_PAR_VAL(b1,b) = (theta(branch(b1,1),1) - theta(branch(b1,2),1))/BRANCHDATA.val(b1,reactance);
+                PTDF_PAR_VAL(b1,b) = (theta(branch(b1,1),1) - theta(branch(b1,2),1))/BRANCHDATA_VAL(b1,reactance);
             end;
         end;                
     else
@@ -142,7 +105,7 @@ LODF_VAL = zeros(nbranch,nbranch);
 for b=1:nbranch
     branch_ctgc = branch;
     branch_ctgc(b,11) = 0;
-    B_ctgc = makeB(MVA_PERUNIT,bus,branch_ctgc,2);
+    B_ctgc = makeB(SYSTEMVALUE_VAL(mva_pu,1),bus,branch_ctgc,2);
     B_ctgc_adj = B_ctgc;
     B_ctgc_adj(slack,:) =[];
     B_ctgc_adj(:,slack) = [];
@@ -162,7 +125,7 @@ for b=1:nbranch
         if(b1==b)
             LODF_VAL(b,b1) = -1;
         else
-            LODF_VAL(b,b1) = (theta(branch(b1,1),1) - theta(branch(b1,2),1))/BRANCHDATA.val(b1,reactance);
+            LODF_VAL(b,b1) = (theta(branch(b1,1),1) - theta(branch(b1,2),1))/BRANCHDATA_VAL(b1,reactance);
         end;
     end;                
 end;
@@ -174,4 +137,32 @@ LODF.type = 'parameter';
 LODF.form = 'full';
 DEFAULT_DATA.LODF=LODF;
 DEFAULT_DATA=orderfields(DEFAULT_DATA);
+
+BUS_HVDC.name='BUS_HVDC';
+BUS_HVDC.uels={BUS.uels};
+BUS_HVDC.form='full';
+BUS_HVDC.type='set';
+BUS_HVDC_VAL = zeros(nbus,1);
+for l=1:nbranch
+    if BRANCHDATA_VAL(l,branch_type)==HVDC_branch_type_index
+        BUS_HVDC_VAL(BRANCHBUS_CALC_VAL(l,2),1)=1;
+        BUS_HVDC_VAL(BRANCHBUS_CALC_VAL(l,3),1)=1;
+    end;
+end;
+BUS_HVDC.val=BUS_HVDC_VAL;
+DEFAULT_DATA.BUS_HVDC=BUS_HVDC;
+
+BUS_PAR.name='BUS_PAR';
+BUS_PAR.uels={BUS.uels};
+BUS_PAR.form='full';
+BUS_PAR.type='set';
+BUS_PAR_VAL = zeros(nbus,1);
+for l=1:nbranch
+    if BRANCHDATA_VAL(l,branch_type)==fixed_par_branch_type_index || BRANCHDATA_VAL(l,branch_type)==adj_par_branch_type_index
+        BUS_PAR_VAL(BRANCHBUS_CALC_VAL(l,2),1)=1;
+        BUS_PAR_VAL(BRANCHBUS_CALC_VAL(l,3),1)=1;
+    end;
+end;
+BUS_PAR.val=BUS_PAR_VAL;
+DEFAULT_DATA.BUS_PAR=BUS_PAR;
 

@@ -12,12 +12,12 @@
     if abs(sum(v)-1)>eps; display(['LOAD_DIST sum ',num2str(sum(v)),' does not = 1']);end
 % Generators GEN!A2:A8 => GEN.uels; 
   g=GEN.uels;
-% GENBUS!A1:A8 => GENBUS2; B1:B8 => PARTICIPATION_FACTORS % NOTE: participation factors are matrices (.val, also in GENBUS2)
-  bg=GENBUS2.uels{1,1}; gb=GENBUS2.uels{1,2}; % respectively, buses and generators from GENBUS
+% GENBUS!A1:A8 => GENBUS; B1:B8 => INJECTION_FACTOR % NOTE: participation factors are matrices (.val, also in GENBUS)
+  bg=GENBUS_STRING{1,1}; gb=GENBUS_STRING{1,2}; % respectively, buses and generators from GENBUS
     find_cells_among_cells(bg, b, 'GENBUS bus ',' is missing from the list of BUS(es)');
       find_cells_among_cells(gb, g, 'GENBUS generator ',' is missing from the list of GENerators');
         find_cells_among_cells(g, gb, 'GENerator ',' is missing from the list of GENBUS generators');
-  pf=PARTICIPATION_FACTORS.val;
+  pf=INJECTION_FACTOR.val;
    for i=1:length(gb);s=sum(pf(:,i));if abs(s-1)>eps;display(['Participation ',num2str(s),'<>1 for ',gb{i}]);end;end
 % COST!A2:A8 => COST_CURVE.uels{1,1}
   gc = COST_CURVE.uels{1,1} ; % generators having COST info % COST_CURVE_STRING has the same list of generators
@@ -30,8 +30,8 @@
 % STARTUP!A2 => STARTUP_VALUE.uels{1,1} ;
   gs = STARTUP_VALUE.uels{1,1} ;
     find_cells_among_cells(gs, g, 'STARTUP tab generator ',' is missing from the list of GENerators');
-% BRANCHDATA!B2:B7 => BRANCHBUS2.uels {1,2} and {1,3}
-  b4 = BRANCHBUS2.uels{1,2}; b2 = BRANCHBUS2.uels{1,3};
+% BRANCHDATA!B2:B7 => BRANCHBUS.uels {1,2} and {1,3}
+  b4 = BRANCHBUS.uels{1,2}; b2 = BRANCHBUS.uels{1,3};
     find_cells_among_cells(b4, b, 'Branch bus "from" ',' is missing from the list of BUS(es)');
       find_cells_among_cells(b2, b, 'Branch bus "to" ',' is missing from the list of BUS(es)');
         find_cells_among_cells(b, cat(2,b4,b2) , 'Bus ',' has no branch attached to it');

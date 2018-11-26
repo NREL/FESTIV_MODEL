@@ -1,0 +1,7 @@
+=start
+$IF EXIST pfrinput.gdx $gdxin pfrinput
+$IF EXIST pfrinput.gdx $LOAD DAMPING_MULTIPLIER
+$IF EXIST pfrinput.gdx $LOAD PFR_MULTIPLIER
+$IF EXIST pfrinput.gdx $LOAD DAMPING_MULTIPLIER
+$IF EXIST pfrinput.gdx $LOAD DROOP_EQ
+=end

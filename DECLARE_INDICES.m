@@ -1,4 +1,5 @@
 % SYSTEM TAB INDICES
+
 global slack_bus mva_pu voll inertia_load dfmax load_damping db_max frequency first_stage_startup;
 if useHDF5 == 0
     [~,headers]=xlsread(inputPath,'SYSTEM','A1:A20');
@@ -142,3 +143,31 @@ integrated_ACE_index = 3;%total integrated ACE in MWh (like AACEE but not absolu
 CPS2_ACE_index = 4; %The ACE that can trigger the CPS2 violations. Based on the CPS2interval (compliance interval)
 SACE_index = 5;%Smoothed ACE SACE based on proportional and integral terms.
 AACEE_index = 6; %The current Absolute ACE in Energy (AACEE).
+
+%Types
+global steam_gen_type_index CT_gen_type_index combined_cycle_gen_type_index hydro_gen_type_index nuclear_gen_type_index pumped_storage_gen_type_index wind_gen_type_index ESR_gen_type_index LESR_gen_type_index PV_gen_type_index ...
+    CSP_gen_type_index demandresponse_gen_type_index virtual_gen_type_index interface_gen_type_index outage_gen_type_index variable_dispatch_gen_type_index;
+
+steam_gen_type_index = 1; 
+CT_gen_type_index = 2;
+combined_cycle_gen_type_index = 3;
+hydro_gen_type_index = 4;
+nuclear_gen_type_index = 5;
+pumped_storage_gen_type_index = 6;
+wind_gen_type_index = 7;
+ESR_gen_type_index = 8;
+LESR_gen_type_index = 9;
+PV_gen_type_index = 10;
+CSP_gen_type_index  = 11;
+demandresponse_gen_type_index = 12;
+virtual_gen_type_index = 13;
+interface_gen_type_index = 14;
+outage_gen_type_index = 15;
+variable_dispatch_gen_type_index = 16;
+
+global transmission_line_branch_type_index fixed_par_branch_type_index adj_par_branch_type_index HVDC_branch_type_index;
+
+transmission_line_branch_type_index = 1; 
+fixed_par_branch_type_index = 2;
+adj_par_branch_type_index = 3;
+HVDC_branch_type_index = 4;

@@ -1,0 +1,79 @@
+%Add variable efficiency blocks to gams model
+%
+%Before DASCUC or RTSCUC
+%
+
+PUMPEFFICIENCYVALUE   = DEFAULT_DATA.PUMPEFFICIENCYVALUE;
+GENEFFICIENCYVALUE    = DEFAULT_DATA.GENEFFICIENCYVALUE;
+PUMPBLOCKS={'BLOCK1','BLOCK2','BLOCK3'};
+if ~isempty(GENEFFICIENCYVALUE_VAL)
+    geneffblockct = size(GENEFFICIENCYVALUE_VAL,2);
+    geneffblockseq = 2:2:geneffblockct;
+    geneffmwvalues=GENEFFICIENCYVALUE_VAL(:,geneffblockseq);
+    geneffvalues=GENEFFICIENCYVALUE_VAL(:,geneffblockseq-1);
+    if geneffblockct == 2 %This could be more efficient and dynamic, will need to fix later if more than 3 blocks allowed.
+        GENEFFBLOCKS = {'BLOCK1'};
+    elseif geneffblockct == 4
+        GENEFFBLOCKS = {'BLOCK1','BLOCK2'};
+    elseif geneffblockct == 6
+        GENEFFBLOCKS = {'BLOCK1','BLOCK2','BLOCK3'};
+    end;
+else
+    geneffmwvalues=[];
+    geneffvalues=[];
+    GENEFFBLOCKS = {};
+end
+if ~isempty(PUMPEFFICIENCYVALUE_VAL)
+    stoeffblockct = size(PUMPEFFICIENCYVALUE_VAL,2);
+    stoeffblockseq = 2:2:stoeffblockct;
+    stoeffmwvalues=PUMPEFFICIENCYVALUE_VAL(:,stoeffblockseq);
+    stoeffvalues=PUMPEFFICIENCYVALUE_VAL(:,stoeffblockseq-1);
+    if stoeffblockct == 2 %This could be more efficient and dynamic, will need to fix later if more than 3 blocks allowed.
+        PUMPEFFBLOCKS = {'BLOCK1'};
+    elseif stoeffblockct == 4
+        PUMPEFFBLOCKS = {'BLOCK1','BLOCK2'};
+    elseif stoeffblockct == 6
+        PUMPEFFBLOCKS = {'BLOCK1','BLOCK2','BLOCK3'};
+    end;
+else
+    stoeffmwvalues=[];
+    stoeffvalues=[];
+    PUMPEFFBLOCKS = {};
+end;
+STORAGEGENEFFICIENCYBLOCK.uels={GENEFFICIENCYVALUE_STRING' GENEFFBLOCKS};
+STORAGEPUMPEFFICIENCYBLOCK.uels={PUMPEFFICIENCYVALUE_STRING' PUMPEFFBLOCKS};
+STORAGEGENEFFICIENCYBLOCK.name='STORAGEGENEFFICIENCYBLOCK';
+STORAGEPUMPEFFICIENCYBLOCK.name='STORAGEPUMPEFFICIENCYBLOCK';
+STORAGEGENEFFICIENCYBLOCK.type='SET';
+STORAGEPUMPEFFICIENCYBLOCK.type='SET';
+STORAGEGENEFFICIENCYBLOCK.form='FULL';
+STORAGEPUMPEFFICIENCYBLOCK.form='FULL';
+STORAGEGENEFFICIENCYBLOCK.val=double(geneffmwvalues>eps);
+STORAGEPUMPEFFICIENCYBLOCK.val=double(stoeffmwvalues>eps);
+
+GEN_EFFICIENCY_BLOCK.name='GEN_EFFICIENCY_BLOCK';
+GEN_EFFICIENCY_BLOCK.uels={STORAGEGENEFFICIENCYBLOCK.uels{1,1} STORAGEGENEFFICIENCYBLOCK.uels{1,2}};
+GEN_EFFICIENCY_BLOCK.form='full';
+GEN_EFFICIENCY_BLOCK.type='parameter';
+GEN_EFFICIENCY_BLOCK.val=geneffvalues;
+GEN_EFFICIENCY_MW.name='GEN_EFFICIENCY_MW';
+GEN_EFFICIENCY_MW.uels={STORAGEGENEFFICIENCYBLOCK.uels{1,1} STORAGEGENEFFICIENCYBLOCK.uels{1,2}};
+GEN_EFFICIENCY_MW.form='full';
+GEN_EFFICIENCY_MW.type='parameter';
+PUMP_EFFICIENCY_BLOCK.name='PUMP_EFFICIENCY_BLOCK';
+PUMP_EFFICIENCY_BLOCK.uels={STORAGEPUMPEFFICIENCYBLOCK.uels{1,1} STORAGEPUMPEFFICIENCYBLOCK.uels{1,2}};
+PUMP_EFFICIENCY_BLOCK.form='full';
+PUMP_EFFICIENCY_BLOCK.type='parameter';
+PUMP_EFFICIENCY_BLOCK.val=stoeffvalues;
+PUMP_EFFICIENCY_MW.name='PUMP_EFFICIENCY_MW';
+PUMP_EFFICIENCY_MW.uels={STORAGEPUMPEFFICIENCYBLOCK.uels{1,1} STORAGEPUMPEFFICIENCYBLOCK.uels{1,2}};
+PUMP_EFFICIENCY_MW.form='full';
+PUMP_EFFICIENCY_MW.type='parameter';
+
+%per unit
+GEN_EFFICIENCY_MW.val=geneffmwvalues./SYSTEMVALUE_VAL(mva_pu);
+PUMP_EFFICIENCY_MW.val=stoeffmwvalues./SYSTEMVALUE_VAL(mva_pu);
+PUMPEFFICIENCYVALUE.val(:,stoeffblockseq)=PUMPEFFICIENCYVALUE.val(:,stoeffblockseq)./SYSTEMVALUE_VAL(mva_pu);
+GENEFFICIENCYVALUE.val(:,geneffblockseq)=GENEFFICIENCYVALUE.val(:,geneffblockseq)./SYSTEMVALUE_VAL(mva_pu);
+
+wgdx(['TEMP', filesep, 'Variable_Storage_Input'],PUMPEFFICIENCYVALUE,GENEFFICIENCYVALUE,PUMPEFFPARAM,GENEFFPARAM,STORAGEGENEFFICIENCYBLOCK,STORAGEPUMPEFFICIENCYBLOCK,GEN_EFFICIENCY_BLOCK,GEN_EFFICIENCY_MW,PUMP_EFFICIENCY_BLOCK,PUMP_EFFICIENCY_MW);

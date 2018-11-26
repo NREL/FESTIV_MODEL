@@ -7,7 +7,7 @@
 % 'RTD_INTERCHANGE'). Otherwise, their schedules will be taken from the DA.
 % The actual interchange is interpolated from the RTD interchange schedule.
 
-GENTYPES=GENVALUE.val(:,gen_type);
+GENTYPES=GENVALUE_VAL(:,gen_type);
 interchanges=GENTYPES==14;
 ninterchange=sum(interchanges);
 if ninterchange > 0

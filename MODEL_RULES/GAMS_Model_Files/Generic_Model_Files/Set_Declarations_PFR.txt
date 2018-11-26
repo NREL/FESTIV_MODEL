@@ -1,0 +1,7 @@
+=start
+*DECLARE PFR SUBSETS
+SET
+GEN_GOV(GEN)
+GEN_NOGOV(GEN)
+;
+=end=
