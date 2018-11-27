@@ -3141,6 +3141,16 @@ function create_gams_rules(~,~)
         else
             gamsFilesPaths=evalin('base','gamsFilesPaths_RTD');GAMS_FILE_NAME='RTSCED.gms';
         end
+        tmp=fields(gamsFilesPaths);
+        for i=1:size(fields(gamsFilesPaths),1)
+            num_files=size(gamsFilesPaths.(sprintf('%s',tmp{i})),1);
+            if num_files > 0
+                for j=1:num_files
+                    idx=strfind(gamsFilesPaths.(sprintf('%s',tmp{i})){j},'\');
+                    gamsFilesPaths.(sprintf('%s',tmp{i})){j}(idx)=filesep;
+                end
+            end
+        end
         if ~isempty(gamsFilesPaths)
             GAMSsectionNames=fieldnames(gamsFilesPaths);
             clear data_to_write
