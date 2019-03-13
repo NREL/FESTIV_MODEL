@@ -8,13 +8,12 @@ for i=1:ngen
     else
         ramp_agc(i,1) = GENVALUE_VAL(i,ramp_rate);
     end;
-end;
-for e=1:nESR
-   if unit_pumpup_agc(e,1) == 1
-        ramp_agc(storage_to_gen_index(e,1),1) = STORAGEVALUE_VAL(e,min_pump)/(STORAGEVALUE_VAL(e,pump_su_time)*60);
-   elseif unit_pumpdown_agc(e,1) == 1
-        ramp_agc(storage_to_gen_index(e,1),1) = STORAGEVALUE_VAL(e,min_pump)/(STORAGEVALUE_VAL(e,pump_sd_time)*60);
-   elseif unit_pumping_agc(e,1) == 1
-        ramp_agc(storage_to_gen_index(e,1),1) = STORAGEVALUE_VAL(e,pump_ramp_rate);
-   end;
-end;
+    if unit_pumpup_agc(i,1) == 1
+        ramp_agc(i,1) = STORAGEVALUE_VAL(find(storage_to_gen_index(:,1)==i),min_pump)/(STORAGEVALUE_VAL(find(storage_to_gen_index(:,1)==i),pump_su_time)*60);
+    elseif unit_pumpdown_agc(i,1) == 1
+        ramp_agc(i,1) = STORAGEVALUE_VAL(find(storage_to_gen_index(:,1)==i),min_pump)/(STORAGEVALUE_VAL(find(storage_to_gen_index(:,1)==i),pump_sd_time)*60);
+    elseif unit_pumping_agc(i,1) == 1
+        ramp_agc(i,1) = STORAGEVALUE_VAL(find(storage_to_gen_index(:,1)==i),pump_ramp_rate);
+    end
+end 
+

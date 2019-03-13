@@ -18,30 +18,28 @@ autosavecheck_in=uicontrol('parent',mainFigure,'style','checkbox','unit','normal
 % create DASCUC information request
 uipanel('parent',mainFigure,'Title','DASCUC','units','normalized','Position', [.03 .24 .30 .5],'fontunits','normalized','fontsize',0.040,'BackgroundColor',get(mainFigure,'color'));
 uicontrol('style','text','string','t_DAC:','TooltipString', ['(hrs) Time between DASCUC updates'],'units','normalized','position',[.04 .65 .08 .05],'fontunits','normalized','fontsize',0.35,'horizontalalignment','left');
-uicontrol('style','text','string','H_DAC:','TooltipString', ['(hrs) DASCUC Scheduling Horizon'],'units','normalized','position',[.04 .59 .08 .05],'fontunits','normalized','fontsize',0.35,'horizontalalignment','left');
+uicontrol('style','text','string','H_DAC:','TooltipString', ['(count) DASCUC Scheduling Horizon'],'units','normalized','position',[.04 .59 .08 .05],'fontunits','normalized','fontsize',0.35,'horizontalalignment','left');
 uicontrol('style','text','string','I_DAC:','TooltipString', ['(hrs) DASCUC Interval length'],'units','normalized','position',[.18 .65 .08 .05],'fontunits','normalized','fontsize',0.35,'horizontalalignment','left');
 uicontrol('style','text','string','P_DAC:','TooltipString', ['(hrs) Model processing time'],'units','normalized','position',[.18 .59 .08 .05],'fontunits','normalized','fontsize',0.35,'horizontalalignment','left');
-uicontrol('style','text','string','G_DAC:','TooltipString', ['(hrs) Market Gate for DASCUC'],'units','normalized','position',[.04 .53 .08 .05],'fontunits','normalized','fontsize',0.35,'horizontalalignment','left');
-uicontrol('style','text','string','H_Type:','TooltipString', ['For different DASCUC solutions' char(10) 'Currently, only Type 1 has been thoroughly tested.'],'units','normalized','position',[.17 .538 .12 .043],'fontunits','normalized','fontsize',0.4,'horizontalalignment','left');
+uicontrol('style','text','string','G_DAC:','TooltipString', ['(ClockTime Hour) Market Gate for DASCUC'],'units','normalized','position',[.1 .53 .08 .05],'fontunits','normalized','fontsize',0.35,'horizontalalignment','left');
 tDAC_in_edit=uicontrol('style','edit','string','24','units','normalized','position',[.115 .673 .05 .03],'backgroundcolor','white');
 HDAC_in_edit=uicontrol('style','edit','string','24','units','normalized','position',[.115 .613 .05 .03],'backgroundcolor','white');
 IDAC_in_edit=uicontrol('style','edit','string','1','units','normalized','position',[.25 .673 .05 .03],'backgroundcolor','white');
 PDAC_in_edit=uicontrol('style','edit','string','1','units','normalized','position',[.25 .613 .05 .03],'backgroundcolor','white');
-GDAC_in_edit=uicontrol('style','edit','string','12','units','normalized','position',[.115 .553 .05 .03],'backgroundcolor','white');
-DAHORIZONTYPE_in_edit=uicontrol('style','popupmenu','units','normalized','position',[.24 .555 .08 .03],'string','Type 1|Type 2|Type 3|Type 4','backgroundcolor','white');
+GDAC_in_edit=uicontrol('style','edit','string','12','units','normalized','position',[.18 .553 .05 .03],'backgroundcolor','white');
 uicontrol('parent',mainFigure,'style','text','string','Load Forecast','TooltipString', ['1-From Data  File: This will read in the data that is given as a reference in the  Main Input File,' char(10) 'and lies in the TIMESERIES directory' char(10) '2-Perfect  Forecast:  This  will  create  Load  Forecasts  that  are  equal  to  the  average  Actual  Load,' char(10) 'based on averaging over the interval resolution, I.' char(10) '3-Persistance Forecast: This will create Load Forecasts that are equal to the load before the sub model' char(10) 'would  start  (i.e.,  time  –  P).  Note  that  this  method  will  not  work  for  DASCUC  Load' char(10) 'Forecasts, as persistence forecasts would not be plausible.' char(10) '4-Predefined  with  NDE:  This  will  create  Load  Forecasts  that  have  a  predefined  normally' char(10) 'distributed error randomly added to the Average Load for each interval in the sub-model'],'units','normalized','position',[.11 .5 .12 .04],'fontunits','normalized','fontsize',0.45);
 DASCUCLF=uicontrol('parent',mainFigure','style','popupmenu','units','normalized','position',[.06 .46 .22 .05],'string','1 - From Data File|2 - Perfect Forecast|3 - Persistence Forecast|4 - Predefined with NDE','backgroundcolor','white');
 uicontrol('parent',mainFigure,'style','text','string','VG Forecast','TooltipString', ['1-From Data File: This will read in the data that is given as a reference in the  Main Input File,' char(10) 'and lies in the TIMESERIES directory' char(10) '2-Perfect Forecast: This will create VG Forecasts that are equal to the average  Actual VG, based ' char(10) 'on averaging over the interval resolution, I.  Note that if any VCR exists, an input file would still be needed.' char(10) '3-Persistance Forecast: This will create VG Forecasts that are equal to the VG output before the' char(10) 'sub-model  would  start  (i.e.,  time  –  P).  Note  that this  method  will not  work  for  DASCUC  VG' char(10) 'Forecasts, as persistence forecasts would not be plausible. Note that if any  VCR exists, an input' char(10) 'file would still be needed.' char(10) '4-Predefined  with  NDE:  This  will  create  VG  Forecasts  that  have  a  predefined  normally' char(10) 'distributed error randomly added to the Average VG for each interval in the sub-model. Note that' char(10) 'if any VCR exists, an input file would still be needed.'],'units','normalized','position',[.11 .43 .12 .04],'fontunits','normalized','fontsize',0.45);
 DASCUCVGF=uicontrol('parent',mainFigure','style','popupmenu','units','normalized','position',[.06 .39 .22 .05],'string','1 - From Data File|2 - Perfect Forecast|3 - Persistence Forecast|4 - Predefined with NDE','backgroundcolor','white');
 uicontrol('parent',mainFigure,'style','text','string','Reserve Levels','TooltipString', ['1-No reserve: This will set the reserve requirements at 0MW for all services (Day-ahead only' char(10) '2-From Day Ahead: This will set the reserve requirements in RTSCUC and RTSCED at the dayahead level for the corresponding time interval (RTSCUC and RTSCED only).' char(10) '3-From Data File: This will read in the data that is given as a reference in the  Main Input File,' char(10) 'and lies in the TIMESERIES directory (See Section 4.1 Main Input File)'],'units','normalized','position',[.1 .36 .14 .04],'fontunits','normalized','fontsize',0.45);
 DAC_RESERVE_FORECAST_MODE_in_GUI=uicontrol('parent',mainFigure','style','popupmenu','units','normalized','position',[.06 .32 .22 .05],'string','1 - No reserve|2 - From Data File','backgroundcolor','white','value',1);
-uicontrol('parent',mainFigure,'units','normalized','position',[.1 .27 .15 .05],'string','DASCUC Rules','fontunits','normalized','fontsize',0.4,'callback',{@dascuc_model_rules});
+uicontrol('parent',mainFigure,'units','normalized','position',[.1 .27 .15 .05],'string','DASCUC Mods','fontunits','normalized','fontsize',0.4,'callback',{@dascuc_model_rules});
 
 % create RTSCUC information request
 uipanel('parent',mainFigure,'Title','RTSCUC','units','normalized','Position', [.35 .24 .30 .5],'fontunits','normalized','fontsize',0.040,'BackgroundColor',get(mainFigure,'color'));
-uicontrol('parent',mainFigure,'style','text','string','t_RTC:','TooltipString', ['(minutes) Time between RTSCUC updates'],'units','normalized','position',[.37 .65 .08 .05],'horizontalalignment','left','fontunits','normalized','fontsize',0.34);
-uicontrol('parent',mainFigure,'style','text','string','H_RTC:','TooltipString', ['(hrs) RTSCUC Scheduling Horizon'],'units','normalized','position',[.37 .59 .08 .05],'horizontalalignment','left','fontunits','normalized','fontsize',0.35);
-uicontrol('parent',mainFigure,'style','text','string','I_RTC:','TooltipString', ['(minutes) RTSCUC Interval length' char(10) 'Only simulations where t_RTC=I_RTC have been thoroughly tested'],'units','normalized','position',[.51 .65 .08 .05],'horizontalalignment','left','fontunits','normalized','fontsize',0.34);
+uicontrol('parent',mainFigure,'style','text','string','t_RTC:','TooltipString', ['(minutes) Time between RTSCUC updates' char(10) 'CAUTION: Only simulations where t_RTC=I_RTC have been thoroughly tested'],'units','normalized','position',[.37 .65 .08 .05],'horizontalalignment','left','fontunits','normalized','fontsize',0.35);
+uicontrol('parent',mainFigure,'style','text','string','H_RTC:','TooltipString', ['(count) RTSCUC Scheduling Horizon'],'units','normalized','position',[.37 .59 .08 .05],'horizontalalignment','left','fontunits','normalized','fontsize',0.35);
+uicontrol('parent',mainFigure,'style','text','string','I_RTC:','TooltipString', ['(minutes) RTSCUC Interval length' char(10) 'CAUTION: Only simulations where t_RTC=I_RTC have been thoroughly tested'],'units','normalized','position',[.51 .65 .08 .05],'horizontalalignment','left','fontunits','normalized','fontsize',0.35);
 uicontrol('parent',mainFigure,'style','text','string','P_RTC:','TooltipString', ['(minutes) Model processing time'],'units','normalized','position',[.51 .59 .08 .05],'horizontalalignment','left','fontunits','normalized','fontsize',0.35);
 uicontrol('parent',mainFigure,'style','text','string','t_RTCSTART:','units','normalized','position',[.41 .53 .105 .05],'horizontalalignment','left','fontunits','normalized','fontsize',0.35);
 tRTC_in_edit=uicontrol('parent',mainFigure,'style','edit','string','15','units','normalized','position',[.445 .673 .05 .03],'backgroundcolor','white');
@@ -55,13 +53,13 @@ uicontrol('parent',mainFigure,'style','text','string','VG Forecast','TooltipStri
 RTSCUCVGF=uicontrol('parent',mainFigure','style','popupmenu','units','normalized','position',[.39 .39 .22 .05],'string','1 - From Data File|2 - Perfect Forecast|3 - Persistence Forecast|4 - Predefined with NDE','backgroundcolor','white');
 uicontrol('parent',mainFigure,'style','text','string','Reserve Levels','TooltipString', ['1-No reserve: This will set the reserve requirements at 0MW for all services (Day-ahead only' char(10) '2-From Day Ahead: This will set the reserve requirements in RTSCUC and RTSCED at the dayahead level for the corresponding time interval (RTSCUC and RTSCED only).' char(10) '3-From Data File: This will read in the data that is given as a reference in the  Main Input File,' char(10) 'and lies in the TIMESERIES directory (See Section 4.1 Main Input File)'],'units','normalized','position',[.43 .36 .14 .04],'fontunits','normalized','fontsize',0.45);
 RTC_RESERVE_FORECAST_MODE_in_GUI=uicontrol('parent',mainFigure','style','popupmenu','units','normalized','position',[.39 .32 .22 .05],'string','1 - From Day Ahead|2 - From Data File','backgroundcolor','white','value',1);
-uicontrol('parent',mainFigure,'units','normalized','position',[.43 .27 .15 .05],'string','RTSCUC Rules','fontunits','normalized','fontsize',0.4,'callback',{@rtscuc_model_rules});
+uicontrol('parent',mainFigure,'units','normalized','position',[.43 .27 .15 .05],'string','RTSCUC Mods','fontunits','normalized','fontsize',0.4,'callback',{@rtscuc_model_rules});
 
 % create RTSCED information request
 uipanel('parent',mainFigure,'Title','RTSCED','units','normalized','Position', [.67 .24 .30 .5],'fontunits','normalized','fontsize',0.040,'BackgroundColor',get(mainFigure,'color'));
-uicontrol('parent',mainFigure,'style','text','string','t_RTD:','TooltipString', ['(minutes) Time between updates' char(10) ' Only  simulations  where t_RTD=I_RTD have  been  thoroughly  tested.'],'units','normalized','position',[.69 .65 .08 .05],'horizontalalignment','left','fontunits','normalized','fontsize',0.34);
-uicontrol('parent',mainFigure,'style','text','string','H_RTD:','TooltipString', ['(hrs) Scheduling Horizon'],'units','normalized','position',[.69 .59 .08 .05],'horizontalalignment','left','fontunits','normalized','fontsize',0.35);
-uicontrol('parent',mainFigure,'style','text','string','I_RTD:','TooltipString', ['(minutes) Interval length' char(10) ' Only  simulations  where t_RTD=I_RTD have  been  thoroughly  tested.'],'units','normalized','position',[.83 .65 .08 .05],'horizontalalignment','left','fontunits','normalized','fontsize',0.34);
+uicontrol('parent',mainFigure,'style','text','string','t_RTD:','TooltipString', ['(minutes) Time between updates' char(10) 'CAUTION: Only  simulations  where t_RTD=I_RTD have  been  thoroughly  tested.'],'units','normalized','position',[.69 .65 .08 .05],'horizontalalignment','left','fontunits','normalized','fontsize',0.35);
+uicontrol('parent',mainFigure,'style','text','string','H_RTD:','TooltipString', ['(count) Scheduling Horizon'],'units','normalized','position',[.69 .59 .08 .05],'horizontalalignment','left','fontunits','normalized','fontsize',0.35);
+uicontrol('parent',mainFigure,'style','text','string','I_RTD:','TooltipString', ['(minutes) Interval length' char(10) 'CAUTION:  Only  simulations  where t_RTD=I_RTD have  been  thoroughly  tested.'],'units','normalized','position',[.83 .65 .08 .05],'horizontalalignment','left','fontunits','normalized','fontsize',0.35);
 uicontrol('parent',mainFigure,'style','text','string','P_RTD:','TooltipString', ['(minutes) Model processing time'],'units','normalized','position',[.83 .59 .08 .05],'horizontalalignment','left','fontunits','normalized','fontsize',0.35);
 uicontrol('parent',mainFigure,'style','text','string','I_RTD_ADV:','TooltipString', ['(minutes) Interval length of advisory lookahead intervals'],'units','normalized','position',[.74 .53 .105 .05],'horizontalalignment','left','fontunits','normalized','fontsize',0.35);
 tRTD_in_edit=uicontrol('parent',mainFigure,'style','edit','string','5','units','normalized','position',[.76 .673 .05 .03],'backgroundcolor','white');
@@ -75,7 +73,7 @@ uicontrol('parent',mainFigure,'style','text','string','VG Forecast','TooltipStri
 RTSCEDVGF=uicontrol('parent',mainFigure','style','popupmenu','units','normalized','position',[.71 .39 .22 .05],'string','1 - From Data File|2 - Perfect Forecast|3 - Persistence Forecast|4 - Predefined with NDE','backgroundcolor','white');
 uicontrol('parent',mainFigure,'style','text','string','Reserve Levels','TooltipString', ['1-No reserve: This will set the reserve requirements at 0MW for all services (Day-ahead only' char(10) '2-From Day Ahead: This will set the reserve requirements in RTSCUC and RTSCED at the dayahead level for the corresponding time interval (RTSCUC and RTSCED only).' char(10) '3-From Data File: This will read in the data that is given as a reference in the  Main Input File,' char(10) 'and lies in the TIMESERIES directory (See Section 4.1 Main Input File)'],'units','normalized','position',[.75 .36 .14 .04],'fontunits','normalized','fontsize',0.45);
 RTD_RESERVE_FORECAST_MODE_in_GUI=uicontrol('parent',mainFigure','style','popupmenu','units','normalized','position',[.71 .32 .22 .05],'string','1 - From Day Ahead|2 - From Data File','backgroundcolor','white','value',1);
-uicontrol('parent',mainFigure,'units','normalized','position',[.75 .27 .15 .05],'string','RTSCED Rules','fontunits','normalized','fontsize',0.4,'callback',{@rtsced_model_rules});
+uicontrol('parent',mainFigure,'units','normalized','position',[.75 .27 .15 .05],'string','RTSCED Mods','fontunits','normalized','fontsize',0.4,'callback',{@rtsced_model_rules});
 
 % create network check information request
 network_button_group=uibuttongroup('parent',mainFigure,'title','Network Check','units','normalized','position',[.67 .135 .145 .09],'fontunits','normalized','fontsize',0.15);
@@ -90,7 +88,7 @@ radiobutton3=uicontrol('parent',ctgc_button_group,'style','radiobutton','units',
 % create AGC information request
 uipanel('parent',mainFigure,'Title','AGC','units','normalized','Position', [.03 .13 .3 .1],'fontunits','normalized','fontsize',0.15,'BackgroundColor',get(mainFigure,'color'));
 uicontrol('parent',mainFigure,'units','normalized','position',[.05 .15 .12 .05],'string','AGC Param','TooltipString', ['Automatic Generation Control Parameters' char(10) 'This provides more options including CPS2 Options, Smoothed ACE Options, AGC Deadband, and AGC modes'],'fontunits','normalized','fontsize',0.4,'callback',{@agc_input});
-uicontrol('parent',mainFigure,'units','normalized','position',[.19 .15 .12 .05],'string','AGC Rules','fontunits','normalized','fontsize',0.4,'callback',{@agc_model_rules});
+uicontrol('parent',mainFigure,'units','normalized','position',[.19 .15 .12 .05],'string','AGC Mods','fontunits','normalized','fontsize',0.4,'callback',{@agc_model_rules});
 
 % create simulation time request
 uipanel('parent',mainFigure,'Title','Simulation Time (D:H:M:S)','units','normalized','Position', [.35 .13 .3 .1],'fontunits','normalized','fontsize',0.15,'BackgroundColor',get(mainFigure,'color'));
@@ -103,16 +101,16 @@ uicontrol('parent',mainFigure,'style','text','string',':','units','normalized','
 uicontrol('parent',mainFigure,'style','text','string',':','units','normalized','position',[.565 .142 .01 .05],'fontunits','normalized','fontsize',0.5);
 
 % create extra options input request interfaces
-options=uipanel('parent',mainFigure,'Title','Extra Options','units','normalized','Position', [.03 .03 .725 .09],'fontunits','normalized','fontsize',0.2,'BackgroundColor',get(mainFigure,'color'));
-uicontrol('parent',options,'units','normalized','position',[.01 .15 .11 .8],'string','<html><center>RPU</center></html>','TooltipString', ['Reserve Pick Up'], 'fontunits','normalized','fontsize',0.35,'callback',{@rpu_callback});
-uicontrol('parent',options,'units','normalized','position',[.135 .15 .11 .8],'string','<html><center>Multiple<br>Runs</center></html>','TooltipString', ['Run multiple scenarios  back-to-back  without the need' char(10) 'to re-enter all the information for each new run.'],'fontunits','normalized','fontsize',0.35,'callback',{@MultipleRuns_callback});
-uicontrol('parent',options,'units','normalized','position',[.260 .15 .11 .8],'string','<html><center>CTGC<br>Options</center></html>','fontunits','normalized','fontsize',0.35,'callback',{@contingencies_callback});
-uicontrol('parent',options,'units','normalized','position',[.385 .15 .11 .8],'string','<html><center>Debug</center></html>','fontunits','normalized','fontsize',0.35,'callback',{@debugging_callback});
-uicontrol('parent',options,'units','normalized','position',[.51 .15 .11 .8],'string','<html><center>Other<br>Rules</center></html>','fontunits','normalized','fontsize',0.35,'callback',{@other_rules_callback});
-uicontrol('parent',options,'units','normalized','position',[.635 .15 .11 .8],'string','<html><center>Save<br>Rules</center></html>','fontunits','normalized','fontsize',0.35,'callback',{@save_rules_callback});
-uicontrol('parent',options,'units','normalized','position',[.76 .15 .11 .8],'string','<html><center>Load<br>Rules</center></html>','fontunits','normalized','fontsize',0.35,'callback',{@load_rules_callback});
-uicontrol('parent',options,'units','normalized','position',[.885 .15 .11 .8],'string','<html><center>Opt. Model</center></html>','fontunits','normalized','fontsize',0.35,'callback',{@build_gams_models_callback});
-uicontrol('Parent',mainFigure,'Style','pushbutton','String','<html><center>Cancel</center></html>','units','normalized','Position', [0.775 0.03 0.1 0.08],'fontunits','normalized','fontsize',0.35,'Callback', {@cancel_callback});
+options=uipanel('parent',mainFigure,'Title','Extra Options','units','normalized','Position', [.02 .03 .74 .09],'fontunits','normalized','fontsize',0.2,'BackgroundColor',get(mainFigure,'color'));
+uicontrol('parent',options,'units','normalized','position',[.01 .15 .11 .8],'string','<html><center>RPU</center></html>','TooltipString', ['Reserve Pick Up' char(10) 'A SCUC/SCED run based on user-defined event rather than time'], 'fontunits','normalized','fontsize',0.33,'callback',{@rpu_callback});
+uicontrol('parent',options,'units','normalized','position',[.135 .15 .11 .8],'string','<html><center>Multiple<br>Runs</center></html>','TooltipString', ['Run multiple scenarios  back-to-back  without the need' char(10) 'to re-enter all the information for each new run.'],'fontunits','normalized','fontsize',0.33,'callback',{@MultipleRuns_callback});
+uicontrol('parent',options,'units','normalized','position',[.260 .15 .11 .8],'string','<html><center>CTGC<br>Options</center></html>','TooltipString','Simulate contingencies to occur during the time loop within FESTIV.','fontunits','normalized','fontsize',0.33,'callback',{@contingencies_callback});
+uicontrol('parent',options,'units','normalized','position',[.385 .15 .11 .8],'string','<html><center>Debug</center></html>','TooltipString','Debug FESTIV during time frame selected.','fontunits','normalized','fontsize',0.33,'callback',{@debugging_callback});
+uicontrol('parent',options,'units','normalized','position',[.51 .15 .11 .8],'string','<html><center>Other<br>Func Mods</center></html>','TooltipString', ['Functional Mods can be used to modify FESTIV before and after other processes throughout the FESTIV simulation'],'fontunits','normalized','fontsize',0.33,'callback',{@other_rules_callback});
+uicontrol('parent',options,'units','normalized','position',[.635 .15 .11 .8],'string','<html><center>Save<br>All</center></html>','TooltipString','Save Parameters on Main FESTIV GUI and all Functional Mods. Parameters requiring additional buttons and Formulation Mods not saved.','fontunits','normalized','fontsize',0.33,'callback',{@save_rules_callback});
+uicontrol('parent',options,'units','normalized','position',[.76 .15 .11 .8],'string','<html><center>Load<br>All</center></html>','TooltipString','Load Parameters on Main FESTIV GUI and all Functional Mods. Parameters requiring additional buttons and Formulation Mods are not loaded.','fontunits','normalized','fontsize',0.33,'callback',{@load_rules_callback});
+uicontrol('parent',options,'units','normalized','position',[.885 .15 .11 .8],'string','<html><center>Formulation Mods</center></html>','TooltipString','Press here to adjust SCUC and SCED models using Formulation Mods.','fontunits','normalized','fontsize',0.33,'callback',{@build_gams_models_callback});
+uicontrol('Parent',mainFigure,'Style','pushbutton','String','<html><center>Cancel</center></html>','units','normalized','Position', [0.775 0.03 0.1 0.08],'fontunits','normalized','fontsize',0.4,'Callback', {@cancel_callback});
 uicontrol('Parent',mainFigure,'Style','pushbutton','String','<html><center>Go!</center></html>','units','normalized','Position', [.885 .03 0.1 .08],'fontunits','normalized','fontsize',0.40,'Callback',{@runFESTIV}); 
 
 % make main figure visible
@@ -538,11 +536,6 @@ try
 catch
 end;
 try 
-    a=evalin('base','DAHORIZONTYPE_in');
-    set(DAHORIZONTYPE_in_edit,'value',a);
-catch
-end;
-try 
     a=evalin('base','HRTC_in');
     set(HRTC_in_edit,'string',num2str(a));
 catch
@@ -871,7 +864,6 @@ function addruns_callback(~,~)
     tDAC_in=str2double(get(tDAC_in_edit,'string'));
     GDAC_in=str2double(get(GDAC_in_edit,'string'));
     PDAC_in=str2double(get(PDAC_in_edit,'string'));
-    DAHORIZONTYPE_in=get(DAHORIZONTYPE_in_edit,'value');
     HRTC_in=str2double(get(HRTC_in_edit,'string'));
     IRTC_in=str2double(get(IRTC_in_edit,'string'));
     tRTC_in=str2double(get(tRTC_in_edit,'string'));
@@ -928,7 +920,6 @@ function addruns_callback(~,~)
     assignin('base','tDAC_in',tDAC_in);
     assignin('base','GDAC_in',GDAC_in);
     assignin('base','PDAC_in',PDAC_in);
-    assignin('base','DAHORIZONTYPE_in',DAHORIZONTYPE_in);
     assignin('base','HRTC_in',HRTC_in);
     assignin('base','IRTC_in',IRTC_in);
     assignin('base','tRTC_in',tRTC_in);
@@ -1030,7 +1021,6 @@ function runFESTIV(~,~)
         tDAC_in=str2double(get(tDAC_in_edit,'string'));
         GDAC_in=str2double(get(GDAC_in_edit,'string'));
         PDAC_in=str2double(get(PDAC_in_edit,'string'));
-        DAHORIZONTYPE_in=get(DAHORIZONTYPE_in_edit,'value');
         HRTC_in=str2double(get(HRTC_in_edit,'string'));
         IRTC_in=str2double(get(IRTC_in_edit,'string'));
         tRTC_in=str2double(get(tRTC_in_edit,'string'));
@@ -1087,7 +1077,6 @@ function runFESTIV(~,~)
         assignin('base','IDAC_in',IDAC_in);
         assignin('base','GDAC_in',GDAC_in);
         assignin('base','PDAC_in',PDAC_in);
-        assignin('base','DAHORIZONTYPE_in',DAHORIZONTYPE_in);
         assignin('base','tDAC_in',tDAC_in);
         assignin('base','HRTC_in',HRTC_in);
         assignin('base','IRTC_in',IRTC_in);
@@ -1176,9 +1165,9 @@ function cancel_callback(~,~)
    close(gcf); 
 end
 
-%% Create additional DASCUC Model Rules dialog box
+%% Create additional DASCUC Functional Mods dialog box
 function dascuc_model_rules(~,~)
-    dascucmodelrules_figure=figure('name','DASCUC Model Rules','NumberTitle','off','position',[50 50 450 300],'menubar','none','color',[.9412 .9412 .9412]);
+    dascucmodelrules_figure=figure('name','DASCUC Functional Mods','NumberTitle','off','position',[50 50 450 300],'menubar','none','color',[.9412 .9412 .9412]);
     movegui(dascucmodelrules_figure,'center');
     uicontrol('parent',dascucmodelrules_figure,'style','text','string','Model Input File:','units','normalized','position',[.01 .88 .25 .08],'fontunits','normalized','fontsize',0.45);
     modelinputFileEditBox=uicontrol('parent',dascucmodelrules_figure,'style','edit','units','normalized','position',[.25 .895 .55 .08],'fontunits','normalized','fontsize',0.45,'backgroundcolor','white','horizontalalignment','left');
@@ -1190,8 +1179,8 @@ function dascuc_model_rules(~,~)
     
     %set(dascucmodel_pre_list,'string',DASCUC_RULES_PRE_in);
     %set(dascucmodel_post_list,DASCUC_RULES_POST_in);
-    dascucmodel_pre_list=uitable('Parent',dascucmodelrules_figure,'units','normalized','position',[0.025 .15 .45 .55],'ColumnFormat',{'char'},'ColumnName',{'Rules Before DASCUC'},'ColumnEditable',false,'ColumnWidth',{170},'CellSelectionCallback',{@modelcaseselected_callback});
-    dascucmodel_post_list=uitable('Parent',dascucmodelrules_figure,'units','normalized','position',[0.5 .15 .45 .55],'ColumnFormat',{'char'},'ColumnName',{'Rules After DASCUC'},'ColumnEditable',false,'ColumnWidth',{170},'CellSelectionCallback',{@modelcaseselected_callback});
+    dascucmodel_pre_list=uitable('Parent',dascucmodelrules_figure,'units','normalized','position',[0.025 .15 .45 .55],'ColumnFormat',{'char'},'ColumnName',{'Mods Before DASCUC'},'ColumnEditable',false,'ColumnWidth',{170},'CellSelectionCallback',{@modelcaseselected_callback});
+    dascucmodel_post_list=uitable('Parent',dascucmodelrules_figure,'units','normalized','position',[0.5 .15 .45 .55],'ColumnFormat',{'char'},'ColumnName',{'Mods After DASCUC'},'ColumnEditable',false,'ColumnWidth',{170},'CellSelectionCallback',{@modelcaseselected_callback});
     
     uicontrol('parent',dascucmodelrules_figure,'units','normalized','position',[.58 .03 .175 .1],'string','Done','style','pushbutton','fontunits','normalized','fontsize',0.35,'callback',{@get_dascuc_rules}); 
     uicontrol('parent',dascucmodelrules_figure,'units','normalized','position',[.78 .03 .175 .1],'string','Cancel','style','pushbutton','fontunits','normalized','fontsize',0.35,'callback',@(hObject,eventData) close(dascucmodelrules_figure)); 
@@ -1209,9 +1198,9 @@ function dascuc_model_rules(~,~)
     
 end
 
-%% Create additional RTSCUC Model Rules dialog box
+%% Create additional RTSCUC Functional Mods dialog box
 function rtscuc_model_rules(~,~)
-    rtscucmodelrules_figure=figure('name','RTSCUC Model Rules','NumberTitle','off','position',[50 50 450 300],'menubar','none','color',[.9412 .9412 .9412]);
+    rtscucmodelrules_figure=figure('name','RTSCUC Functional Mods','NumberTitle','off','position',[50 50 450 300],'menubar','none','color',[.9412 .9412 .9412]);
     movegui(rtscucmodelrules_figure,'center');
     uicontrol('parent',rtscucmodelrules_figure,'style','text','string','Model Input File:','units','normalized','position',[.01 .88 .25 .08],'fontunits','normalized','fontsize',0.45);
     modelinputFileEditBox=uicontrol('parent',rtscucmodelrules_figure,'style','edit','units','normalized','position',[.25 .895 .55 .08],'fontunits','normalized','fontsize',0.45,'backgroundcolor','white','horizontalalignment','left');
@@ -1224,8 +1213,8 @@ function rtscuc_model_rules(~,~)
         set(modelinputFileEditBox,'string',modelinputFile);
     catch
     end
-    rtscucmodel_pre_list=uitable('Parent',rtscucmodelrules_figure,'units','normalized','position',[0.025 .15 .45 .55],'ColumnFormat',{'char'},'ColumnName',{'Rules Before RTSCUC'},'ColumnEditable',false,'ColumnWidth',{170 },'CellSelectionCallback',{@modelcaseselected_callback});
-    rtscucmodel_post_list=uitable('Parent',rtscucmodelrules_figure,'units','normalized','position',[0.5 .15 .45 .55],'ColumnFormat',{'char'},'ColumnName',{'Rules After RTSCUC'},'ColumnEditable',false,'ColumnWidth',{170 },'CellSelectionCallback',{@modelcaseselected_callback});
+    rtscucmodel_pre_list=uitable('Parent',rtscucmodelrules_figure,'units','normalized','position',[0.025 .15 .45 .55],'ColumnFormat',{'char'},'ColumnName',{'Mods Before RTSCUC'},'ColumnEditable',false,'ColumnWidth',{170 },'CellSelectionCallback',{@modelcaseselected_callback});
+    rtscucmodel_post_list=uitable('Parent',rtscucmodelrules_figure,'units','normalized','position',[0.5 .15 .45 .55],'ColumnFormat',{'char'},'ColumnName',{'Mods After RTSCUC'},'ColumnEditable',false,'ColumnWidth',{170 },'CellSelectionCallback',{@modelcaseselected_callback});
     
     uicontrol('parent',rtscucmodelrules_figure,'units','normalized','position',[.58 .03 .175 .1],'string','Done','style','pushbutton','fontunits','normalized','fontsize',0.35,'callback',{@get_rtscuc_rules}); 
     uicontrol('parent',rtscucmodelrules_figure,'units','normalized','position',[.78 .03 .175 .1],'string','Cancel','style','pushbutton','fontunits','normalized','fontsize',0.35,'callback',@(hObject,eventData) close(rtscucmodelrules_figure)); 
@@ -1241,9 +1230,9 @@ function rtscuc_model_rules(~,~)
     end;
 end
 
-%% Create additional RTSCED Model Rules dialog box
+%% Create additional RTSCED Functional Mods dialog box
 function rtsced_model_rules(~,~)
-    rtscedmodelrules_figure=figure('name','RTSCED Model Rules','NumberTitle','off','position',[50 50 450 300],'menubar','none','color',[.9412 .9412 .9412]);
+    rtscedmodelrules_figure=figure('name','RTSCED Functional Mods','NumberTitle','off','position',[50 50 450 300],'menubar','none','color',[.9412 .9412 .9412]);
     movegui(rtscedmodelrules_figure,'center');
     uicontrol('parent',rtscedmodelrules_figure,'style','text','string','Model Input File:','units','normalized','position',[.01 .88 .25 .08],'fontunits','normalized','fontsize',0.45);
     modelinputFileEditBox=uicontrol('parent',rtscedmodelrules_figure,'style','edit','units','normalized','position',[.25 .895 .55 .08],'fontunits','normalized','fontsize',0.45,'backgroundcolor','white','horizontalalignment','left');
@@ -1256,8 +1245,8 @@ function rtsced_model_rules(~,~)
         set(modelinputFileEditBox,'string',modelinputFile);
     catch
     end
-    rtscedmodel_pre_list=uitable('Parent',rtscedmodelrules_figure,'units','normalized','position',[0.025 .15 .45 .55],'ColumnFormat',{'char'},'ColumnName',{'Rules Before RTSCED'},'ColumnEditable',false,'ColumnWidth',{170 },'CellSelectionCallback',{@modelcaseselected_callback});
-    rtscedmodel_post_list=uitable('Parent',rtscedmodelrules_figure,'units','normalized','position',[0.5 .15 .45 .55],'ColumnFormat',{'char'},'ColumnName',{'Rules After RTSCED'},'ColumnEditable',false,'ColumnWidth',{170 },'CellSelectionCallback',{@modelcaseselected_callback});
+    rtscedmodel_pre_list=uitable('Parent',rtscedmodelrules_figure,'units','normalized','position',[0.025 .15 .45 .55],'ColumnFormat',{'char'},'ColumnName',{'Mods Before RTSCED'},'ColumnEditable',false,'ColumnWidth',{170 },'CellSelectionCallback',{@modelcaseselected_callback});
+    rtscedmodel_post_list=uitable('Parent',rtscedmodelrules_figure,'units','normalized','position',[0.5 .15 .45 .55],'ColumnFormat',{'char'},'ColumnName',{'Mods After RTSCED'},'ColumnEditable',false,'ColumnWidth',{170 },'CellSelectionCallback',{@modelcaseselected_callback});
     
     uicontrol('parent',rtscedmodelrules_figure,'units','normalized','position',[.58 .03 .175 .1],'string','Done','style','pushbutton','fontunits','normalized','fontsize',0.35,'callback',{@get_rtsced_rules}); 
     uicontrol('parent',rtscedmodelrules_figure,'units','normalized','position',[.78 .03 .175 .1],'string','Cancel','style','pushbutton','fontunits','normalized','fontsize',0.35,'callback',@(hObject,eventData) close(rtscedmodelrules_figure)); 
@@ -1273,9 +1262,9 @@ function rtsced_model_rules(~,~)
     end    
 end
 
-%% Create additional AGC Model Rules dialog box
+%% Create additional AGC Functional Mods dialog box
 function agc_model_rules(~,~)
-    agcmodelrules_figure=figure('name','AGC Model Rules','NumberTitle','off','position',[50 50 450 300],'menubar','none','color',[.9412 .9412 .9412]);
+    agcmodelrules_figure=figure('name','AGC Functional Mods','NumberTitle','off','position',[50 50 450 300],'menubar','none','color',[.9412 .9412 .9412]);
     movegui(agcmodelrules_figure,'center');
     uicontrol('parent',agcmodelrules_figure,'style','text','string','Model Input File:','units','normalized','position',[.01 .88 .25 .08],'fontunits','normalized','fontsize',0.45);
     modelinputFileEditBox=uicontrol('parent',agcmodelrules_figure,'style','edit','units','normalized','position',[.25 .895 .55 .08],'fontunits','normalized','fontsize',0.45,'backgroundcolor','white','horizontalalignment','left');
@@ -1288,8 +1277,8 @@ function agc_model_rules(~,~)
         set(modelinputFileEditBox,'string',modelinputFile);
     catch
     end
-    agcmodel_pre_list=uitable('Parent',agcmodelrules_figure,'units','normalized','position',[0.025 .15 .45 .55],'ColumnFormat',{'char'},'ColumnName',{'Rules Before AGC'},'ColumnEditable',false,'ColumnWidth',{170 },'CellSelectionCallback',{@modelcaseselected_callback});
-    agcmodel_post_list=uitable('Parent',agcmodelrules_figure,'units','normalized','position',[0.5 .15 .45 .55],'ColumnFormat',{'char'},'ColumnName',{'Rules After AGC'},'ColumnEditable',false,'ColumnWidth',{170 },'CellSelectionCallback',{@modelcaseselected_callback});
+    agcmodel_pre_list=uitable('Parent',agcmodelrules_figure,'units','normalized','position',[0.025 .15 .45 .55],'ColumnFormat',{'char'},'ColumnName',{'Mods Before AGC'},'ColumnEditable',false,'ColumnWidth',{170 },'CellSelectionCallback',{@modelcaseselected_callback});
+    agcmodel_post_list=uitable('Parent',agcmodelrules_figure,'units','normalized','position',[0.5 .15 .45 .55],'ColumnFormat',{'char'},'ColumnName',{'Mods After AGC'},'ColumnEditable',false,'ColumnWidth',{170 },'CellSelectionCallback',{@modelcaseselected_callback});
     
     uicontrol('parent',agcmodelrules_figure,'units','normalized','position',[.58 .03 .175 .1],'string','Done','style','pushbutton','fontunits','normalized','fontsize',0.35,'callback',{@get_agc_rules}); 
     uicontrol('parent',agcmodelrules_figure,'units','normalized','position',[.78 .03 .175 .1],'string','Cancel','style','pushbutton','fontunits','normalized','fontsize',0.35,'callback',@(hObject,eventData) close(agcmodelrules_figure)); 
@@ -1305,9 +1294,9 @@ function agc_model_rules(~,~)
     end    
 end
 
-%% Create additional RPU Model Rules dialog box
+%% Create additional RPU Functional Mods dialog box
 function rpu_model_rules(~,~)
-    rpumodelrules_figure=figure('name','RPU Model Rules','NumberTitle','off','position',[50 50 450 300],'menubar','none','color',[.9412 .9412 .9412]);
+    rpumodelrules_figure=figure('name','RPU Functional Mods','NumberTitle','off','position',[50 50 450 300],'menubar','none','color',[.9412 .9412 .9412]);
     movegui(rpumodelrules_figure,'center');
     uicontrol('parent',rpumodelrules_figure,'style','text','string','Model Input File:','units','normalized','position',[.01 .88 .25 .08],'fontunits','normalized','fontsize',0.45);
     modelinputFileEditBox=uicontrol('parent',rpumodelrules_figure,'style','edit','units','normalized','position',[.25 .895 .55 .08],'fontunits','normalized','fontsize',0.45,'backgroundcolor','white','horizontalalignment','left');
@@ -1320,8 +1309,8 @@ function rpu_model_rules(~,~)
         set(modelinputFileEditBox,'string',modelinputFile);
     catch
     end
-    rpumodel_pre_list=uitable('Parent',rpumodelrules_figure,'units','normalized','position',[0.025 .15 .45 .55],'ColumnFormat',{'char'},'ColumnName',{'Rules Before RPU'},'ColumnEditable',false,'ColumnWidth',{170 },'CellSelectionCallback',{@modelcaseselected_callback});
-    rpumodel_post_list=uitable('Parent',rpumodelrules_figure,'units','normalized','position',[0.5 .15 .45 .55],'ColumnFormat',{'char'},'ColumnName',{'Rules After RPU'},'ColumnEditable',false,'ColumnWidth',{170 },'CellSelectionCallback',{@modelcaseselected_callback});
+    rpumodel_pre_list=uitable('Parent',rpumodelrules_figure,'units','normalized','position',[0.025 .15 .45 .55],'ColumnFormat',{'char'},'ColumnName',{'Mods Before RPU'},'ColumnEditable',false,'ColumnWidth',{170 },'CellSelectionCallback',{@modelcaseselected_callback});
+    rpumodel_post_list=uitable('Parent',rpumodelrules_figure,'units','normalized','position',[0.5 .15 .45 .55],'ColumnFormat',{'char'},'ColumnName',{'Mods After RPU'},'ColumnEditable',false,'ColumnWidth',{170 },'CellSelectionCallback',{@modelcaseselected_callback});
 
     uicontrol('parent',rpumodelrules_figure,'units','normalized','position',[.58 .03 .175 .1],'string','Done','style','pushbutton','fontunits','normalized','fontsize',0.35,'callback',{@get_rpu_rules}); 
     uicontrol('parent',rpumodelrules_figure,'units','normalized','position',[.78 .03 .175 .1],'string','Cancel','style','pushbutton','fontunits','normalized','fontsize',0.35,'callback',@(hObject,eventData) close(rpumodelrules_figure)); 
@@ -1337,9 +1326,9 @@ function rpu_model_rules(~,~)
     end    
 end
 
-%% Create Other Rules dialog box
+%% Create Other Functional Mods dialog box
 function other_rules_callback(~,~)
-    othermodelrules_figure=figure('name','Other Model Rules','NumberTitle','off','position',[50 50 450 350],'menubar','none','color',[.9412 .9412 .9412]);
+    othermodelrules_figure=figure('name','Other Functional Mods','NumberTitle','off','position',[50 50 450 350],'menubar','none','color',[.9412 .9412 .9412]);
     movegui(othermodelrules_figure,'center');
     uicontrol('parent',othermodelrules_figure,'style','text','string','Model Input File:','units','normalized','position',[.01 .79 .25 .08],'fontunits','normalized','fontsize',0.45);
     modelinputFileEditBox=uicontrol('parent',othermodelrules_figure,'style','edit','units','normalized','position',[.25 .805 .55 .08],'fontunits','normalized','fontsize',0.45,'backgroundcolor','white','horizontalalignment','left');
@@ -1619,7 +1608,7 @@ end
 
 %% browse for model rules
 function browseformodelrules(~,~)
-    [modelinputFile,~] = uigetfile(['MODEL_RULES',filesep,'*.m'],'Select Model Rules File');
+    [modelinputFile,~] = uigetfile(['MODEL_RULES',filesep,'*.m'],'Select Functional Mods File');
     set(modelinputFileEditBox,'string',modelinputFile);
 end
 
@@ -2273,7 +2262,7 @@ function remove_model_rule_other_post(~,~)
     end
 end
 
-%% Gather the DASCUC Model Rules
+%% Gather the DASCUC Functional Mods
 function get_dascuc_rules(~,~)
     DASCUC_RULES_PRE_in=evalin('base','DASCUC_RULES_PRE_in');
     DASCUC_RULES_POST_in=evalin('base','DASCUC_RULES_POST_in');
@@ -2282,7 +2271,7 @@ function get_dascuc_rules(~,~)
     close(gcf);
 end
 
-%% Gather the RTSCUC Model Rules
+%% Gather the RTSCUC Functional Mods
 function get_rtscuc_rules(~,~)
     RTSCUC_RULES_PRE_in=evalin('base','RTSCUC_RULES_PRE_in');
     RTSCUC_RULES_POST_in=evalin('base','RTSCUC_RULES_POST_in');
@@ -2291,7 +2280,7 @@ function get_rtscuc_rules(~,~)
     close(gcf);
 end
 
-%% Gather the RTSCED Model Rules
+%% Gather the RTSCED Functional Mods
 function get_rtsced_rules(~,~)
     RTSCED_RULES_PRE_in=evalin('base','RTSCED_RULES_PRE_in');
     RTSCED_RULES_POST_in=evalin('base','RTSCED_RULES_POST_in');
@@ -2300,7 +2289,7 @@ function get_rtsced_rules(~,~)
     close(gcf);
 end
 
-%% Gather the AGC Model Rules
+%% Gather the AGC Functional Mods
 function get_agc_rules(~,~)
     AGC_RULES_PRE_in=evalin('base','AGC_RULES_PRE_in');
     AGC_RULES_POST_in=evalin('base','AGC_RULES_POST_in');
@@ -2309,7 +2298,7 @@ function get_agc_rules(~,~)
     close(gcf);
 end
 
-%% Gather the RPU Model Rules
+%% Gather the RPU Functional Mods
 function get_rpu_rules(~,~)
     RPU_RULES_PRE_in=evalin('base','RPU_RULES_PRE_in');
     RPU_RULES_POST_in=evalin('base','RPU_RULES_POST_in');
@@ -2318,7 +2307,7 @@ function get_rpu_rules(~,~)
     close(gcf);
 end
 
-%% Gather Other Model Rules
+%% Gather Other Functional Mods
 function get_other_rules(~,~)
     DATA_INITIALIZE_PRE_in=evalin('base','DATA_INITIALIZE_PRE_in');
     DATA_INITIALIZE_POST_in=evalin('base','DATA_INITIALIZE_POST_in');
@@ -2396,16 +2385,16 @@ function agc_input(~,~)
     uicontrol('parent',cps2panel,'units','normalized','position',[.1 .1 .75 .15],'style','pushbutton','string','Other L10 Values','fontunits','normalized','fontsize',0.6,'callback',{@L10help});
 
     uicontrol('parent',sacepanel,'units','normalized','position',[.05 .7 .55 .15],'style','text','string','Integral Length:','fontunits','normalized','fontsize',0.5);
-    uicontrol('parent',sacepanel,'units','normalized','position',[.1 .41 .40 .15],'style','text','string','K1:','fontunits','normalized','fontsize',0.6);
-    uicontrol('parent',sacepanel,'units','normalized','position',[.1 .1 .40 .15],'style','text','string','K2:','fontunits','normalized','fontsize',0.6);
+    uicontrol('parent',sacepanel,'units','normalized','position',[.1 .41 .40 .15],'style','text','TooltipString',['Proportional Gain'],'string','K1:','fontunits','normalized','fontsize',0.6);
+    uicontrol('parent',sacepanel,'units','normalized','position',[.1 .1 .40 .15],'style','text','TooltipString', ['Integral Gain'],'string','K2:','fontunits','normalized','fontsize',0.6);
     Type3_integral_in_edit=uicontrol('parent',sacepanel,'units','normalized','position',[.65 .72 .30 .15],'style','edit','string','180','fontunits','normalized','fontsize',0.6,'backgroundcolor','white');
     K1_in_edit=uicontrol('parent',sacepanel,'units','normalized','position',[.55 .42 .30 .15],'style','edit','string','0.5','fontunits','normalized','fontsize',0.6,'backgroundcolor','white');
     K2_in_edit=uicontrol('parent',sacepanel,'units','normalized','position',[.55 .12 .30 .15],'style','edit','string','0.5','fontunits','normalized','fontsize',0.6,'backgroundcolor','white');
     
-    uicontrol('parent',agcpanel,'style','text','units','normalized','position',[.05 .4 .3 .33],'string','AGC Mode:','TooltipString', ['1-Blind Mode: Generators ignore the ACE signal and do not participate in AGC.' char(10) '2-Fast Mode: Generators follow the unfiltered, high frequency ACE signal. This mode essentially tries to correct the real time, raw imbalance. ' char(10) '3-Smooth Mode: Generators  follow  a  filtered,  low  frequency  ACE  signal.  This  low  frequency  signal' char(10) 'is produced by passing the raw ACE signal through a PI filter whose parameters are defined in the right' char(10) 'hand side of the ‘AGC Input Options’.' char(10) '4-Lazy Mode: Regulation only occurs if there is an expected CPS2 violation. If there is an expected' char(10) 'violation, the generators will participate in mode 3 regulation;  otherwise they participate in mode 1 regulation.' char(10) '5-Individual Mode: Each  generator  receives  its own  AGC signal as  defined  by  the ‘GEN_AGC_MODE’' char(10) 'column on the GEN input sheet.'],'fontunits','normalized','fontsize',0.9);
-    agcmodes=uicontrol('parent',agcpanel,'style','popupmenu','string','1 - Blind Mode|2 - Fast Mode|3 - Smooth Mode|4 - Lazy Mode|5 - Individual Modes|6 - Other','units','normalized','position',[.38 .75 .58 .04],'backgroundcolor','white');
+    uicontrol('parent',agcpanel,'style','text','units','normalized','position',[.05 .4 .5 .33],'string','AGC Mode:','TooltipString', ['1-Blind Mode: Generators ignore the ACE signal and do not participate in AGC.' char(10) '2-Fast Mode: Generators follow the unfiltered, high frequency ACE signal. This mode essentially tries to correct the real time, raw imbalance. ' char(10) '3-Smooth Mode: Generators  follow  a  filtered,  low  frequency  ACE  signal.  This  low  frequency  signal' char(10) 'is produced by passing the raw ACE signal through a PI filter whose parameters are defined in the right' char(10) 'hand side of the ‘AGC Input Options’.' char(10) '4-Lazy Mode: Regulation only occurs if there is an expected CPS2 violation. If there is an expected' char(10) 'violation, the generators will participate in mode 3 regulation;  otherwise they participate in mode 1 regulation.' char(10) '5-Individual Mode: Each  generator  receives  its own  AGC signal as  defined  by  the ‘GEN_AGC_MODE’' char(10) 'column on the GEN input sheet.' char(10) '6-Other mode. Requires an AGC Mod'],'fontunits','normalized','fontsize',0.9);
+    agcmodes=uicontrol('parent',agcpanel,'style','popupmenu','string','1 - Blind Mode|2 - Fast Mode|3 - Smooth Mode|4 - Lazy Mode|5 - Individual Modes|6 - Other','units','normalized','position',[.5 .75 .45 .04],'backgroundcolor','white');
     
-    uicontrol('parent',agcdeadbandpanel,'style','text','units','normalized','position',[.05 .05 .60 .70],'string','Deadband [MW]:','fontunits','normalized','fontsize',0.5);
+    uicontrol('parent',agcdeadbandpanel,'style','text','units','normalized','position',[.05 .05 .60 .70],'TooltipString', ['If ACE within this +/- this value, no control occurs'],'string','Deadband [MW]:','fontunits','normalized','fontsize',0.5);
     agc_deadband_in_edit=uicontrol('parent',agcdeadbandpanel,'style','edit','units','normalized','position',[0.67 .25 .2 .6],'fontunits','normalized','fontsize',0.5,'string','5','backgroundcolor','white');
     
     % load last used values if possible
@@ -2486,7 +2475,7 @@ function rpu_callback(~,~)
     uicontrol('parent',allowrpubuttongroup,'style','radiobutton','units','normalized','position',[.85 .25 .15 .80],'string','No','fontunits','normalized','fontsize',0.55,'value',1);
 
     % create RPU timing parameters
-    uicontrol('parent',rputimingpanel,'style','text','string','HRPU:','TooltipString', ['(minutes) Scheduling Horizon'], 'units','normalized','position',[.03 .05 .12 .70],'fontunits','normalized','fontsize',0.4,'horizontalalignment','left');    
+    uicontrol('parent',rputimingpanel,'style','text','string','HRPU:','TooltipString', ['(count) Scheduling Horizon'], 'units','normalized','position',[.03 .05 .12 .70],'fontunits','normalized','fontsize',0.4,'horizontalalignment','left');    
     HRPU_in_edit=uicontrol('parent',rputimingpanel,'style','edit','string','6','units','normalized','position',[.17 .275 .1  .55],'fontunits','normalized','fontsize',0.6,'backgroundcolor','white');    
     uicontrol('parent',rputimingpanel,'style','text','string','IRPU:','TooltipString', ['(minutes) Interval length'],'units','normalized','position',[.40 .05 .12 .70],'fontunits','normalized','fontsize',0.4,'horizontalalignment','left');    
     IRPU_in_edit=uicontrol('parent',rputimingpanel,'style','edit','string','10','units','normalized','position',[.52 .275 .1  .55],'fontunits','normalized','fontsize',0.6,'backgroundcolor','white');    
@@ -2502,7 +2491,7 @@ function rpu_callback(~,~)
     restrict_multiple_rpu_time_in_edit=uicontrol('parent',rpuotherpanel,'style','edit','string','10','units','normalized','position',[.875 .58 .1 .35],'fontunits','normalized','fontsize',0.5,'backgroundcolor','white');    
 
     % create other buttons
-    uicontrol('parent',RPU_figure,'units','normalized','position',[.05 .025 .20 .1],'string','RPU Rules','style','pushbutton','fontunits','normalized','fontsize',0.45,'callback',{@rpu_model_rules}); 
+    uicontrol('parent',RPU_figure,'units','normalized','position',[.05 .025 .20 .1],'string','RPU Mods','style','pushbutton','fontunits','normalized','fontsize',0.45,'callback',{@rpu_model_rules}); 
     uicontrol('parent',RPU_figure,'units','normalized','position',[.57 .025 .175 .1],'string','Done','style','pushbutton','fontunits','normalized','fontsize',0.45,'callback',{@get_rpu_options}); 
     uicontrol('parent',RPU_figure,'units','normalized','position',[.77 .025 .175 .1],'string','Cancel','style','pushbutton','fontunits','normalized','fontsize',0.45,'callback',@(hObject,eventData) close(RPU_figure)); 
 
@@ -2899,14 +2888,14 @@ function build_gams_models_callback(~,~)
     uicontrol('parent',tab1,'units','normalized','position',[.59 .47 .05 .05],'string','<','style','pushbutton','fontunits','normalized','fontsize',0.35,'callback',{@remove_dac_gams_rule}); 
     dac_list_of_gams_rules=uicontrol('Parent',tab1,'Style','listbox','Max',10,'units','normalized','Position',[0.28 .13 .30 .71],'FontName','Courier','String','','Max',10,'value',[]);
     dac_list_of_selected_gams_rules=uicontrol('Parent',tab1,'Style','listbox','Max',10,'units','normalized','Position',[0.65 .13 .30 .71],'FontName','Courier','String','','Max',10,'value',[]);
-    uicontrol('parent',tab1,'units','normalized','position',[.58 .03 .175 .075],'string','Done','style','pushbutton','fontunits','normalized','fontsize',0.35,'callback',{@create_gams_rules}); 
-    uicontrol('parent',tab1,'units','normalized','position',[.78 .03 .175 .075],'string','Cancel','style','pushbutton','fontunits','normalized','fontsize',0.35,'callback',@(hObject,eventData) close(gams_model_figure)); 
-    uicontrol('parent',tab1,'units','normalized','position',[.10 .35 .15 .07],'string','Summary','style','pushbutton','fontunits','normalized','fontsize',0.25,'callback',{@display_summary}); 
+    uicontrol('parent',tab1,'units','normalized','position',[.60 .03 .15 .075],'string','Done','style','pushbutton','fontunits','normalized','fontsize',0.35,'callback',{@create_gams_rules}); 
+    uicontrol('parent',tab1,'units','normalized','position',[.80 .03 .15 .075],'string','Cancel','style','pushbutton','fontunits','normalized','fontsize',0.35,'callback',@(hObject,eventData) close(gams_model_figure)); 
+    uicontrol('parent',tab1,'units','normalized','position',[.41 .03 .15 .075],'string','Summary','style','pushbutton','fontunits','normalized','fontsize',0.25,'callback',{@display_summary}); 
     uicontrol('parent',tab1,'style','pushbutton','unit','normalized','position',[.10 .75 .15 .07],'string','<html><center>Default<br>DASCUC</center></html>','fontunits','normalized','fontsize',0.25,'callback',{@dac_default_checked});
-    uicontrol('parent',tab1,'units','normalized','position',[.10 .45 .15 .07],'string','Load','style','pushbutton','fontunits','normalized','fontsize',0.25,'callback',{@load_gams_setup}); 
-    uicontrol('parent',tab1,'units','normalized','position',[.10 .55 .15 .07],'string','Save','style','pushbutton','fontunits','normalized','fontsize',0.25,'callback',{@save_gams_setup}); 
+    uicontrol('parent',tab1,'units','normalized','position',[.05 .03 .15 .075],'string','Load All','style','pushbutton','fontunits','normalized','fontsize',0.25,'callback',{@load_gams_setup}); 
+    uicontrol('parent',tab1,'units','normalized','position',[.23 .03 .15 .075],'string','Save All','style','pushbutton','fontunits','normalized','fontsize',0.25,'callback',{@save_gams_setup}); 
     uicontrol('parent',tab1,'units','normalized','position',[.10 .65 .15 .07],'string','<html><center>Clear<br>DASCUC</center></html>','style','pushbutton','fontunits','normalized','fontsize',0.25,'callback',{@clear_dac_gams}); 
-    uicontrol('parent',tab1,'units','normalized','position',[.07 .025 .40 .08],'string','Warning: Changing the GAMS code may result in an infeasible model.','style','text','fontunits','normalized','fontsize',0.4);
+    uicontrol('parent',tab1,'units','normalized','position',[.10 .3 .15 .3],'string','Warning: Changing the GAMS code may result in an infeasible model.','style','text','fontunits','normalized','fontsize',0.1);
     dacSectionChange();
     
     % RTSCUC Tab
@@ -2919,14 +2908,14 @@ function build_gams_models_callback(~,~)
     uicontrol('parent',tab2,'units','normalized','position',[.59 .47 .05 .05],'string','<','style','pushbutton','fontunits','normalized','fontsize',0.35,'callback',{@remove_rtc_gams_rule}); 
     rtc_list_of_gams_rules=uicontrol('Parent',tab2,'Style','listbox','Max',10,'units','normalized','Position',[0.28 .13 .30 .71],'FontName','Courier','String','','Max',10,'value',[]);
     rtc_list_of_selected_gams_rules=uicontrol('Parent',tab2,'Style','listbox','Max',10,'units','normalized','Position',[0.65 .13 .30 .71],'FontName','Courier','String','','Max',10,'value',[]);
-    uicontrol('parent',tab2,'units','normalized','position',[.58 .03 .175 .075],'string','Done','style','pushbutton','fontunits','normalized','fontsize',0.35,'callback',{@create_gams_rules}); 
-    uicontrol('parent',tab2,'units','normalized','position',[.78 .03 .175 .075],'string','Cancel','style','pushbutton','fontunits','normalized','fontsize',0.35,'callback',@(hObject,eventData) close(gams_model_figure)); 
-    uicontrol('parent',tab2,'units','normalized','position',[.10 .35 .15 .07],'string','Summary','style','pushbutton','fontunits','normalized','fontsize',0.25,'callback',{@display_summary}); 
+    uicontrol('parent',tab2,'units','normalized','position',[.60 .03 .15 .075],'string','Done','style','pushbutton','fontunits','normalized','fontsize',0.35,'callback',{@create_gams_rules}); 
+    uicontrol('parent',tab2,'units','normalized','position',[.80 .03 .15 .075],'string','Cancel','style','pushbutton','fontunits','normalized','fontsize',0.35,'callback',@(hObject,eventData) close(gams_model_figure)); 
+    uicontrol('parent',tab2,'units','normalized','position',[.41 .03 .15 .075],'string','Summary','style','pushbutton','fontunits','normalized','fontsize',0.25,'callback',{@display_summary}); 
     uicontrol('parent',tab2,'style','pushbutton','unit','normalized','position',[.10 .75 .15 .07],'string','<html><center>Default<br>RTSCUC</center></html>','fontunits','normalized','fontsize',0.25,'callback',{@rtc_default_checked});
-    uicontrol('parent',tab2,'units','normalized','position',[.10 .45 .15 .07],'string','Load','style','pushbutton','fontunits','normalized','fontsize',0.25,'callback',{@load_gams_setup}); 
-    uicontrol('parent',tab2,'units','normalized','position',[.10 .55 .15 .07],'string','Save','style','pushbutton','fontunits','normalized','fontsize',0.25,'callback',{@save_gams_setup}); 
+    uicontrol('parent',tab2,'units','normalized','position',[.05 .03 .15 .075],'string','Load All','style','pushbutton','fontunits','normalized','fontsize',0.25,'callback',{@load_gams_setup}); 
+    uicontrol('parent',tab2,'units','normalized','position',[.23 .03 .15 .075],'string','Save All','style','pushbutton','fontunits','normalized','fontsize',0.25,'callback',{@save_gams_setup}); 
     uicontrol('parent',tab2,'units','normalized','position',[.10 .65 .15 .07],'string','<html><center>Clear<br>RTSCUC</center></html>','style','pushbutton','fontunits','normalized','fontsize',0.25,'callback',{@clear_rtc_gams}); 
-    uicontrol('parent',tab2,'units','normalized','position',[.07 .025 .40 .08],'string','Warning: Changing the GAMS code may result in an infeasible model.','style','text','fontunits','normalized','fontsize',0.4);
+    uicontrol('parent',tab2,'units','normalized','position',[.10 .3 .15 .3],'string','Warning: Changing the GAMS code may result in an infeasible model.','style','text','fontunits','normalized','fontsize',0.1);
     
     % RTSCED Tab
     uicontrol('parent',tab3,'style','text','string','Select Folder:','units','normalized','position',[.01 .93 .25 .05],'fontunits','normalized','fontsize',0.45);
@@ -2938,14 +2927,14 @@ function build_gams_models_callback(~,~)
     uicontrol('parent',tab3,'units','normalized','position',[.59 .47 .05 .05],'string','<','style','pushbutton','fontunits','normalized','fontsize',0.35,'callback',{@remove_rtd_gams_rule}); 
     rtd_list_of_gams_rules=uicontrol('Parent',tab3,'Style','listbox','Max',10,'units','normalized','Position',[0.28 .13 .30 .71],'FontName','Courier','String','','Max',10,'value',[]);
     rtd_list_of_selected_gams_rules=uicontrol('Parent',tab3,'Style','listbox','Max',10,'units','normalized','Position',[0.65 .13 .30 .71],'FontName','Courier','String','','Max',10,'value',[]);
-    uicontrol('parent',tab3,'units','normalized','position',[.58 .03 .175 .075],'string','Done','style','pushbutton','fontunits','normalized','fontsize',0.35,'callback',{@create_gams_rules}); 
-    uicontrol('parent',tab3,'units','normalized','position',[.78 .03 .175 .075],'string','Cancel','style','pushbutton','fontunits','normalized','fontsize',0.35,'callback',@(hObject,eventData) close(gams_model_figure)); 
-    uicontrol('parent',tab3,'units','normalized','position',[.10 .35 .15 .07],'string','Summary','style','pushbutton','fontunits','normalized','fontsize',0.25,'callback',{@display_summary}); 
+    uicontrol('parent',tab3,'units','normalized','position',[.60 .03 .15 .075],'string','Done','style','pushbutton','fontunits','normalized','fontsize',0.35,'callback',{@create_gams_rules}); 
+    uicontrol('parent',tab3,'units','normalized','position',[.80 .03 .15 .075],'string','Cancel','style','pushbutton','fontunits','normalized','fontsize',0.35,'callback',@(hObject,eventData) close(gams_model_figure)); 
+    uicontrol('parent',tab3,'units','normalized','position',[.41 .03 .15 .075],'string','Summary','style','pushbutton','fontunits','normalized','fontsize',0.25,'callback',{@display_summary}); 
     uicontrol('parent',tab3,'style','pushbutton','unit','normalized','position',[.10 .75 .15 .07],'string','<html><center>Default<br>RTSCED</center></html>','fontunits','normalized','fontsize',0.25,'callback',{@rtd_default_checked});
-    uicontrol('parent',tab3,'units','normalized','position',[.10 .45 .15 .07],'string','Load','style','pushbutton','fontunits','normalized','fontsize',0.25,'callback',{@load_gams_setup}); 
-    uicontrol('parent',tab3,'units','normalized','position',[.10 .55 .15 .07],'string','Save','style','pushbutton','fontunits','normalized','fontsize',0.25,'callback',{@save_gams_setup}); 
+    uicontrol('parent',tab3,'units','normalized','position',[.05 .03 .15 .075],'string','Load All','style','pushbutton','fontunits','normalized','fontsize',0.25,'callback',{@load_gams_setup}); 
+    uicontrol('parent',tab3,'units','normalized','position',[.23 .03 .15 .075],'string','Save All','style','pushbutton','fontunits','normalized','fontsize',0.25,'callback',{@save_gams_setup}); 
     uicontrol('parent',tab3,'units','normalized','position',[.10 .65 .15 .07],'string','<html><center>Clear<br>RTSCED</center></html>','style','pushbutton','fontunits','normalized','fontsize',0.25,'callback',{@clear_rtd_gams}); 
-    uicontrol('parent',tab3,'units','normalized','position',[.07 .025 .40 .08],'string','Warning: Changing the GAMS code may result in an infeasible model.','style','text','fontunits','normalized','fontsize',0.4);
+    uicontrol('parent',tab3,'units','normalized','position',[.10 .3 .15 .3],'string','Warning: Changing the GAMS code may result in an infeasible model.','style','text','fontunits','normalized','fontsize',0.1);
 end
 
 function tab_changed_fcn(~,eventdata)
@@ -3127,7 +3116,7 @@ function save_gams_setup(~,~)
     gamsFilesNames_RTC=evalin('base','gamsFilesNames_RTC');
     gamsFilesNames_RTD=evalin('base','gamsFilesNames_RTD');
     [saveName,saveDirectory]=uiputfile(['MODEL_RULES',filesep,'GAMS_Model_Files',filesep,'Saved_GAMS_Models',filesep,'*.mat',],'Save Formulation');
-    if ~isempty(saveName)
+    if ~isempty(saveName) && ischar(saveName) 
         save([saveDirectory saveName],'gamsFilesPaths_DAC','gamsFilesPaths_RTC','gamsFilesPaths_RTD','gamsFilesNames_DAC','gamsFilesNames_RTC','gamsFilesNames_RTD');
     end
 end
@@ -3654,7 +3643,6 @@ function save_rules_callback(~,~)
     tDAC_in=str2double(get(tDAC_in_edit,'string'));
     GDAC_in=str2double(get(GDAC_in_edit,'string'));
     PDAC_in=str2double(get(PDAC_in_edit,'string'));
-    DAHORIZONTYPE_in=get(DAHORIZONTYPE_in_edit,'value');
     HRTC_in=str2double(get(HRTC_in_edit,'string'));
     IRTC_in=str2double(get(IRTC_in_edit,'string'));
     tRTC_in=str2double(get(tRTC_in_edit,'string'));
@@ -3701,7 +3689,7 @@ function save_rules_callback(~,~)
     'POST_PROCESSING_POST_in','ACE_PRE_in','ACE_POST_in','FORCED_OUTAGE_PRE_in','FORCED_OUTAGE_POST_in',...
     'SHIFT_FACTOR_PRE_in','SHIFT_FACTOR_POST_in','ACTUAL_OUTPUT_PRE_in','ACTUAL_OUTPUT_POST_in',...
     'RELIABILITY_PRE_in','RELIABILITY_POST_in','COST_PRE_in','COST_POST_in','SAVING_PRE_in','SAVING_POST_in',...
-    'agcmode','agc_deadband_in','Type3_integral_in','K1_in','K2_in','CPS2_interval_in','L10_in','HRPU_in','IRPU_in','PRPU_in','HDAC_in','IDAC_in','tDAC_in','GDAC_in','PDAC_in','DAHORIZONTYPE_in',...
+    'agcmode','agc_deadband_in','Type3_integral_in','K1_in','K2_in','CPS2_interval_in','L10_in','HRPU_in','IRPU_in','PRPU_in','HDAC_in','IDAC_in','tDAC_in','GDAC_in','PDAC_in',...
     'HRTC_in','IRTC_in','tRTC_in','PRTC_in','tRTCSTART_in','HRTD_in','IRTD_in','tRTD_in','PRTD_in','IRTDADV_in','DAC_load_forecast_data_create_in','DAC_vg_forecast_data_create_in',...
     'RTC_load_forecast_data_create_in','RTC_vg_forecast_data_create_in','RTD_load_forecast_data_create_in','RTD_vg_forecast_data_create_in','DAC_RESERVE_FORECAST_MODE_in',...
     'RTC_RESERVE_FORECAST_MODE_in','RTD_RESERVE_FORECAST_MODE_in','radiobutton1_in','radiobutton2_in',...
@@ -3730,7 +3718,7 @@ function load_rules_callback(~,~)
     FORCED_OUTAGE_PRE_in=[];FORCED_OUTAGE_POST_in=[];SHIFT_FACTOR_PRE_in=[];SHIFT_FACTOR_POST_in=[];
     ACTUAL_OUTPUT_PRE_in=[];ACTUAL_OUTPUT_POST_in=[];RELIABILITY_PRE_in=[];RELIABILITY_POST_in=[];
     COST_PRE_in=[];COST_POST_in=[];SAVING_PRE_in=[];SAVING_POST_in=[];
-    agcmode=[];CPS2_interval_in=[];L10_in=[];HRPU_in=[];IRPU_in=[];PRPU_in=[];HDAC_in=[];IDAC_in=[];tDAC_in=[];GDAC_in=[];PDAC_in=[];DAHORIZONTYPE_in=[];
+    agcmode=[];CPS2_interval_in=[];L10_in=[];HRPU_in=[];IRPU_in=[];PRPU_in=[];HDAC_in=[];IDAC_in=[];tDAC_in=[];GDAC_in=[];PDAC_in=[];
     HRTC_in=[];IRTC_in=[];tRTC_in=[];PRTC_in=[];tRTCSTART_in=[];HRTD_in=[];IRTD_in=[];tRTD_in=[];PRTD_in=[];IRTDADV_in=[];DAC_load_forecast_data_create_in=[];DAC_vg_forecast_data_create_in=[];
     RTC_load_forecast_data_create_in=[];RTC_vg_forecast_data_create_in=[];RTD_load_forecast_data_create_in=[];RTD_vg_forecast_data_create_in=[];DAC_RESERVE_FORECAST_MODE_in=[];RTC_RESERVE_FORECAST_MODE_in=[];RTD_RESERVE_FORECAST_MODE_in=[];
     
@@ -3821,7 +3809,6 @@ function load_rules_callback(~,~)
     assignin('base','tDAC_in',tDAC_in);
     assignin('base','GDAC_in',GDAC_in);
     assignin('base','PDAC_in',PDAC_in);
-    assignin('base','DAHORIZONTYPE_in',DAHORIZONTYPE_in);
     assignin('base','HRTC_in',HRTC_in);
     assignin('base','IRTC_in',IRTC_in);
     assignin('base','tRTC_in',tRTC_in);
@@ -3885,7 +3872,6 @@ function load_rules_callback(~,~)
     set(IRTDADV_in_edit,'string',IRTDADV_in);
     
     % Update Dropdown menus on DASCUC, RTSCUC, and RTSCED panels
-    set(DAHORIZONTYPE_in_edit,'value',DAHORIZONTYPE_in);
     set(DASCUCLF,'value',DAC_load_forecast_data_create_in);
     set(DASCUCVGF,'value',DAC_vg_forecast_data_create_in);
     set(RTSCUCLF,'value',RTC_load_forecast_data_create_in);

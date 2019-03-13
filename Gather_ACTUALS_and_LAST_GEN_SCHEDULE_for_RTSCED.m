@@ -30,8 +30,8 @@ LAST_STATUS_ACTUAL_VAL(abs(ACTUAL_GEN_OUTPUT_VAL)>0)=1;
 
 if Solving_Initial_Models 
     for e=1:nESR
-        LAST_PUMP_SCHEDULE_VAL = STORAGEVALUE_VAL(e,initial_pump_mw);
-        ACTUAL_PUMP_OUTPUT_VAL = STORAGEVALUE_VAL(e,initial_pump_mw); %placeholder for initial RTC
+        LAST_PUMP_SCHEDULE_VAL(e,1) = STORAGEVALUE_VAL(e,initial_pump_mw);
+        ACTUAL_PUMP_OUTPUT_VAL(e,1) = STORAGEVALUE_VAL(e,initial_pump_mw); 
         if PUMPSTATUS(1,1+storage_to_gen_index(e,1))==1 && STORAGEVALUE_VAL(e,initial_pump_status)==0 
             LAST_PUMP_SCHEDULE_VAL(e,1)= min(STORAGEVALUE_VAL(e,min_pump),STORAGEVALUE_VAL(e,min_pump)*((IDAC*60/IRTD -1)*IRTD/(60*STORAGEVALUE_VAL(e,pump_su_time))));
         end;
@@ -41,6 +41,7 @@ if Solving_Initial_Models
     end;
 else
     LAST_PUMP_SCHEDULE_VAL = RTSCEDBINDINGPUMPSCHEDULE(RTSCED_binding_interval_index -1,2:1+nESR)';
+    STORAGEVALUE_VAL(:,initial_storage) = RTSCEDSTORAGELEVEL(RTSCED_binding_interval_index -1,2:1+nESR)';
     if time - PRTD/60 < ACTUAL_GENERATION(1,1)
         ACTUAL_PUMP_OUTPUT_VAL = ACTUAL_PUMP(1,2:nESR+1)'; 
     else

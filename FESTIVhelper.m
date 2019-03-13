@@ -56,6 +56,7 @@ assignin('base','row',row);
 listOfVars=[];
 listOfCaseNames=[];
 outputVariableName_edit=[];
+addpath(strcat(pwd,filesep, 'MODEL_RULES'));   
 
 
 % plot ACE
@@ -677,7 +678,7 @@ function plot_statuses(~,~)
         for i=1:size(y,1)
             sum2 = 0;
             for k=1:size(masterind.(sprintf('indicies%d',gt)),1)
-                sum2=sum2+y(i,masterind.(sprintf('indicies%d',gt))(k,1));
+                sum2=sum2+y(i,1+masterind.(sprintf('indicies%d',gt))(k,1));
             end
             eval(sprintf('Y%d(i)=sum2;',gt));
         end
@@ -1739,7 +1740,9 @@ function eval_custom(~,~)
     CASE1DATA = load(PathNames{caseValues(1,1),1});
     try CASE2DATA = load(PathNames{caseValues(1,2),1});catch;end;
     [custom_chart_script,~] = uigetfile(['MODEL_RULES',filesep,'*.m'],'Select Custom Chart Script');
-    run(custom_chart_script);
+    if ischar(custom_chart_script) 
+        run(custom_chart_script);
+    end
 end
 
 end

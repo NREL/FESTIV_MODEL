@@ -50,8 +50,8 @@ for i=e:nESR
     end;
 end;
 
-RTSCUCSTORAGELEVEL2(RTSCUC_binding_interval_index:HRTC+(RTSCUC_binding_interval_index-1),1)=RTC_LOOKAHEAD_INTERVAL_VAL;
-RTSCUCSTORAGELEVEL2(RTSCUC_binding_interval_index:HRTC+(RTSCUC_binding_interval_index-1),2:nESR+1)=RTCSTORAGELEVEL.val';
+RTSCUCSTORAGELEVEL(RTSCUC_binding_interval_index:HRTC+(RTSCUC_binding_interval_index-1),1)=RTC_LOOKAHEAD_INTERVAL_VAL;
+RTSCUCSTORAGELEVEL(RTSCUC_binding_interval_index:HRTC+(RTSCUC_binding_interval_index-1),2:nESR+1)=RTCSTORAGELEVEL.val';
 if lossesCheck > eps
     [RTC_BUS_DELIVERY_FACTORS_VAL,RTC_GEN_DELIVERY_FACTORS_VAL,RTC_LOAD_DELIVERY_FACTORS_VAL]=calculateDeliveryFactors(HRTC,nbus,ngen,GEN_VAL,BRANCHBUS_CALC_VAL,PTDF_VAL,repmat(initialLineFlows,1,HRTC),SYSTEMVALUE_VAL(mva_pu,1),BRANCHDATA_VAL(:,resistance),INJECTION_FACTOR.uels,GENBUS_VAL,BUS_VAL,INJECTION_FACTOR_VAL,LOAD_DIST_VAL,LOAD_DIST_STRING);    
 else

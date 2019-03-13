@@ -58,8 +58,7 @@ DASCUCRESERVE=zeros(1/IDAC*24*daystosimulate,ngen+1,nreserve);
 DASCUCRESERVEPRICE=zeros(1/IDAC*24*daystosimulate,nreserve+1);
 RESERVELEVELS=zeros(1/IDAC*24*daystosimulate,nreserve);
 DASCUCCURTAILMENT=zeros(1/IDAC*24*daystosimulate,ngen+1);
-PSHBIDCOST_VAL=zeros(1/IDAC*24*daystosimulate,ngen);
-DASCUCSTORAGELEVEL=zeros(1/IDAC*24*daystosimulate,ngen+1);
+DASCUCSTORAGELEVEL=zeros(1/IDAC*24*daystosimulate,nESR+1);
 
 % RTSCUC Variables
 RTSCUCBINDINGSTARTUP=zeros((60/IRTC*24*daystosimulate)+HRTC,ngen+1);
@@ -69,7 +68,7 @@ RTSCUCBINDINGPUMPING=zeros((60/IRTC*24*daystosimulate)+HRTC,ngen+1);
 RTSCUCBINDINGSHUTDOWN=zeros((60/IRTC*24*daystosimulate)+HRTC,ngen+1);
 RTSCUCBINDINGPUMPSCHEDULE=zeros((60/IRTC*24*daystosimulate)+HRTC,nESR+1);
 RTSCUCBINDINGLMP=zeros((60/IRTC*24*daystosimulate)+HRTC,nbus+1);
-RTSCUCSTORAGELEVEL2=zeros((60/IRTC*24*daystosimulate)+HRTC,ngen+1);
+RTSCUCSTORAGELEVEL=zeros((60/IRTC*24*daystosimulate)+HRTC,nESR+1);
 RTPSHBIDCOST_VAL=zeros((60/IRTC*24*daystosimulate)+HRTC,ngen+1);
 RTSCUCBINDINGRESERVESCHEDULE=zeros((60/IRTC*24*daystosimulate)+HRTC,ngen+1,nreserve);
 RTSCUCBINDINGRESERVEPRICE=zeros((60/IRTC*24*daystosimulate)+HRTC,nreserve+1);

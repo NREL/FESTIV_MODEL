@@ -8,7 +8,7 @@ if RTSCUCSTART_MODE == 1 %RTSCUC
     RTSCUCSHUT_YES = zeros(ngen,HRTC);
     RTSCUCPUMPSTART_YES = zeros(nESR,HRTC);
     RTSCUCPUMPSHUT_YES = zeros(nESR,HRTC);
-    if RTSCUC_binding_interval_index<=2
+    if RTSCUC_binding_interval_index<=1
     for i=1:ngen
         if GENVALUE_VAL(i,su_time) <= tRTCstart && (Fix_RT_Pump == 0 || (GENVALUE_VAL(i,gen_type) ~= pumped_storage_gen_type_index && GENVALUE_VAL(i,gen_type) ~= ESR_gen_type_index )) ...
             RTSCUCSTART_YES(i,1:HRTC) = 1;
@@ -20,12 +20,17 @@ if RTSCUCSTART_MODE == 1 %RTSCUC
     end
     else
     for i=1:ngen
+        if RTSCUC_binding_interval_index <=2
+            rtscucstart_2intervals_ago = GENVALUE_VAL(i,initial_MW);
+        else
+            rtscucstart_2intervals_ago = RTSCUCBINDINGSCHEDULE(RTSCUC_binding_interval_index-2,i+1) ;
+        end
         if GENVALUE_VAL(i,su_time) <= tRTCstart && (Fix_RT_Pump == 0 || (GENVALUE_VAL(i,gen_type) ~= pumped_storage_gen_type_index && GENVALUE_VAL(i,gen_type) ~= ESR_gen_type_index )) ...
                 && (RTSCUCBINDINGSCHEDULE(RTSCUC_binding_interval_index-1,i+1) < eps || RTSCUCBINDINGSCHEDULE(RTSCUC_binding_interval_index-1,i+1)+eps >=GENVALUE_VAL(i,min_gen))
             RTSCUCSTART_YES(i,1:HRTC) = 1;
             RTSCUCSHUT_YES(i,1:HRTC) = 1;
         elseif GENVALUE_VAL(i,su_time) <= tRTCstart && (Fix_RT_Pump == 0 || (GENVALUE_VAL(i,gen_type) ~= pumped_storage_gen_type_index && GENVALUE_VAL(i,gen_type) ~= ESR_gen_type_index ))
-            if RTSCUCBINDINGSCHEDULE(RTSCUC_binding_interval_index-1,i+1) - RTSCUCBINDINGSCHEDULE(RTSCUC_binding_interval_index-2,i+1) > 0
+            if RTSCUCBINDINGSCHEDULE(RTSCUC_binding_interval_index-1,i+1) - rtscucstart_2intervals_ago > 0
                 t=RTSCUC_binding_interval_index;
                 while t>=1
                     if STATUS(t,1+i)==0
@@ -34,12 +39,12 @@ if RTSCUCSTART_MODE == 1 %RTSCUC
                     end
                     t=t-1;
                 end
-                RTSCUC_allow = RTSCUC_binding_interval_index - RTSCUC_start_index + ceil(GENVALUE_VAL(i,su_time)*60/IRTC) + ceil(GENVALUE_VAL(i,mr_time));
+                RTSCUC_allow = RTSCUC_binding_interval_index - RTSCUC_start_index + rtscuc_I_perhour*ceil(GENVALUE_VAL(i,su_time)) + rtscuc_I_perhour*ceil(GENVALUE_VAL(i,mr_time));
                 RTSCUCSTART_YES(i,1:RTSCUC_allow-1) = 0;
                 RTSCUCSTART_YES(i,RTSCUC_allow:HRTC) = 1;
                 RTSCUCSHUT_YES(i,1:RTSCUC_allow-1) = 0;
                 RTSCUCSHUT_YES(i,RTSCUC_allow:HRTC) = 1;
-            elseif RTSCUCBINDINGSCHEDULE(RTSCUC_binding_interval_index-1,i+1) - RTSCUCBINDINGSCHEDULE(RTSCUC_binding_interval_index-2,i+1) < 0
+            elseif RTSCUCBINDINGSCHEDULE(RTSCUC_binding_interval_index-1,i+1) - rtscucstart_2intervals_ago < 0
                 RTSCUCSHUT_YES(i,1:HRTC) = 0;
                 t=RTSCUC_binding_interval_index;
                 RTSCUC_shut_index=RTSCUC_binding_interval_index+HRTC+1;
@@ -50,7 +55,7 @@ if RTSCUCSTART_MODE == 1 %RTSCUC
                     end
                     t=t+1;
                 end
-                RTSCUC_allow = RTSCUC_shut_index - RTSCUC_binding_interval_index + ceil(GENVALUE_VAL(i,md_time));
+                RTSCUC_allow = RTSCUC_shut_index - RTSCUC_binding_interval_index + rtscuc_I_perhour*ceil(GENVALUE_VAL(i,md_time));
                 RTSCUCSTART_YES(i,1:RTSCUC_allow-1) = 0;
                 RTSCUCSTART_YES(i,RTSCUC_allow:HRTC) = 1;
                 RTSCUCSHUT_YES(i,1:RTSCUC_allow-1) = 0;

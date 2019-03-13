@@ -306,7 +306,7 @@ lost_load_cost=sum(LOSSLOAD.val)*SYSTEMVALUE_VAL(voll);
 additional_load_cost=sum(overgeneration.val.*SYSTEMVALUE_VAL(mva_pu))*SYSTEMVALUE_VAL(voll);
 insuf_reserve_cost=sum((sum(INSUFFRESERVE.val))'.*RESERVEVALUE_VAL(:,res_voir));
 if nESR>0
-    reservoir_value_kept=sum(STORAGELEVEL.val(:,end).*SYSTEMVALUE_VAL(mva_pu).*STORAGEVALUE_VAL(:,reservoir_value));
+    reservoir_value_kept=sum(STORAGELEVEL.val(:,end).*STORAGEVALUE_VAL(:,reservoir_value));
 else
     reservoir_value_kept=0;
 end;
@@ -332,4 +332,5 @@ LOAD = rgdx(input1,load_rgdx);
 LOAD.val=LOAD.val.*SYSTEMVALUE_VAL(mva_pu);
 tetemp=(sum(GENSCHEDULE.val)'-sum(PUMPSCHEDULE.val)'-LOAD.val+LOSSLOAD.val-overgeneration.val.*SYSTEMVALUE_VAL(mva_pu)-LOSS_BIAS.val.*ones(HLMP,1).*SYSTEMVALUE_VAL(mva_pu));
 assignin('caller','marginalLoss',tetemp);
+
 end

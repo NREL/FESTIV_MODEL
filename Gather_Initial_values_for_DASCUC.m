@@ -52,7 +52,7 @@ for e=1:nESR
     STORAGEVALUE_VAL(e,initial_pump_hour) = ceil(hr_cnt/IDAC)*IDAC;
     STORAGEVALUE_VAL(e,reservoir_value) = STORAGEVALUE_VAL(e,reservoir_value);
     dascucstorage_now_index = floor(time/IDAC+eps)+1; %starting at 0
-    STORAGEVALUE_VAL(e,initial_storage) = max(0,DASCUCSTORAGELEVEL(dascuc_last_interval_index,1+e) + (ACTUAL_STORAGE_LEVEL(AGC_interval_index-1,1+e) - DASCUCSTORAGELEVEL(dascucstorage_now_index,1+e)));
+    STORAGEVALUE_VAL(e,initial_storage) = DASCUCSTORAGELEVEL(dascuc_last_interval_index,1+e);
     STORAGEVALUE_VAL(e,final_storage) = STORAGEVALUE_VAL(e,final_storage);
 end;
 

@@ -1,8 +1,5 @@
 %This script initializes variables coming from the GUI input.
 
-DIRECTORY = [pwd,filesep];
-%add path for unique model characteristics.
-addpath(strcat(DIRECTORY,filesep, 'MODEL_RULES'));   
 
 %1 - from data file, 2 create perfect forecast, 3 create persistence
 %forecast, 4 with predefined normally distributed error
@@ -10,6 +7,8 @@ dac_load_data_create = DAC_load_forecast_data_create_in;
 dac_vg_data_create = DAC_vg_forecast_data_create_in;
 
 %for using 4. Size must be = HDAC;
+%VALUES SHOULD BE ADDED In SEPARATE MOD BEFORE FORECAST CREATION AND NOT
+%HERE
 %Note that these are the standard deviation based on the energy level
 %for example if value is .1, then forecast is actual + randn()*.1*actual
 dac_vg_error = ones(24,1).*0;
@@ -20,22 +19,24 @@ dac_load_error = [0 0 0 0 0 0 0 0 0 0]';
 rtc_load_data_create = RTC_load_forecast_data_create_in;
 rtc_vg_data_create = RTC_vg_forecast_data_create_in;
 
-%for using 4. Size must be = HRTC;
+%for using 4. Size must be = HRTC; 
+%VALUES SHOULD BE ADDED In SEPARATE MOD BEFORE FORECAST CREATION AND NOT
+%HERE
 %Note that these are the standard deviation based on the energy level
 %for example if value is .1, then forecast is actual + randn()*.1*actual
-rtc_vg_error = [0 0.05 0.05 0.06 0.07 0.08 0.08 0.08 0.1 0.1]';
+rtc_vg_error = [0 0 0 0 0 0 0 0 0 0]';
 rtc_load_error = [0 0 0 0 0 0 0 0 0 0]';
 
-%rtd_load_input_file = 'rtd_load_5bus_ERCOT_scaled_1_1_08.xlsx';
-%rtd_vg_input_file = 'rtd_wind_118bus_75.xlsx';
 %1 - from data file, 2 create perfect forecast, 3 create persistence
 %forecast, 4 with predefined normally distributed error
 rtd_load_data_create = RTD_load_forecast_data_create_in;
 rtd_vg_data_create = RTD_vg_forecast_data_create_in;
 
 %for using 4. Size must be = HRTD
+%VALUES SHOULD BE ADDED In SEPARATE MOD BEFORE FORECAST CREATION AND NOT
+%HERE
 %Note that these are the standard deviation based on the energy level
-%for example if value is .1, then forecast is actual + randn()*.1*actual
+%for example if value is .1, then forecast is actual + randn()*.1*actual.
 rtd_vg_error = [0 0 0 0 0]';
 rtd_load_error = [0 0 0 0 0]';
 
@@ -59,18 +60,12 @@ HDAC:amount of intervals in DASCUC optimization horizon
 PDAC: time it takes to solve DASCUC in hours
 GDAC: the first market gate (time of day in hour) of DASCUC. If tDAC is
 anything other than 24 this will only represent the first start time.
-DAHORIZON:
-(1) Fixed Horizon, variable endpoint, variable startpoint
-(2)Fixed Endpoint, fixed startpoint, this will always start at hour 0
-(3)Fixed endpoint, variable startpoint horizon greater than or equal,
-(4)Fixed endpoint, variable startpoint, horizon less than or equal.
 %}
 tDAC = tDAC_in;
 IDAC = IDAC_in;
 HDAC = HDAC_in;
 PDAC = PDAC_in;
 GDAC = GDAC_in;
-DAHORIZONTYPE = DAHORIZONTYPE_in;
 
 %{
 trtd: time between updates of RTSCED
@@ -87,6 +82,9 @@ IRTD = IRTD_in;
 tRTD = tRTD_in;
 IRTDADV = IRTDADV_in; %Note that advisory length must be greater than or equal to rtd interval length.
 PRTD = PRTD_in;
+if abs(tRTD-IRTD)>0.01
+    fprintf('Warning: FESTIV Not currently tested for case where IRTD does not equal tRTD!')
+end;
 
 %{
 trtc: time between updates of RTSCUC
@@ -99,6 +97,9 @@ HRTC = HRTC_in;
 IRTC = IRTC_in;
 tRTC = tRTC_in;
 PRTC = PRTC_in;
+if abs(tRTC-IRTC)>0.01
+    fprintf('Warning: FESTIV Not currently tested for case where IRTC does not equal tRTC!')
+end;
 
 %trtcstart: For what units are allowed to be started by RTC in hours.
 tRTCstart = tRTCSTART_in;
@@ -127,6 +128,7 @@ rpu_time = -100;
     3: Smooth AGC, AGC with filter and integrator. Follow ACE but filter to ignore noise, and integrate to follow if persistent deviation. (still needs work)
     4: Lazy AGC, AGC optimal CPS2 compliance, only follow if CPS2 will be violated. combination of 1 and 3.
     5: Use gen specific modes
+    6: Other; requires AGC Mod
 %}
 AGC_MODE = agcmode;
 

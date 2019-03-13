@@ -5,21 +5,31 @@ fullinputfilepath=evalin('caller','inputPath');
 fileName = [inputfilepath,filesep,inputfilename,'.h5'];
 
 %global data for easy use within functions
-global ngen nbus nvg nvcr nESR nbranch npar nhvdc nctgc nblock nreserve storage_to_gen_index 
+global ngen nbus nvg nvcr nESR nbranch npar nhvdc nctgc nblock nreserve storage_to_gen_index gen_to_storage_index
 
 %VG AND LOAD DATA
 fprintf('Input File: %s\n',inputfilename);
 fprintf('Reading Input Files...')
 %actuals
 if useHDF5==0
-    [~, actual_load_input_file] = xlsread(inputPath,'ACTUAL_LOAD_REF','A2:A400');
-    for d=1:size(actual_load_input_file,1)
-        actual_load_input_file(d,1)=strcat(pathstr, filesep, 'TIMESERIES', filesep,actual_load_input_file(d,1));
-    end;
-    [~, actual_vg_input_file] = xlsread(inputPath,'ACTUAL_VG_REF','A2:A400');
-    for d=1:size(actual_vg_input_file,1)
-        actual_vg_input_file(d,1)=strcat(pathstr,filesep, 'TIMESERIES', filesep,actual_vg_input_file(d,1));
-    end;
+    try
+        [~, actual_load_input_file] = xlsread(inputPath,'ACTUAL_LOAD_REF','A2:A400');
+        for d=1:size(actual_load_input_file,1)
+            actual_load_input_file(d,1)=strcat(pathstr, filesep, 'TIMESERIES', filesep,actual_load_input_file(d,1));
+        end;
+    catch
+        actual_load_input_file=0;
+        helpdlg('Data not assigned to Actual Load');
+    end
+    try
+        [~, actual_vg_input_file] = xlsread(inputPath,'ACTUAL_VG_REF','A2:A400');
+        for d=1:size(actual_vg_input_file,1)
+            actual_vg_input_file(d,1)=strcat(pathstr,filesep, 'TIMESERIES', filesep,actual_vg_input_file(d,1));
+        end;
+    catch
+        actual_vg_input_file=0;
+        helpdlg('Data not assigned to Actual VG');
+    end
 end
 
 %DASCUC inputs
@@ -182,15 +192,10 @@ for a =1:size(GENVALUE_VAL,1)
         end;
     end;
 end;
-for i=1:size(GENVALUE_VAL,1) % make sure min run times make sense
-    if GENVALUE_VAL(i,mr_time) < GENVALUE_VAL(i,su_time) + GENVALUE_VAL(i,sd_time) && GENVALUE_VAL(i,gen_type) ~= wind_gen_type_index && GENVALUE_VAL(i,gen_type) ~= PV_gen_type_index && GENVALUE_VAL(i,gen_type) ~= outage_gen_type_index && GENVALUE_VAL(i,gen_type) ~= variable_dispatch_gen_type_index
-        GENVALUE_VAL(i,mr_time) = GENVALUE_VAL(i,su_time) + GENVALUE_VAL(i,sd_time);
-        GENVALUE_VAL(i,mr_time) = ceil(GENVALUE_VAL(i,mr_time)/(IRTC/60))*(IRTC/60);
-    end
-end
 GENVALUE.val = GENVALUE_VAL;
 DEFAULT_DATA.GENVALUE=GENVALUE;
 
+try
 if useHDF5==0
     [~, STORAGEPARAM_VAL] = xlsread(inputPath,'STORAGE','B1:AH1');
 else
@@ -202,6 +207,9 @@ else
         STORAGEPARAM_VAL={'MAX_PUMP','MIN_PUMP','MIN_PUMP_TIME','PUMP_STARTUP_TIME','PUMP_SHUTDOWN_TIME','PUMP_RAMP_RATE','INITIAL_STORAGE','FINAL_STORAGE','STORAGE_MAX','EFFICIENCY','RESERVOIR_VALUE','INITIAL_PUMP_STATUS','INITIAL_PUMP_MW','INITIAL_PUMP_HOUR','VARIABLE_EFFICIENCY','ENFORCE_FINAL_STORAGE'};
     end
 end
+catch
+STORAGEPARAM_VAL={'MAX_PUMP','MIN_PUMP','MIN_PUMP_TIME','PUMP_STARTUP_TIME','PUMP_SHUTDOWN_TIME','PUMP_RAMP_RATE','INITIAL_STORAGE','FINAL_STORAGE','STORAGE_MAX','EFFICIENCY','RESERVOIR_VALUE','INITIAL_PUMP_STATUS','INITIAL_PUMP_MW','INITIAL_PUMP_HOUR','VARIABLE_EFFICIENCY','ENFORCE_FINAL_STORAGE'};
+end
 STORAGEPARAM.uels = STORAGEPARAM_VAL;
 STORAGEPARAM.val = ones(size(STORAGEPARAM_VAL,2),1);
 STORAGEPARAM.name = 'STORAGEPARAM';
@@ -209,6 +217,7 @@ STORAGEPARAM.form = 'full';
 STORAGEPARAM.type = 'set';
 DEFAULT_DATA.STORAGEPARAM=STORAGEPARAM;
 
+try
 if useHDF5==0
     [~,STORAGE_UNITS] = xlsread(inputPath,'STORAGE','A2:A100');
 else
@@ -218,15 +227,18 @@ else
         STORAGE_UNITS={};
     end
 end
+catch
+STORAGE_UNITS={};
+end
 
-
-
+try
 if useHDF5==0
     STORAGEVALUE_VAL = xlsread(inputPath,'STORAGE','B2:AH100');
 else
     temp=zeros(size(STORAGE_UNITS,1),size(STORAGEPARAM_VAL,2));
     if ~strcmp(fieldnames(x),'None')
         for i=1:size(STORAGEPARAM_VAL,2)
+     
             temp(:,i)=x.(sprintf('%s',STORAGEPARAM_VAL{i}));
         end
         STORAGEVALUE_VAL = temp;
@@ -234,10 +246,9 @@ else
         STORAGEVALUE_VAL = [];
     end
 end
-STORAGEVALUE.uels = {STORAGE_UNITS' STORAGEPARAM.uels};
-STORAGEVALUE.name = 'STORAGEVALUE';
-STORAGEVALUE.form = 'full';
-STORAGEVALUE.type = 'parameter';
+catch
+STORAGEVALUE_VAL = [];
+end
 for a =1:size(STORAGEVALUE_VAL,1)
     for b=1:size(STORAGEVALUE_VAL,2)
         if isfinite(STORAGEVALUE_VAL(a,b)) == 0
@@ -245,6 +256,10 @@ for a =1:size(STORAGEVALUE_VAL,1)
         end;
     end;
 end;
+STORAGEVALUE.uels = {STORAGE_UNITS' STORAGEPARAM.uels};
+STORAGEVALUE.name = 'STORAGEVALUE';
+STORAGEVALUE.form = 'full';
+STORAGEVALUE.type = 'parameter';
 STORAGEVALUE.val=STORAGEVALUE_VAL;
 
 storage_yes=zeros(size(STORAGE_UNITS));
@@ -264,8 +279,8 @@ for e=1:size(STORAGE_UNITS,1)
         i=i+1;
     end
 end
-STORAGE_UNITS=STORAGE_UNITS(find(storage_yes));
-STORAGEVALUE_VAL=STORAGEVALUE_VAL(find(storage_yes));
+STORAGE_UNITS=STORAGE_UNITS(find(storage_yes==1),:);
+STORAGEVALUE_VAL=STORAGEVALUE_VAL(find(storage_yes==1),:);
 STORAGEVALUE.val=STORAGEVALUE_VAL;
 STORAGEVALUE.uels = {STORAGE_UNITS' STORAGEPARAM.uels};
 DEFAULT_DATA.STORAGE_UNITS=STORAGE_UNITS;
@@ -289,11 +304,15 @@ DEFAULT_DATA.BUS=BUS;
 nbus = size(BUS_VAL,1);
 BUS.val = ones(nbus,1);
 
+try
 if useHDF5==0
     [~, BRANCH_VAL] = xlsread(inputPath,'BRANCHDATA','A2:A10000');
 else
     x=h5read(fileName,'/Main Input File/BRANCHDATA');
     BRANCH_VAL=x.NAME1;
+end
+catch
+BRANCH_VAL = [];
 end
 BRANCH.uels = BRANCH_VAL';
 BRANCH.name = 'BRANCH';
@@ -576,7 +595,7 @@ BLOCK.uels = BLOCK_STRING;
 BLOCK.name='BLOCK';
 BLOCK.type='SET';
 BLOCK.form='FULL';
-BLOCK.val=ones(1,4);
+BLOCK.val=ones(nblock,1);
 
 GENBLOCK.uels = {COST_CURVE_STRING' BLOCK.uels};
 BLOCK_CAP_VAL=COST_CURVE_VAL(:,[2:2:nblock*2]);
@@ -726,10 +745,12 @@ end;
 
 %match indices of storage to generator
 storage_to_gen_index=zeros(nESR,1);
+gen_to_storage_index = zeros(ngen,1);
 for e=1:nESR
     for i=1:ngen
         if strcmp(GEN_VAL{i,1},STORAGE_UNITS{e,1})
             storage_to_gen_index(e,1) = i;
+            gen_to_storage_index(i,1) = e;
         end;
     end;
 end;
