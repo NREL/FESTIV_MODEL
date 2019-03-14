@@ -1,4 +1,0 @@
-temp_idx=STORAGEVALUE_VAL(:,enforce_final_storage) > 1-eps;
-END_STORAGE_PENALTY_PLUS_PRICE.val(temp_idx,1)=SYSTEMVALUE_VAL(voll,1);
-END_STORAGE_PENALTY_MINUS_PRICE.val=zeros(ngen,1);
-END_STORAGE_PENALTY_MINUS_PRICE.val(temp_idx,1)=SYSTEMVALUE_VAL(voll,1);
