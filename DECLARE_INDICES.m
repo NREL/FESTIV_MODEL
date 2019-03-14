@@ -62,6 +62,7 @@ pucost                  = find(strcmp(headers,'PERUNIT_COST'));
 % STORAGE TAB INDICES
 global max_pump min_pump min_pump_time pump_su_time pump_sd_time pump_ramp_rate initial_storage final_storage storage_max ...
     efficiency reservoir_value initial_pump_status initial_pump_mw initial_pump_hour variable_efficiency enforce_final_storage;
+try
 if useHDF5 == 0
     [~,headers]=xlsread(inputPath,'STORAGE','B1:AZ1');
 else
@@ -85,9 +86,12 @@ initial_pump_mw         = find(strcmp(headers,'INITIAL_PUMP_MW'));
 initial_pump_hour       = find(strcmp(headers,'INITIAL_PUMP_HOUR'));
 variable_efficiency     = find(strcmp(headers,'VARIABLE_EFFICIENCY'));
 enforce_final_storage   = find(strcmp(headers,'ENFORCE_FINAL_STORAGE'));
+catch
+end
 
 % RESERVE TAB INDICES
 global res_on res_time res_dir res_agc res_gov res_vg res_voir res_inertia res_inclusive;
+try
 if useHDF5 == 0
     [~,headers]=xlsread(inputPath,'RESERVEPARAM','B1:AZ1');
 else
@@ -104,9 +108,12 @@ res_inertia             = find(strcmp(headers,'RESERVE_INERTIA'));
 res_inclusive           = find(strcmp(headers,'RESERVE_INCLUSIVE'));
 res_vg                  = find(strcmp(headers,'RESERVE_VG'));
 res_voir                = find(strcmp(headers,'VOIR'));
+catch
+end
 
 % BRANCH TAB INDICES
 global reactance line_rating ste_rating par_low par_hi ctgc_monitor branch_type resistance susceptance;
+try
 if useHDF5 == 0
     [~,headers]=xlsread(inputPath,'BRANCHDATA','B1:AZ1');
 else
@@ -134,6 +141,8 @@ par_hi = par_hi + offset;
 ctgc_monitor = ctgc_monitor + offset;
 branch_type = branch_type + offset;
 susceptance = susceptance + offset;
+catch
+end
 
 % ACE INDICES
 global ACE_time_index raw_ACE_index integrated_ACE_index CPS2_ACE_index SACE_index AACEE_index;

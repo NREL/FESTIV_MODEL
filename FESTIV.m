@@ -25,14 +25,14 @@
 %
 % To get started, just type 'FESTIV' in command window.
 % To start from the middle of a previous execution that did not finish,
-% type 'Start_FESTIV_From_Previous_Execution'.
+% type 'START_FESTIV_FROM_PREVIOUS_EXECUTION'.
 
 
 
 %% midexecution
 %start_execution is a rarely used feature to continue a FESTIV run from
 %where it has just previously stopped. Users would run
-%'Start_FESTIV_From_Previous_Execution.m' rather than 'FESTIV.m'
+%'START_FESTIV_FROM_PREVIOUS_EXECUTION.m' rather than 'FESTIV.m'
 
 tmp_string = dbstack;
 starting_execution_script = tmp_string(end).name;
@@ -95,7 +95,11 @@ if execution_from_previous==0 || time==start_time
     if not(isempty(gamspath))
         addpath(gamspath); 
     end
-
+    
+    DIRECTORY = [pwd,filesep];
+    %add path for unique model characteristics.
+    addpath(strcat(DIRECTORY,filesep, 'MODEL_RULES'));   
+    
     for x=1:size(DATA_INITIALIZE_PRE_in,1)
         try run(DATA_INITIALIZE_PRE_in{x,1});catch;end; 
     end;
@@ -120,31 +124,35 @@ if execution_from_previous==0 || time==start_time
         try run(FORECASTING_PRE_in{x,1});catch;end; 
     end;
 
+    %Read in all the timeseries data, including actuals and forecasts for use within FESTIV.
     READ_IN_TIMESERIES_DATA;
     
     for x=1:size(FORECASTING_POST_in,1)
         try run(FORECASTING_POST_in{x,1});catch;end; 
     end;
     
+    %Verify size of timeseries data.
     FORECAST_DATA_SIZE;
     
     for x=1:size(SHIFT_FACTOR_PRE_in,1)
         try run(SHIFT_FACTOR_PRE_in{x,1});catch;end;
     end;
 
+    %Develop all network related parameters including shift factors.
     CREATE_SHIFT_FACTORS
 
     for x=1:size(SHIFT_FACTOR_POST_in,1)
         try run(SHIFT_FACTOR_POST_in{x,1});catch;end;
     end;
     
-    %Whether to use the default GAMS models or something else. Users can modify this file.
-    FESTIV_Addl_Scheduling_Options
+    %A number of different options to change from default values if the user wishes. Users can modify this file.
+    FESTIV_ADDL_OPTIONS
     
     %Initialize variables with zeros and others that need initialization before simulations start
     INITIALIZE_VARIABLES_FOR_RT
 
-    Solving_Initial_Models = 1;
+    %Allow FESTIV to know that initial models are being solved prior to the FESTIV Time Loop.
+    Solving_Initial_Models = 1; 
 
 
     %% Initial Day-Ahead SCUC
@@ -153,42 +161,44 @@ if execution_from_previous==0 || time==start_time
     fprintf('Complete! (%02.0f min, %05.2f s)\n',floor(tNow/60),rem(tNow,60));
     fprintf('Modeling Initial Day-Ahead Unit Commitment...')
 
+    %Let FESTIV and all Functional Mods know that DASCUC is currently running.
     dascuc_running = 1;
     
-    %Gather in Default data before starting
-    Gather_DEFAULT_DATA
+    %Gather in Default data before starting.
+    GATHER_DEFAULT_DATA
     
-    %TIMESTAMP
+    %TIMESTAMP for intervals being used.
     DAC_LOOKAHEAD_INTERVAL_VAL = DAC_LOAD_FULL(1:HDAC,2)*24; %time must be converted to hours instead of days
+    INTERVAL_MINUTES_VAL = round([60*IDAC;60.*diff(DAC_LOOKAHEAD_INTERVAL_VAL)],3);
 
     %Gather LOAD Forecasts
-    LOAD_VAL=Gather_LOAD_Input_for_Scheduling_Process(DAC_LOAD_FULL,DASCUC_binding_interval_index,HDAC);
+    LOAD_VAL=GATHER_LOAD_INPUT_FOR_SCHEDULING_PROCESS(DAC_LOAD_FULL,DASCUC_binding_interval_index,HDAC);
     
     %Gather VG Forecasts
-    VG_FORECAST_VAL=Gather_VG_FORECAST_Input_for_Scheduling_Process(DAC_VG_FULL,DAC_VG_FIELD,DASCUC_binding_interval_index,HDAC,GEN_VAL,GENVALUE_VAL,ngen,nvcr);
+    VG_FORECAST_VAL=GATHER_VG_FORECAST_INPUT_FOR_SCHEDULING_PROCESS(DAC_VG_FULL,DAC_VG_FIELD,DASCUC_binding_interval_index,HDAC,GEN_VAL,GENVALUE_VAL,ngen,nvcr);
 
     %Gather RESERVE levels
-    RESERVELEVEL_VAL=Gather_RESERVE_Input_for_Scheduling_Process(DAC_RESERVE_FULL,DASCUC_binding_interval_index,HDAC);
+    RESERVELEVEL_VAL=GATHER_RESERVE_INPUT_FOR_SCHEDULING_PROCESS(DAC_RESERVE_FULL,DASCUC_binding_interval_index,HDAC);
 
     %Gather INTERCHANGE schedules
-    INTERCHANGE_VAL=Gather_INTERCHANGE_Input_for_Scheduling_Process(DAC_INTERCHANGE_FULL,DASCUC_binding_interval_index,HDAC);
+    INTERCHANGE_VAL=GATHER_INTERCHANGE_INPUT_FOR_SCHEDULING_PROCESS(DAC_INTERCHANGE_FULL,DASCUC_binding_interval_index,HDAC);
     
     %Enforce commitments on or off in still in min run time or min down
     %time at start of horizon
-    Gather_UC_Enforcement_Input_for_DASCUC;
+    GATHER_UC_ENFORCEMENT_INPUT_FOR_DASCUC;
     
     %Gather startup and shutdown period parameters
-    Gather_SU_Parameters_Input_for_DASCUC;
+    GATHER_SU_PARAMETERS_INPUT_FOR_DASCUC;
     
     %initialize delivery factors from initial schedules and loss bias
-    Gather_Initial_DELIVERY_FACTORS_Input_for_DASCUC;
-    Gather_LOSS_BIAS_Input_for_DASCUC;
+    GATHER_INITIAL_DELIVERY_FACTORS_INPUT_FOR_DASCUC;
+    GATHER_LOSS_BIAS_INPUT_FOR_DASCUC;
     
     %QSC for offline reserve
-    Gather_QSC_Input_for_DASCUC;
+    GATHER_QSC_INPUT_FOR_DASCUC;
     
-    %whether unit forced off
-    Gather_GEN_FORCED_OUT_Input_for_DASCUC;
+    %Gather input for whether units forced off prior to gate closure.
+    GATHER_GEN_FORCED_OUT_INPUT_FOR_DASCUC;
 
     for x=1:size(DASCUC_RULES_PRE_in,1)
         try run(DASCUC_RULES_PRE_in{x,1});catch;end;
@@ -196,6 +206,9 @@ if execution_from_previous==0 || time==start_time
 
     if strcmp(use_Default_DASCUC,'YES')
 
+        %The following script converts all inputs to GAMS format, per
+        %unitizes variables if applicable, writes input data to GDX, runs
+        %GAMS, and reads output data from GDX.
         RUN_DASCUC;
         
     end
@@ -209,68 +222,67 @@ if execution_from_previous==0 || time==start_time
         try run(DASCUC_RULES_POST_in{x,1});catch;end;
     end;
 
-    marginalLoss=(sum(SCUCGENSCHEDULE.val)'-sum(SCUCPUMPSCHEDULE.val)'-LOAD_VAL+SCUCLOSSLOAD.val-LOSS_BIAS.val.*ones(HDAC,1))./SYSTEMVALUE_VAL(mva_pu);
+    %Save all the default results that are needed for reporting and simulation.
+    SAVE_NEEDED_DASCUC_RESULTS
     
-    Save_Needed_DASCUC_Results
-    
-    Assign_DASCUC_Commitment_to_STATUS
-
     dascuc_running = 0;
     DASCUC_binding_interval_index = DASCUC_binding_interval_index + 1;
 
 
     %% Initial Real-Time SCUC
-    %{
-    RTC for the very first interval
-    This interval is used just to set up the intiial conditions.
-    %}
 
     tNow = toc(tStart);
     fprintf('Complete!\n');
     fprintf('Modeling Initial Real-Time Unit Commitment...')
 
+    %Let FESTIV and all Functional Mods know that RTSCUC is currently running.
     rtscuc_running = 1;
     
     %Gather in Default data before starting
-    Gather_DEFAULT_DATA
+    GATHER_DEFAULT_DATA
 
-    %TIMESTAMP
+    %TIMESTAMP for intervals being used.
     RTC_LOOKAHEAD_INTERVAL_VAL = RTC_LOAD_FULL(1:HRTC,2)*24; %time must be converted to hours instead of days
-
+    INTERVAL_MINUTES_VAL = round([IRTC;60.*diff(RTC_LOOKAHEAD_INTERVAL_VAL)],3);
+    rtscucinterval_index = round(time*rtscuc_I_perhour) + 1; %of the binding rtc interval. This is based on SCUC starting at hour 0!!!
+        
     %Gather LOAD Forecasts
-    LOAD_VAL=Gather_LOAD_Input_for_Scheduling_Process(RTC_LOAD_FULL,RTSCUC_binding_interval_index,HRTC);
+    LOAD_VAL=GATHER_LOAD_INPUT_FOR_SCHEDULING_PROCESS(RTC_LOAD_FULL,RTSCUC_binding_interval_index,HRTC);
 
     %Gather VG Forecasts
-    VG_FORECAST_VAL=Gather_VG_FORECAST_Input_for_Scheduling_Process(RTC_VG_FULL,RTC_VG_FIELD,RTSCUC_binding_interval_index,HRTC,GEN_VAL,GENVALUE_VAL,ngen,nvcr);
+    VG_FORECAST_VAL=GATHER_VG_FORECAST_INPUT_FOR_SCHEDULING_PROCESS(RTC_VG_FULL,RTC_VG_FIELD,RTSCUC_binding_interval_index,HRTC,GEN_VAL,GENVALUE_VAL,ngen,nvcr);
 
     %Gather RESERVE levels
-    RESERVELEVEL_VAL=Gather_RESERVE_Input_for_Scheduling_Process(RTC_RESERVE_FULL,RTSCUC_binding_interval_index,HRTC);
+    RESERVELEVEL_VAL=GATHER_RESERVE_INPUT_FOR_SCHEDULING_PROCESS(RTC_RESERVE_FULL,RTSCUC_binding_interval_index,HRTC);
 
     %Gather INTERCHANGE schedules
-    INTERCHANGE_VAL=Gather_INTERCHANGE_Input_for_Scheduling_Process(RTC_INTERCHANGE_FULL,RTSCUC_binding_interval_index,HRTC);
+    INTERCHANGE_VAL=GATHER_INTERCHANGE_INPUT_FOR_SCHEDULING_PROCESS(RTC_INTERCHANGE_FULL,RTSCUC_binding_interval_index,HRTC);
 
-    rtscucinterval_index = round(time*rtscuc_I_perhour) + 1; %of the binding rtc interval. This is based on SCUC starting at hour 0!!!
-
-    %Setting up the hard commitment constraints for nonquickstarts and other units.
+    %Distinguish between units that can have commitment decisions modified in RTSCUC and those that cannot.
     RTSCUCSTART_MODE = RTSCUCSTART_MODE_RTC;
     RTSCUCSTART;
-    Gather_STATUS_ENFORCED_for_RTSCUCSTART_units;
+    GATHER_STATUS_ENFORCED_FOR_RTSCUCSTART_UNITS;
 
     %Get ACTUAL_GEN_OUTPUT and LAST_GEN_SCHEDULE
-    Gather_ACTUALS_and_LAST_GEN_SCHEDULE_for_RTSCUC;
+    GATHER_ACTUALS_AND_LAST_GEN_SCHEDULE_FOR_RTSCUC;
+    
+    %Force commitment status for min run and min down time constraints not yet fulfilled.
+    GATHER_STATUS_ENFORCED_FOR_MINRUN_DOWN_TIME_FOR_RTSCUC
     
     %For su and sd trajectories
-    Gather_SU_Parameters_Input_for_RTSCUC;
+    GATHER_SU_PARAMETERS_INPUT_FOR_RTSCUC;
     
     % Initialize delivery factors based on initial conditions
-    Gather_Initial_DELIVERY_FACTORS_Input_for_RTSCUC;
+    GATHER_INITIAL_DELIVERY_FACTORS_INPUT_FOR_RTSCUC;
     
     for x=1:size(RTSCUC_RULES_PRE_in,1)
         try run(RTSCUC_RULES_PRE_in{x,1});catch;end;
     end
     
     if strcmp(use_Default_RTSCUC,'YES')
-        
+        %The following script converts all inputs to GAMS format, per
+        %unitizes variables if applicable, writes input data to GDX, runs
+        %GAMS, and reads output data from GDX.
         RUN_RTSCUC;
         
     end
@@ -278,74 +290,68 @@ if execution_from_previous==0 || time==start_time
         try run(RTSCUC_RULES_POST_in{x,1});catch;end;
     end;
 
-    Save_Needed_RTSCUC_Results
+    %Save all the default results that are needed for reporting and simulation.
+    SAVE_NEEDED_RTSCUC_RESULTS
     
     rtscuc_running = 0;
     RTSCUC_binding_interval_index = RTSCUC_binding_interval_index + 1;
 
 
     %% Initial Real-Time SCED
-    %{
-    RTSCED for the very first interval
-    This interval is used just to set up initial conditions.
-    %}
 
     tNow = toc(tStart);
     fprintf('Complete! \n');
     fprintf('Modeling Initial Real-Time Economic Dispatch...')
 
+    %Let FESTIV and all Functional Mods know that RTSCED is currently running.
     rtsced_running = 1;
     
     %Gather in Default data before starting
-    Gather_DEFAULT_DATA
+    GATHER_DEFAULT_DATA
 
-    %TIMESTAMP
+    %TIMESTAMP for intervals being used.
     RTD_LOOKAHEAD_INTERVAL_VAL = RTD_LOAD_FULL(1:HRTD,2)*24;%time must be converted to hours instead of days
-
-    %Gather LOAD Forecasts
-    LOAD_VAL=Gather_LOAD_Input_for_Scheduling_Process(RTD_LOAD_FULL,RTSCED_binding_interval_index,HRTD);
-
-    %Gather VG Forecasts
-    VG_FORECAST_VAL=Gather_VG_FORECAST_Input_for_Scheduling_Process(RTD_VG_FULL,RTD_VG_FIELD,RTSCED_binding_interval_index,HRTD,GEN_VAL,GENVALUE_VAL,ngen,nvcr);
-
-    %Gather RESERVE levels
-    RESERVELEVEL_VAL=Gather_RESERVE_Input_for_Scheduling_Process(RTD_RESERVE_FULL,RTSCED_binding_interval_index,HRTD);
-
-    %Gather INTERCHANGE schedules
-    INTERCHANGE_VAL=Gather_INTERCHANGE_Input_for_Scheduling_Process(RTD_INTERCHANGE_FULL,RTSCED_binding_interval_index,HRTD);
-
     INTERVAL_MINUTES_VAL = round([IRTD;60.*diff(RTD_LOOKAHEAD_INTERVAL_VAL)],3);
 
+    %Gather LOAD Forecasts
+    LOAD_VAL=GATHER_LOAD_INPUT_FOR_SCHEDULING_PROCESS(RTD_LOAD_FULL,RTSCED_binding_interval_index,HRTD);
+
+    %Gather VG Forecasts
+    VG_FORECAST_VAL=GATHER_VG_FORECAST_INPUT_FOR_SCHEDULING_PROCESS(RTD_VG_FULL,RTD_VG_FIELD,RTSCED_binding_interval_index,HRTD,GEN_VAL,GENVALUE_VAL,ngen,nvcr);
+
+    %Gather RESERVE levels
+    RESERVELEVEL_VAL=GATHER_RESERVE_INPUT_FOR_SCHEDULING_PROCESS(RTD_RESERVE_FULL,RTSCED_binding_interval_index,HRTD);
+
+    %Gather INTERCHANGE schedules
+    INTERCHANGE_VAL=GATHER_INTERCHANGE_INPUT_FOR_SCHEDULING_PROCESS(RTD_INTERCHANGE_FULL,RTSCED_binding_interval_index,HRTD);
+
+
     %ACTUAL_GEN_OUTPUT and LAST_GEN_SCHEDULE and ACTUAL/LAST STATUS for gen and storage
-    Gather_ACTUALS_and_LAST_GEN_SCHEDULE_for_RTSCED;
+    GATHER_ACTUALS_AND_LAST_GEN_SCHEDULE_FOR_RTSCED;
     
-    %UNIT_STATUS, STARTINGUP, SHUTTINGDOWN, MINGENHELP
-    Gather_UC_Parameters_for_RTSCED;
+    %Data inputs for UNIT_STATUS, STARTINGUP, SHUTTINGDOWN, MINGENHELP
+    GATHER_UC_PARAMETERS_FOR_RTSCED;
   
     % Initialize delivery factors based on initial conditions
-    if lossesCheck > eps
-        [RTD_BUS_DELIVERY_FACTORS_VAL,RTD_GEN_DELIVERY_FACTORS_VAL,RTD_LOAD_DELIVERY_FACTORS_VAL]=calculateDeliveryFactors(HRTD,nbus,ngen,GEN_VAL,BRANCHBUS_CALC_VAL,PTDF_VAL,repmat(initialLineFlows,1,HRTD),SYSTEMVALUE_VAL(mva_pu,1),BRANCHDATA_VAL(:,resistance),INJECTION_FACTOR.uels,GENBUS_VAL,BUS_VAL,INJECTION_FACTOR_VAL,LOAD_DIST_VAL,LOAD_DIST_STRING);    
-    else
-        RTD_BUS_DELIVERY_FACTORS_VAL  = ones(nbus,HRTD);
-        RTD_GEN_DELIVERY_FACTORS_VAL  = ones(ngen,HRTD);
-        RTD_LOAD_DELIVERY_FACTORS_VAL = ones(size(LOAD_DIST_VAL,1),HRTD);
-    end
-
+    GATHER_INITIAL_DELIVERY_FACTORS_INPUT_FOR_RTSCED;
+    
     for x=1:size(RTSCED_RULES_PRE_in,1)
         try run(RTSCED_RULES_PRE_in{x,1});catch;end; 
     end;
     
     if strcmp(use_Default_RTSCED,'YES')
-
-    RUN_RTSCED
+        %The following script converts all inputs to GAMS format, per
+        %unitizes variables if applicable, writes input data to GDX, runs
+        %GAMS, and reads output data from GDX.
+        RUN_RTSCED
     
     end
     for x=1:size(RTSCED_RULES_POST_in,1)
         try run(RTSCED_RULES_POST_in{x,1});catch;end;
     end;
 
-    %Keep needed results
-    Save_Needed_RTSCED_Results
+    %Save all the default results that are needed for reporting and simulation.
+    SAVE_NEEDED_RTSCED_RESULTS
     
     rtsced_running = 0;
     RTSCED_binding_interval_index = RTSCED_binding_interval_index + 1;
@@ -357,6 +363,8 @@ if execution_from_previous==0 || time==start_time
         try run(FORCED_OUTAGE_PRE_in{x,1});catch;end;
     end;
 
+    %If the user allowed forced outages from the FESTIV GUI, those are
+    %applied here for the FESTIV Time Loop.
     DETERMINE_FORCED_GENERATOR_OUTAGES
 
     for x=1:size(FORCED_OUTAGE_POST_in,1)
@@ -365,13 +373,14 @@ if execution_from_previous==0 || time==start_time
     
     %% Data adjust for real-time loop
 
+    %Let FESTIV and Functional Mods know that it is no longer solving for the initial models. 
     Solving_Initial_Models = 0;
 
-    %Various modifications to data prior to main simulation loop.
+    %Various modifications to data prior to FESTIV Time Loop.
     DATA_ADJUST_FOR_SIM_LOOP;
     
     fprintf('Complete! \n');
-    fprintf('Beginning FESTIV Simulation...\n');
+    fprintf('Beginning FESTIV Time Loop...\n');
     
     for x=1:size(RT_LOOP_PRE_in,1)
         try run(RT_LOOP_PRE_in{x,1});catch;end; 
@@ -397,41 +406,48 @@ while(time < end_time)
     if dascuc_update + eps >= tDAC && (DASCUC_binding_interval_index-1)*HDAC + eps < end_time
         
         dascuc_update = 0;
+        %Let FESTIV and all Functional Mods know that DASCUC is currently running.
         dascuc_running = 1;
         
         %Gather in Default data before starting
-        Gather_DEFAULT_DATA
+        GATHER_DEFAULT_DATA
 
-        %TIMESTAMP
+        %TIMESTAMP for intervals being used.
         DAC_LOOKAHEAD_INTERVAL_VAL = DAC_LOAD_FULL(HDAC*(DASCUC_binding_interval_index-1)+1:HDAC*(DASCUC_binding_interval_index-1)+HDAC,2)*24; %time must be converted to hours instead of days
-
+        INTERVAL_MINUTES_VAL = round([60*IDAC;60.*diff(DAC_LOOKAHEAD_INTERVAL_VAL)],3);
+        
         %Gather LOAD Forecasts
-        LOAD_VAL=Gather_LOAD_Input_for_Scheduling_Process(DAC_LOAD_FULL,DASCUC_binding_interval_index,HDAC);
+        LOAD_VAL=GATHER_LOAD_INPUT_FOR_SCHEDULING_PROCESS(DAC_LOAD_FULL,DASCUC_binding_interval_index,HDAC);
 
         %Gather VG Forecasts
-        VG_FORECAST_VAL=Gather_VG_FORECAST_Input_for_Scheduling_Process(DAC_VG_FULL,DAC_VG_FIELD,DASCUC_binding_interval_index,HDAC,GEN_VAL,GENVALUE_VAL,ngen,nvcr);
+        VG_FORECAST_VAL=GATHER_VG_FORECAST_INPUT_FOR_SCHEDULING_PROCESS(DAC_VG_FULL,DAC_VG_FIELD,DASCUC_binding_interval_index,HDAC,GEN_VAL,GENVALUE_VAL,ngen,nvcr);
 
         %Gather RESERVE levels
-        RESERVELEVEL_VAL=Gather_RESERVE_Input_for_Scheduling_Process(DAC_RESERVE_FULL,DASCUC_binding_interval_index,HDAC);
+        RESERVELEVEL_VAL=GATHER_RESERVE_INPUT_FOR_SCHEDULING_PROCESS(DAC_RESERVE_FULL,DASCUC_binding_interval_index,HDAC);
         
         %Gather INTERCHANGE schedules
-        INTERCHANGE_VAL=Gather_INTERCHANGE_Input_for_Scheduling_Process(DAC_INTERCHANGE_FULL,DASCUC_binding_interval_index,HDAC);
+        INTERCHANGE_VAL=GATHER_INTERCHANGE_INPUT_FOR_SCHEDULING_PROCESS(DAC_INTERCHANGE_FULL,DASCUC_binding_interval_index,HDAC);
 
         %INITIAL STATUSES
-        Gather_Initial_values_for_DASCUC;
+        GATHER_INITIAL_VALUES_FOR_DASCUC;
         
-        %Enforce commitments on or off in still in min run time or min down
-        %time at start of horizon
-        Gather_UC_Enforcement_Input_for_DASCUC;
+        %Enforce commitments on or off if unit still in min run time or min down time at start of horizon
+        GATHER_UC_ENFORCEMENT_INPUT_FOR_DASCUC;
     
-        %whether unit forced off
-        Gather_GEN_FORCED_OUT_Input_for_DASCUC;
+        %Gather startup and shutdown period parameters
+        GATHER_SU_PARAMETERS_INPUT_FOR_DASCUC;
+        
+        %Gather input for whether units forced off prior to gate closure.
+        GATHER_GEN_FORCED_OUT_INPUT_FOR_DASCUC;
         
         for x=1:size(DASCUC_RULES_PRE_in,1)
             try run(DASCUC_RULES_PRE_in{x,1});catch;end;
         end;
         if strcmp(use_Default_DASCUC,'YES')
             
+            %The following script converts all inputs to GAMS format, per
+            %unitizes variables if applicable, writes input data to GDX, runs
+            %GAMS, and reads output data from GDX.
             RUN_DASCUC;
             
         end
@@ -442,6 +458,8 @@ while(time < end_time)
           dbstop if warning stophere:DACinfeasible;
         end
         if Stop_for_Infeasibilities && numberOfInfes ~= 0 
+            %if stopping for infeasibilities, an automatic LP is solved for
+            %ease of debugging.
             DEBUG_DASCUC
             warning('stophere:DACinfeasible', 'Infeasible DAC Solution');
         end
@@ -452,10 +470,9 @@ while(time < end_time)
             try run(DASCUC_RULES_POST_in{x,1});catch;end;
         end;
 
-        Save_Needed_DASCUC_Results;
-        
-        Assign_DASCUC_Commitment_to_STATUS;
-        
+        %Save all the default results that are needed for reporting and simulation.
+        SAVE_NEEDED_DASCUC_RESULTS;
+               
         dascuc_running = 0;
         DASCUC_binding_interval_index = DASCUC_binding_interval_index + 1;
     end;
@@ -464,42 +481,46 @@ while(time < end_time)
     if rtscuc_update + eps >= tRTC
         
         rtscuc_update = 0;
+        %Let FESTIV and all Functional Mods know that RTSCUC is currently running.
         rtscuc_running = 1;
 
         %Gather in Default data before starting
-        Gather_DEFAULT_DATA
+        GATHER_DEFAULT_DATA
 
-        %TIMESTAMP
+        %TIMESTAMP for intervals being used.
         RTC_LOOKAHEAD_INTERVAL_VAL = RTC_LOAD_FULL(HRTC*(RTSCUC_binding_interval_index-1)+1:HRTC*(RTSCUC_binding_interval_index-1)+HRTC,2)*24;%time must be converted to hours instead of days
+        INTERVAL_MINUTES_VAL = round([IRTC;60.*diff(RTC_LOOKAHEAD_INTERVAL_VAL)],3);
+        rtscucinterval_index = round(time*rtscuc_I_perhour) + 1+1; %of the binding rtc interval. This is based on SCUC starting at hour 0!!!
         
         %Gather LOAD Forecasts
-        LOAD_VAL=Gather_LOAD_Input_for_Scheduling_Process(RTC_LOAD_FULL,RTSCUC_binding_interval_index,HRTC);
+        LOAD_VAL=GATHER_LOAD_INPUT_FOR_SCHEDULING_PROCESS(RTC_LOAD_FULL,RTSCUC_binding_interval_index,HRTC);
 
         %Gather VG Forecasts
-        VG_FORECAST_VAL=Gather_VG_FORECAST_Input_for_Scheduling_Process(RTC_VG_FULL,RTC_VG_FIELD,RTSCUC_binding_interval_index,HRTC,GEN_VAL,GENVALUE_VAL,ngen,nvcr);
+        VG_FORECAST_VAL=GATHER_VG_FORECAST_INPUT_FOR_SCHEDULING_PROCESS(RTC_VG_FULL,RTC_VG_FIELD,RTSCUC_binding_interval_index,HRTC,GEN_VAL,GENVALUE_VAL,ngen,nvcr);
        
         %Gather RESERVE levels
-        RESERVELEVEL_VAL=Gather_RESERVE_Input_for_Scheduling_Process(RTC_RESERVE_FULL,RTSCUC_binding_interval_index,HRTC);
+        RESERVELEVEL_VAL=GATHER_RESERVE_INPUT_FOR_SCHEDULING_PROCESS(RTC_RESERVE_FULL,RTSCUC_binding_interval_index,HRTC);
  
         %Gather INTERCHANGE schedules
-        INTERCHANGE_VAL=Gather_INTERCHANGE_Input_for_Scheduling_Process(RTC_INTERCHANGE_FULL,RTSCUC_binding_interval_index,HRTC);
+        INTERCHANGE_VAL=GATHER_INTERCHANGE_INPUT_FOR_SCHEDULING_PROCESS(RTC_INTERCHANGE_FULL,RTSCUC_binding_interval_index,HRTC);
         
-        Gather_INITIAL_DISPATCH_SLACK
-        rtscucinterval_index = round(time*rtscuc_I_perhour) + 1+1; %of the binding rtc interval. This is based on SCUC starting at hour 0!!!
+        %Get data pertaining to allowing ramp slacks in initial models
+        GATHER_INITIAL_DISPATCH_SLACK
               
-        %Setting up the hard commitment constraints for nonquickstarts and other units.
+        %Distinguish between units that can have commitment decisions modified in RTSCUC and those that cannot.
+        %RTSCUCSTART can be modified by the user. RTSCUCSTART_MODE_RTC can be modified in FESTIV_ADDL_OPTIONS
         RTSCUCSTART_MODE = RTSCUCSTART_MODE_RTC;
         RTSCUCSTART;
-        Gather_STATUS_ENFORCED_for_RTSCUCSTART_units;
+        GATHER_STATUS_ENFORCED_FOR_RTSCUCSTART_UNITS;
         
         %For initial minimum on and down time constraints
-        Gather_STATUS_ENFORCED_for_minrun_down_time_for_RTSCUC;
+        GATHER_STATUS_ENFORCED_FOR_MINRUN_DOWN_TIME_FOR_RTSCUC;
         
         %Get ACTUAL_GEN_OUTPUT and LAST_GEN_SCHEDULE
-        Gather_ACTUALS_and_LAST_GEN_SCHEDULE_for_RTSCUC;
+        GATHER_ACTUALS_AND_LAST_GEN_SCHEDULE_FOR_RTSCUC;
 
         %Get PREVIOUS_UNIT_STARTUP,INTERVALS_STARTED_AGO,STARTUP_MIN_GEN_HELPER, STARTUP_PERIOD AND SHUTDOWN_PERIOD FOR GEN AND STORAGE
-        Gather_SU_Parameters_Input_for_RTSCUC;       
+        GATHER_SU_PARAMETERS_INPUT_FOR_RTSCUC;       
         
         for x=1:size(RTSCUC_RULES_PRE_in,1)
             try run(RTSCUC_RULES_PRE_in{x,1});catch; end; 
@@ -507,7 +528,10 @@ while(time < end_time)
         
         if strcmp(use_Default_RTSCUC,'YES')
 
-        RUN_RTSCUC
+            %The following script converts all inputs to GAMS format, per
+            %unitizes variables if applicable, writes input data to GDX, runs
+            %GAMS, and reads output data from GDX.
+            RUN_RTSCUC
         
         end
         try
@@ -516,6 +540,8 @@ while(time < end_time)
           dbstop if warning stophere:RTCinfeasible;
         end
         if numberOfInfes ~= 0 && (max(rpu_time) < time - PRTC/60 || max(rpu_time) > time)
+            %if stopping for infeasibilities, an automatic LP is solved for
+            %ease of debugging.
             DEBUG_RTSCUC
         if Stop_for_Infeasibilities
             warning('stophere:RTCinfeasible', 'Infeasible RTC Solution');
@@ -528,7 +554,8 @@ while(time < end_time)
             try run(RTSCUC_RULES_POST_in{x,1});catch; end; 
         end;
 
-        Save_Needed_RTSCUC_Results;
+        %Save all the default results that are needed for reporting and simulation.
+        SAVE_NEEDED_RTSCUC_RESULTS;
 
         rtscuc_running = 0;
         RTSCUC_binding_interval_index = RTSCUC_binding_interval_index + 1;
@@ -539,35 +566,36 @@ while(time < end_time)
     if rtsced_update + eps >= tRTD  
         
         rtsced_update = 0;
+        %Let FESTIV and all Functional Mods know that RTSCED is currently running.
         rtsced_running = 1;
         
         %Gather in Default data before starting
-        Gather_DEFAULT_DATA
+        GATHER_DEFAULT_DATA
         
-        %TIMESTAMP
+        %TIMESTAMP for intervals being used.
         RTD_LOOKAHEAD_INTERVAL_VAL = RTD_LOAD_FULL(HRTD*(RTSCED_binding_interval_index-1)+1:HRTD*(RTSCED_binding_interval_index-1)+HRTD,2)*24;%time must be converted to hours instead of days
+        INTERVAL_MINUTES_VAL = round([IRTD;60.*diff(RTD_LOOKAHEAD_INTERVAL_VAL)],3);
 
         %Gather LOAD Forecasts
-        LOAD_VAL=Gather_LOAD_Input_for_Scheduling_Process(RTD_LOAD_FULL,RTSCED_binding_interval_index,HRTD);
+        LOAD_VAL=GATHER_LOAD_INPUT_FOR_SCHEDULING_PROCESS(RTD_LOAD_FULL,RTSCED_binding_interval_index,HRTD);
 
         %Gather VG Forecasts
-        VG_FORECAST_VAL=Gather_VG_FORECAST_Input_for_Scheduling_Process(RTD_VG_FULL,RTD_VG_FIELD,RTSCED_binding_interval_index,HRTD,GEN_VAL,GENVALUE_VAL,ngen,nvcr);
+        VG_FORECAST_VAL=GATHER_VG_FORECAST_INPUT_FOR_SCHEDULING_PROCESS(RTD_VG_FULL,RTD_VG_FIELD,RTSCED_binding_interval_index,HRTD,GEN_VAL,GENVALUE_VAL,ngen,nvcr);
         
         %Gather RESERVE levels
-        RESERVELEVEL_VAL=Gather_RESERVE_Input_for_Scheduling_Process(RTD_RESERVE_FULL,RTSCED_binding_interval_index,HRTD);
+        RESERVELEVEL_VAL=GATHER_RESERVE_INPUT_FOR_SCHEDULING_PROCESS(RTD_RESERVE_FULL,RTSCED_binding_interval_index,HRTD);
         
         %Gather INTERCHANGE schedules
-        INTERCHANGE_VAL=Gather_INTERCHANGE_Input_for_Scheduling_Process(RTD_INTERCHANGE_FULL,RTSCED_binding_interval_index,HRTD);
+        INTERCHANGE_VAL=GATHER_INTERCHANGE_INPUT_FOR_SCHEDULING_PROCESS(RTD_INTERCHANGE_FULL,RTSCED_binding_interval_index,HRTD);
                 
-        Gather_INITIAL_DISPATCH_SLACK
-
-        INTERVAL_MINUTES_VAL = round([IRTD;60.*diff(RTD_LOOKAHEAD_INTERVAL_VAL)],3);
+        %Get data pertaining to allowing ramp slacks in initial models
+        GATHER_INITIAL_DISPATCH_SLACK
         
         %ACTUAL_GEN_OUTPUT and LAST_GEN_SCHEDULE and ACTUAL/LAST STATUS for gen and storage
-        Gather_ACTUALS_and_LAST_GEN_SCHEDULE_for_RTSCED;
+        GATHER_ACTUALS_AND_LAST_GEN_SCHEDULE_FOR_RTSCED;
 
-        %UNIT_STATUS, STARTINGUP, SHUTTINGDOWN, MINGENHELP
-        Gather_UC_Parameters_for_RTSCED;
+        %Data inputs for UNIT_STATUS, STARTINGUP, SHUTTINGDOWN, MINGENHELP
+        GATHER_UC_PARAMETERS_FOR_RTSCED;
         
         for x=1:size(RTSCED_RULES_PRE_in,1)
             try run(RTSCED_RULES_PRE_in{x,1});catch;end; 
@@ -575,7 +603,10 @@ while(time < end_time)
         
         if strcmp(use_Default_RTSCED,'YES')
 
-        RUN_RTSCED
+            %The following script converts all inputs to GAMS format, per
+            %unitizes variables if applicable, writes input data to GDX, runs
+            %GAMS, and reads output data from GDX.
+            RUN_RTSCED
         
         end
         try
@@ -593,8 +624,8 @@ while(time < end_time)
             try run(RTSCED_RULES_POST_in{x,1});catch;end;
         end;
 
-        %Save needed RTD results.
-        Save_Needed_RTSCED_Results;
+        %Save all the default results that are needed for reporting and simulation.
+        SAVE_NEEDED_RTSCED_RESULTS;
         
         rtsced_running = 0;
         RTSCED_binding_interval_index = RTSCED_binding_interval_index + 1;
@@ -607,6 +638,8 @@ while(time < end_time)
         try run(ACTUAL_OUTPUT_PRE_in{x,1});catch;end;
     end;
     
+    %Run the Sub-model that calculates the actuals, or realized outputs of
+    %all resources on the system
     ACTUALS_SIMULATOR;
     
     for x=1:size(ACTUAL_OUTPUT_POST_in,1)
@@ -615,39 +648,48 @@ while(time < end_time)
     
 %% ACE Calculator
 
+    %Calculate losses for the AGC time frame to calculate ACE
+    GATHER_LOSSES_FOR_ACE_CALCULATOR;
     
-    Gather_Losses_for_ACE_Calculator;
+    %All the current generator outputs and other inputs at AGC time frame
+    GATHER_CURRENT_GEN_CONDITIONS_FOR_ACE_CALCULATOR_AND_AGC;
     
-    Gather_current_gen_conditions_for_ACE_Calculator_and_AGC;
-    
-    Gather_Previous_ACE_for_ACE_Calculator
+    %Previous ACE
+    GATHER_PREVIOUS_ACE_FOR_ACE_CALCULATOR
     
     for x=1:size(ACE_PRE_in,1)
         try run(ACE_PRE_in{x,1});catch;end; 
     end;
     
-    ACE_calculator;
+    %Calculate all forms of ACE to be used by the AGC
+    ACE_CALCULATOR;
 
     for x=1:size(ACE_POST_in,1)
         try run(ACE_POST_in{x,1});catch;end; 
     end;
 
-    Save_ACE_Results;
+    %All needed ACE results for reporting and in simulation.
+    SAVE_ACE_RESULTS;
 
 %% AGC
-    Gather_DISPATCH_for_AGC;
     
-    Gather_REGULATION_for_AGC;
+    %Dispatch results that are used as input in AGC Sub-Model
+    GATHER_DISPATCH_FOR_AGC;
     
-    Gather_ramp_rates_for_AGC;
+    %Regulation schedules determined by RTSCED (or other) that are used in AGC sub-model.
+    GATHER_REGULATION_FOR_AGC;
+
+    %Get ramp rate data for input into AGC sub-model.
+    GATHER_RAMP_RATES_FOR_AGC;
     
     for x=1:size(AGC_RULES_PRE_in,1)
         try run(AGC_RULES_PRE_in{x,1});catch;end;
     end;
     
     if strcmp(use_Default_AGC,'YES')
-        
-    AGC;
+    
+        %Run AGC sub-model for AGC schedules   
+        AGC;
     
     end
     
@@ -655,9 +697,13 @@ while(time < end_time)
         try run(AGC_RULES_POST_in{x,1});catch;end;
     end;
     
+    %AGC schedules are saved for reporting and in simulation.
     AGC_SCHEDULE(AGC_interval_index,:)=AGC_BASEPOINT;
 
 %% CTGC occurrence
+    
+    %If generator contingencies are allowed, it will be determined here
+    %whether they have occurred in the FESTIV Time Loop.
     for i=1:ngen
         if time  >= gen_outage_time(i,1) && time < gen_repair_time(i,1)
             if actual_gen_forced_out(i,1) == 0
@@ -675,50 +721,53 @@ while(time < end_time)
     
     if strcmp(ALLOW_RPU,'YES') ==1
         
+        %RPU_TRIGGER determines whether an event has occurred that requires
+        %the use of RPU, an event-based RTSCUC. The user can modify
+        %RPU_TRIGGER file.
         RPU_TRIGGER;
         
     if RPU_YES
-        
+        %Let FESTIV and all Functional Mods know that RPU is currently running.
         rpu_running = 1;
 
         %Gather in Default data before starting
-        Gather_DEFAULT_DATA
+        GATHER_DEFAULT_DATA
 
-        %TIMESTAMP values
+        %TIMESTAMP for intervals being used.
         for t = 1:HRPU
             RPU_LOOKAHEAD_INTERVAL_VAL(t,1) = time + t*IRPU/60;
         end;
-
+        INTERVAL_MINUTES_VAL = round([IRPU;60.*diff(RPU_LOOKAHEAD_INTERVAL_VAL)],3);
+        
         %LOAD for RPU must be modified depending on the time that it is launched.
-        Gather_LOAD_Input_for_RPU
+        GATHER_LOAD_INPUT_FOR_RPU
         
         %VG_FORECAST for RPU must be modified depending on the time that it is launched.
-        Gather_VG_FORECAST_Input_for_RPU
+        GATHER_VG_FORECAST_INPUT_FOR_RPU
 
         %RESERVE_LEVEL for RPU must be modified depending on the time that it is launched.
-        Gather_RESERVE_Input_for_RPU
+        GATHER_RESERVE_INPUT_FOR_RPU
  
         %INTERCHANGE for RPU must be modified depending on the time that it is launched.
-        Gather_INTERCHANGE_Input_for_RPU
+        GATHER_INTERCHANGE_INPUT_FOR_RPU
         
-        Gather_INITIAL_DISPATCH_SLACK        
+        %Get data pertaining to allowing ramp slacks in initial models
+        GATHER_INITIAL_DISPATCH_SLACK        
 
+        %Distinguish between units that can have commitment decisions modified in RTSCUC and those that cannot.
+        %RTSCUCSTART can be modified by the user. RTSCUCSTART_MODE_RPU can be modified in FESTIV_ADDL_OPTIONS
         RTSCUCSTART_MODE = RTSCUCSTART_MODE_RPU;
         RTSCUCSTART;
-        %Setting up the hard commitment constraints for nonquickstarts and other units.
-        Gather_STATUS_ENFORCED_for_RTSCUCSTART_units_for_RPU
+        GATHER_STATUS_ENFORCED_FOR_RTSCUCSTART_UNITS_FOR_RPU
         
         %For initial minimum on and down time constraints
-        Gather_STATUS_ENFORCED_for_minrun_down_time_for_RTSCUC
+        GATHER_STATUS_ENFORCED_FOR_MINRUN_DOWN_TIME_FOR_RTSCUC
         
         %ACTUALS, LAST_GEN_SCHEDULE, LAST_STATUS, and RAMP_SLACK_UP
-        Gather_ACTUALS_and_LAST_GEN_SCHEDULE_for_RPU
+        GATHER_ACTUALS_AND_LAST_GEN_SCHEDULE_FOR_RPU
         
-        %If shutdowns cannot happen delay shutdowns so that infeasibilities are prevented.
-        Modify_STATUS_ENFORCED_due_to_SD_Delay_for_RPU
-       
         %For su and sd trajectories
-        Gather_SU_Parameters_Input_for_RTSCUC
+        GATHER_SU_PARAMETERS_INPUT_FOR_RTSCUC
                 
         for x=1:size(RPU_RULES_PRE_in,1)
             try run(RPU_RULES_PRE_in{x,1});catch;end; 
@@ -726,7 +775,10 @@ while(time < end_time)
         
         if strcmp(use_Default_SCRPU,'YES')
 
-        RUN_RTSCUC
+            %The following script converts all inputs to GAMS format, per
+            %unitizes variables if applicable, writes input data to GDX, runs
+            %GAMS, and reads output data from GDX.
+            RUN_RTSCUC
         
         end
         try
@@ -735,6 +787,8 @@ while(time < end_time)
           dbstop if warning stophere:RPUinfeasible;
         end
         if numberOfInfes ~= 0
+            %if stopping for infeasibilities, an automatic LP is solved for
+            %ease of debugging.
             DEBUG_RTSCUC
         if Stop_for_Infeasibilities 
             warning('stophere:RPUinfeasible', 'Infeasible RPU Solution');
@@ -747,7 +801,8 @@ while(time < end_time)
             try run(RPU_RULES_POST_in{x,1});catch;end; 
         end
         
-        Save_Needed_RPU_Results
+        %Save all the default results that are needed for reporting and simulation.
+        SAVE_NEEDED_RPU_RESULTS
         
         rpu_running = 0;
         RPU_binding_interval_index = RPU_binding_interval_index + 1;
@@ -757,10 +812,12 @@ while(time < end_time)
 
     
 %% End of Interval
-    % End of real time loop rule execution
+    % End of single interval of tAGC length.
     % Breakpoints for debugging
    
-    Stop_FESTIV
+    %Stop FESTIV in debug mode if a particular condition occurs as defined by user.
+    %STOP_FESTIV can be modified by the user.
+    STOP_FESTIV
     
     if (stop == 1 || (debugcheck && time >= timefordebugstop)) && ~isdeployed
        Stack  = dbstack;
@@ -782,6 +839,9 @@ while(time < end_time)
     end;
     
 end;
+
+%The FESTIV Time Loop is Complete.
+
 if cancel
 else
 fprintf('\n')
@@ -798,7 +858,8 @@ for x=1:size(RELIABILITY_PRE_in,1)
     try run(RELIABILITY_PRE_in{x,1});catch;end;
 end;
 
-Calculate_Reliability_Metrics
+%Calculate all reliability based metrics for the simulation.
+CALCULATE_RELIABILITY_METRICS
 
 for x=1:size(RELIABILITY_POST_in,1)
     try run(RELIABILITY_POST_in{x,1});catch;end;
@@ -808,7 +869,8 @@ for x=1:size(COST_PRE_in,1)
     try run(COST_PRE_in{x,1});catch;end;
 end;
 
-Calculate_Economic_Metrics
+%Calculate all economic based metrics for the simulation.
+CALCULATE_ECONOMIC_METRICS
 
 for x=1:size(COST_POST_in,1)
     try run(COST_POST_in{x,1});catch;end;
@@ -818,12 +880,14 @@ for x=1:size(POST_PROCESSING_POST_in,1)
     try run(POST_PROCESSING_POST_in{x,1});catch;end; 
 end
 
-Display_Study_Metrics
+%On Matlab command window, show metrics to users
+DISPLAY_STUDY_METRICS
 
 for x=1:size(SAVING_PRE_in,1)
     try run(SAVING_PRE_in{x,1});catch;end;
 end;
 
+%Save results if requested
 if ~ispc
   try
     SAVE_OUTPUT_TO_HDF5;  % HPC-HDF5
@@ -836,6 +900,7 @@ else
     SAVE_CURRENT_FESTIV_CASE;  % Windows-Excel
 end
 
+%Present high-level figures if requested
 if strcmp(suppress_plots_in,'NO')
     CREATE_FESTIV_OUTPUT_PLOTS
 end
@@ -848,12 +913,15 @@ end;
 try numberofFESTIVrun=numberofFESTIVrun+1;catch;end;
 if exist('multiplefilecheck')==1
     if multiplefilecheck == 0
+        %Single simulation requested by user. All complete.
         finishedrunningFESTIV=1;
     else
         if numberofFESTIVrun <= numofinputfiles
+            %There are more FESTIV simulations to run under a multiple simulation case.
             finishedrunningFESTIV=0;
-            clearvars -except 'cancel' 'numberofFESTIVrun' 'finishedrunningFESTIV' 'multiplefilecheck' 'numofinputfiles' 'gamspath' 'on_hpc' 'use_gui' 'gams_mip_flag' 'gams_lp_flag';
+            clearvars -except 'cancel' 'numberofFESTIVrun' 'finishedrunningFESTIV' 'multiplefilecheck' 'numofinputfiles' 'gamspath' 'on_hpc' 'use_gui' 'gams_mip_flag' 'gams_lp_flag' 'execution_from_previous';
         else
+            %All FESTIV simulations are complete under a multiple simulation case.
             finishedrunningFESTIV=1;
         end
     end
@@ -862,6 +930,7 @@ else
 end
 
 else
+    %User canceled the case during the GUI set up.
     finishedrunningFESTIV=1;
 end
 end;
