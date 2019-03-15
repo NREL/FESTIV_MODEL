@@ -3,7 +3,7 @@
 
 CREATE_DAC_GAMS_VARIABLES;
 
-per_unitize;
+PER_UNITIZE;
 
 if Solving_Initial_Models
 wgdx(['TEMP', filesep, 'DASCUCINPUT1'],START_PARAMETER,...
