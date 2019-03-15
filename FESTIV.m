@@ -76,7 +76,7 @@ if cancel==0
 if execution_from_previous==0 || time==start_time    
     
     tStart = tic;
-    festivBanner; 
+    FESTIVBANNER; 
     
 %% Data and Initialization
 
@@ -828,7 +828,7 @@ while(time < end_time)
     end
 
     %Done with interval, go forward in time
-    End_of_interval_move_forward;
+    END_OF_INTERVAL_MOVE_FORWARD;
     
     if use_gui
       fprintf(1,'\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b %03d days %02d hrs %02d min %02d sec',day,hour,minute,second);
