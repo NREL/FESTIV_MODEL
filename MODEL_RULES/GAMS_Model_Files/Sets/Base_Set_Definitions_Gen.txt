@@ -33,8 +33,10 @@ LOOP (GEN,
                          RAMP_LIMITED_GEN_NOSTARTUP(GEN) = YES;
                    );
          ELSE
-                 IF((GENVALUE(GEN,"RAMP_RATE") GT 0 AND  (GENVALUE(GEN,"CAPACITY") - GENVALUE(GEN,"MIN_GEN"))/GENVALUE(GEN,"RAMP_RATE") + 60*MAX(GENVALUE(GEN,"STARTUP_TIME"),60*GENVALUE(GEN,"SHUTDOWN_TIME")) GT (INTERVAL_LENGTH*60)),
-                         RAMP_LIMITED_GEN(GEN) = YES;
+                 IF(GENVALUE(GEN,"RAMP_RATE") GT 0,
+                         IF((GENVALUE(GEN,"CAPACITY") - GENVALUE(GEN,"MIN_GEN"))/GENVALUE(GEN,"RAMP_RATE") + 60*MAX(GENVALUE(GEN,"STARTUP_TIME"),60*GENVALUE(GEN,"SHUTDOWN_TIME")) GT (INTERVAL_LENGTH*60),
+                                 RAMP_LIMITED_GEN(GEN) = YES;
+                           );
                    );
             );
      );
