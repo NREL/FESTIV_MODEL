@@ -180,9 +180,6 @@ if execution_from_previous==0 || time==start_time
     %Gather RESERVE levels
     RESERVELEVEL_VAL=GATHER_RESERVE_INPUT_FOR_SCHEDULING_PROCESS(DAC_RESERVE_FULL,DASCUC_binding_interval_index,HDAC);
 
-    %Gather INTERCHANGE schedules
-    INTERCHANGE_VAL=GATHER_INTERCHANGE_INPUT_FOR_SCHEDULING_PROCESS(DAC_INTERCHANGE_FULL,DASCUC_binding_interval_index,HDAC);
-    
     %Enforce commitments on or off in still in min run time or min down
     %time at start of horizon
     GATHER_UC_ENFORCEMENT_INPUT_FOR_DASCUC;
@@ -255,9 +252,6 @@ if execution_from_previous==0 || time==start_time
     %Gather RESERVE levels
     RESERVELEVEL_VAL=GATHER_RESERVE_INPUT_FOR_SCHEDULING_PROCESS(RTC_RESERVE_FULL,RTSCUC_binding_interval_index,HRTC);
 
-    %Gather INTERCHANGE schedules
-    INTERCHANGE_VAL=GATHER_INTERCHANGE_INPUT_FOR_SCHEDULING_PROCESS(RTC_INTERCHANGE_FULL,RTSCUC_binding_interval_index,HRTC);
-
     %Distinguish between units that can have commitment decisions modified in RTSCUC and those that cannot.
     RTSCUCSTART_MODE = RTSCUCSTART_MODE_RTC;
     RTSCUCSTART;
@@ -321,10 +315,6 @@ if execution_from_previous==0 || time==start_time
 
     %Gather RESERVE levels
     RESERVELEVEL_VAL=GATHER_RESERVE_INPUT_FOR_SCHEDULING_PROCESS(RTD_RESERVE_FULL,RTSCED_binding_interval_index,HRTD);
-
-    %Gather INTERCHANGE schedules
-    INTERCHANGE_VAL=GATHER_INTERCHANGE_INPUT_FOR_SCHEDULING_PROCESS(RTD_INTERCHANGE_FULL,RTSCED_binding_interval_index,HRTD);
-
 
     %ACTUAL_GEN_OUTPUT and LAST_GEN_SCHEDULE and ACTUAL/LAST STATUS for gen and storage
     GATHER_ACTUALS_AND_LAST_GEN_SCHEDULE_FOR_RTSCED;
@@ -425,12 +415,6 @@ while(time < end_time)
         %Gather RESERVE levels
         RESERVELEVEL_VAL=GATHER_RESERVE_INPUT_FOR_SCHEDULING_PROCESS(DAC_RESERVE_FULL,DASCUC_binding_interval_index,HDAC);
         
-        %Gather INTERCHANGE schedules
-        INTERCHANGE_VAL=GATHER_INTERCHANGE_INPUT_FOR_SCHEDULING_PROCESS(DAC_INTERCHANGE_FULL,DASCUC_binding_interval_index,HDAC);
-
-        %INITIAL STATUSES
-        GATHER_INITIAL_VALUES_FOR_DASCUC;
-        
         %Enforce commitments on or off if unit still in min run time or min down time at start of horizon
         GATHER_UC_ENFORCEMENT_INPUT_FOR_DASCUC;
     
@@ -501,9 +485,6 @@ while(time < end_time)
         %Gather RESERVE levels
         RESERVELEVEL_VAL=GATHER_RESERVE_INPUT_FOR_SCHEDULING_PROCESS(RTC_RESERVE_FULL,RTSCUC_binding_interval_index,HRTC);
  
-        %Gather INTERCHANGE schedules
-        INTERCHANGE_VAL=GATHER_INTERCHANGE_INPUT_FOR_SCHEDULING_PROCESS(RTC_INTERCHANGE_FULL,RTSCUC_binding_interval_index,HRTC);
-        
         %Get data pertaining to allowing ramp slacks in initial models
         GATHER_INITIAL_DISPATCH_SLACK
               
@@ -585,9 +566,6 @@ while(time < end_time)
         %Gather RESERVE levels
         RESERVELEVEL_VAL=GATHER_RESERVE_INPUT_FOR_SCHEDULING_PROCESS(RTD_RESERVE_FULL,RTSCED_binding_interval_index,HRTD);
         
-        %Gather INTERCHANGE schedules
-        INTERCHANGE_VAL=GATHER_INTERCHANGE_INPUT_FOR_SCHEDULING_PROCESS(RTD_INTERCHANGE_FULL,RTSCED_binding_interval_index,HRTD);
-                
         %Get data pertaining to allowing ramp slacks in initial models
         GATHER_INITIAL_DISPATCH_SLACK
         
@@ -748,9 +726,6 @@ while(time < end_time)
         %RESERVE_LEVEL for RPU must be modified depending on the time that it is launched.
         GATHER_RESERVE_INPUT_FOR_RPU
  
-        %INTERCHANGE for RPU must be modified depending on the time that it is launched.
-        GATHER_INTERCHANGE_INPUT_FOR_RPU
-        
         %Get data pertaining to allowing ramp slacks in initial models
         GATHER_INITIAL_DISPATCH_SLACK        
 

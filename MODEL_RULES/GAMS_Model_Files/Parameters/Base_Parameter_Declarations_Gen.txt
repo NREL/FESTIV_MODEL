@@ -10,7 +10,6 @@ COST_CURVE(*,*)
 LOAD(*)
 GENVALUE(*,*)
 VG_FORECAST(*,*)
-INTERCHANGE(*,*)
 GEN_FORCED_OUT(*)
 ;
 =end

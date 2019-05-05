@@ -1,0 +1,5 @@
+=start
+*Load interchange inputs
+$GDXIN INTERCHANGE_INPUT
+$load INTERCHANGE
+=end=

@@ -35,12 +35,6 @@ RESERVELEVEL.uels = {INTERVAL_VAL' RTC_RESERVE_FIELD(3:end)};
 RESERVELEVEL.form = 'full';
 RESERVELEVEL.type = 'parameter';
 
-INTERCHANGE.val = INTERCHANGE_VAL;
-INTERCHANGE.name = 'INTERCHANGE';
-INTERCHANGE.uels = {INTERVAL_VAL' RTC_INTERCHANGE_FIELD(3:end)};
-INTERCHANGE.form = 'full';
-INTERCHANGE.type = 'parameter';
-
 if rtscuc_running
     NRTCINTERVAL.val = HRTC;
 elseif rpu_running

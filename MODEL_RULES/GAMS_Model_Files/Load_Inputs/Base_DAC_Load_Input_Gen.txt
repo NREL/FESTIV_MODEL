@@ -20,6 +20,5 @@ $load INTERVAL
 $load LOAD
 $load GENVALUE
 $load VG_FORECAST
-$load INTERCHANGE
 $load GEN_FORCED_OUT
 =end=
