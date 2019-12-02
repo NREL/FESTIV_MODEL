@@ -415,6 +415,9 @@ while(time < end_time)
         %Gather RESERVE levels
         RESERVELEVEL_VAL=GATHER_RESERVE_INPUT_FOR_SCHEDULING_PROCESS(DAC_RESERVE_FULL,DASCUC_binding_interval_index,HDAC);
         
+        %INITIAL STATUSES
+        GATHER_INITIAL_VALUES_FOR_DASCUC;
+        
         %Enforce commitments on or off if unit still in min run time or min down time at start of horizon
         GATHER_UC_ENFORCEMENT_INPUT_FOR_DASCUC;
     

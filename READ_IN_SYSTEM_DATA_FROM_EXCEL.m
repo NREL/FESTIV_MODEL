@@ -155,9 +155,9 @@ GEN.uels = GEN_VAL';
 GEN.name = 'GEN';
 GEN.form = 'full';
 GEN.type = 'set';
-DEFAULT_DATA.GEN=GEN;
 ngen = size(GEN_VAL,1);
 GEN.val = ones(ngen,1);
+DEFAULT_DATA.GEN=GEN;
 
 if useHDF5==0
     [~, GENPARAM_VAL] = xlsread(inputPath,'GEN','B1:AH1');
@@ -185,13 +185,7 @@ GENVALUE.uels = {GEN_VAL' GENPARAM_VAL};
 GENVALUE.name = 'GENVALUE';
 GENVALUE.form = 'full';
 GENVALUE.type = 'parameter';
-for a =1:size(GENVALUE_VAL,1)
-    for b=1:size(GENVALUE_VAL,2)
-        if isfinite(GENVALUE_VAL(a,b)) == 0
-            GENVALUE_VAL(a,b) = 0;
-        end;
-    end;
-end;
+GENVALUE_VAL(isfinite(GENVALUE_VAL) == 0) = 0;
 GENVALUE.val = GENVALUE_VAL;
 DEFAULT_DATA.GENVALUE=GENVALUE;
 
@@ -249,13 +243,7 @@ end
 catch
 STORAGEVALUE_VAL = [];
 end
-for a =1:size(STORAGEVALUE_VAL,1)
-    for b=1:size(STORAGEVALUE_VAL,2)
-        if isfinite(STORAGEVALUE_VAL(a,b)) == 0
-            STORAGEVALUE_VAL(a,b) = 0;
-        end;
-    end;
-end;
+STORAGEVALUE_VAL(isfinite(STORAGEVALUE_VAL) == 0) = 0;
 STORAGEVALUE.uels = {STORAGE_UNITS' STORAGEPARAM.uels};
 STORAGEVALUE.name = 'STORAGEVALUE';
 STORAGEVALUE.form = 'full';
@@ -448,13 +436,7 @@ BRANCHDATA.uels = {BRANCH_VAL' BRANCHPARAM_VAL};
 BRANCHDATA.name = 'BRANCHDATA';
 BRANCHDATA.form = 'full';
 BRANCHDATA.type = 'parameter';
-for a =1:size(BRANCHDATA_VAL,1)
-    for b=1:size(BRANCHDATA_VAL,2)
-        if isfinite(BRANCHDATA_VAL(a,b)) == 0
-            BRANCHDATA_VAL(a,b) = 0;
-        end;
-    end;
-end;
+BRANCHDATA_VAL(isfinite(BRANCHDATA_VAL) == 0) = 0;
 if strcmp(NETWORK_CHECK,'NO')
     BRANCHDATA_VAL(:,resistance)=0;
 end;
@@ -501,13 +483,7 @@ RESERVEVALUE.uels = {RESERVETYPE_VAL' RESERVEPARAM_VAL};
 RESERVEVALUE.name = 'RESERVEVALUE';
 RESERVEVALUE.form = 'full';
 RESERVEVALUE.type = 'parameter';
-for a =1:size(RESERVEVALUE_VAL,1)
-    for b=1:size(RESERVEVALUE_VAL,2)
-        if isfinite(RESERVEVALUE_VAL(a,b)) == 0
-            RESERVEVALUE_VAL(a,b) = 0;
-        end;
-    end;
-end;
+RESERVEVALUE_VAL(isfinite(RESERVEVALUE_VAL) == 0) = 0;
 RESERVEVALUE.val = RESERVEVALUE_VAL;
 DEFAULT_DATA.RESERVEVALUE=RESERVEVALUE;
 
@@ -522,13 +498,7 @@ LOAD_DIST.uels = LOAD_DIST_STRING';
 LOAD_DIST.name = 'LOAD_DIST';
 LOAD_DIST.form = 'full';
 LOAD_DIST.type = 'parameter';
-for a =1:size(LOAD_DIST_VAL,1)
-    for b=1:size(LOAD_DIST_VAL,2)
-        if isfinite(LOAD_DIST_VAL(a,b)) == 0
-            LOAD_DIST_VAL(a,b) = 0;
-        end;
-    end;
-end;
+LOAD_DIST_VAL(isfinite(LOAD_DIST_VAL) == 0) = 0;
 LOAD_DIST.val = LOAD_DIST_VAL;
 DEFAULT_DATA.LOAD_DIST=LOAD_DIST;
 
@@ -577,13 +547,7 @@ COST_CURVE.uels = {COST_CURVE_STRING' COSTCURVEPARAM_VAL};
 COST_CURVE.name = 'COST_CURVE';
 COST_CURVE.form = 'full';
 COST_CURVE.type = 'parameter';
-for a =1:size(COST_CURVE_VAL,1)
-    for b=1:size(COST_CURVE_VAL,2)
-        if isfinite(COST_CURVE_VAL(a,b)) == 0
-            COST_CURVE_VAL(a,b) = 0;
-        end;
-    end;
-end;
+COST_CURVE_VAL(isfinite(COST_CURVE_VAL) == 0) = 0;
 COST_CURVE.val = COST_CURVE_VAL;
 DEFAULT_DATA.COST_CURVE=COST_CURVE;
 
@@ -644,13 +608,7 @@ RESERVE_COST.uels = {RESERVE_COST_STRING1' RESERVE_COST_STRING2};
 RESERVE_COST.name = 'RESERVE_COST';
 RESERVE_COST.form = 'full';
 RESERVE_COST.type = 'parameter';
-for a =1:size(RESERVE_COST_VAL,1)
-    for b=1:size(RESERVE_COST_VAL,2)
-        if isfinite(RESERVE_COST_VAL(a,b)) == 0
-            RESERVE_COST_VAL(a,b) = 0;
-        end;
-    end;
-end;
+RESERVE_COST_VAL(isfinite(RESERVE_COST_VAL) == 0)=0;
 RESERVE_COST.val = RESERVE_COST_VAL;
 DEFAULT_DATA.RESERVE_COST=RESERVE_COST;
 
@@ -673,10 +631,21 @@ START_PARAMETER.type = 'set';
 DEFAULT_DATA.START_PARAMETER=START_PARAMETER;
 
 try
+% ADRIANO: Made a few changes to keep the variable startup data and add variable startup times to the input data
 if useHDF5==0
-    STARTUP_VALUE_VAL = xlsread(inputPath,'STARTUP','B2:K1000');
+    % ADRIANO: Changing the way we read data as now we also read a startup time that depends on the startup type
+    % Commented the line below
+    %STARTUP_VALUE_VAL = xlsread(inputPath,'STARTUP','B2:K1000');
+    % Added the line below
+    [STARTUP_VALUE_VAL,~,] = xlsread(inputPath,'STARTUP',['B2:G',num2str(ngen+1')]);
     [~, STARTUP_VALUE_STRING1] = xlsread(inputPath,'STARTUP','A2:A1000');
-    [~, STARTUP_VALUE_STRING2] = xlsread(inputPath,'STARTUP','B1:K1');
+    % Commented the line below
+    %[~, STARTUP_VALUE_STRING2] = xlsread(inputPath,'STARTUP','B1:K1');
+    % Added the 4 following lines
+    [~, STARTUP_VALUE_STRING3] = xlsread(inputPath,'STARTUP','B1:G1');
+    STARTUP_VALUE_STRING2 = {'HOT','WARM','COLD'};
+    STARTUP_VALUE_VAL = cell2mat(STARTUP_VALUE_VAL);
+    STARTUP_VALUE_VAL(isfinite(STARTUP_VALUE_VAL) == 0) = 0;
 else
     if ~strcmp(fieldnames(x),'None')
         STARTUP_VALUE_STRING2={'OFF_HOT','COST_HOT','OFF_WARM','COST_WARM','OFF_COLD','COST_COLD'};
@@ -693,21 +662,41 @@ else
     end
 end
 catch
-STARTUP_VALUE_VAL=[];
+
+% Commented the line below as that erases the startup data that was read and we need that data to implement var startup
+%STARTUP_VALUE_VAL=[];
 end;
-STARTUP_VALUE.uels = {STARTUP_VALUE_STRING1' STARTUP_VALUE_STRING2};
+%STARTUP_VALUE.uels = {STARTUP_VALUE_STRING1' STARTUP_VALUE_STRING2};
+STARTUP_VALUE.uels = {STARTUP_VALUE_STRING1' STARTUP_VALUE_STRING3};
+% ADRIANO: I propose we remove STARTUP_VALUE from the gdx file, GAMS doesnt use it, only declares and loads it
 STARTUP_VALUE.name = 'STARTUP_VALUE';
 STARTUP_VALUE.form = 'full';
 STARTUP_VALUE.type = 'parameter';
-for a =1:size(STARTUP_VALUE_VAL,1)
-    for b=1:size(STARTUP_VALUE_VAL,2)
-        if isfinite(STARTUP_VALUE_VAL(a,b)) == 0
-            STARTUP_VALUE_VAL(a,b) = 0;
-        end;
-    end;
-end;
+% ADRIANO: I removed code here that would make all elements of STARTUP_VALUE_VAL equal to 0 for
 STARTUP_VALUE.val=STARTUP_VALUE_VAL;
+
 DEFAULT_DATA.STARTUP_VALUE=STARTUP_VALUE;
+
+% ADRIANO: I added the following block of code from CREATE_DAC_GAMS_VARIABLES
+if ~isempty(STARTUP_VALUE_VAL)
+    OFFLINE_BLOCK_VAL=STARTUP_VALUE_VAL(:,[1:2:size(STARTUP_VALUE_VAL,2)]);
+    STARTUP_COST_BLOCK_VAL=STARTUP_VALUE_VAL(:,[2:2:size(STARTUP_VALUE_VAL,2)]);
+else
+    OFFLINE_BLOCK_VAL=[];
+    STARTUP_COST_BLOCK_VAL=[];
+end
+OFFLINE_BLOCK.val = OFFLINE_BLOCK_VAL;
+OFFLINE_BLOCK.name='OFFLINE_BLOCK';
+OFFLINE_BLOCK.uels={STARTUP_VALUE_STRING1' STARTUP_VALUE_STRING2};
+OFFLINE_BLOCK.form='FULL';
+OFFLINE_BLOCK.type='parameter';
+
+STARTUP_COST_BLOCK.val=STARTUP_COST_BLOCK_VAL;
+STARTUP_COST_BLOCK.name='STARTUP_COST_BLOCK';
+STARTUP_COST_BLOCK.uels={STARTUP_VALUE_STRING1' STARTUP_VALUE_STRING2};
+STARTUP_COST_BLOCK.form='FULL';
+STARTUP_COST_BLOCK.type='parameter';
+% ADRIANO: End of additional code
 
 nvg=0; %variable generation, resources with variable output
 nvcr = 0; %variable capacity resources, resources with variable capacity

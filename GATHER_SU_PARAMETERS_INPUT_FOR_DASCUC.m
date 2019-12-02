@@ -40,12 +40,12 @@ temp5=find(initally_off_gens);
 for io=1:size(temp5,1)
     if find(strcmp(STARTUP_VALUE_STRING1,GEN_VAL{temp5(io)})) % if gen was initially off with variable startup cost
         temp_idx=find(strcmp(STARTUP_VALUE_STRING1,GEN_VAL{temp5(io)}));
-        if GENVALUE_VAL(temp5(io),initial_hour) >= OFFLINE_BLOCK.val(temp_idx,1)
-            INITIAL_STARTUP_COST_HELPER_VAL(temp5(io))=STARTUP_COST_BLOCK.val(temp_idx,1);
-        elseif GENVALUE_VAL(temp5(io),initial_hour) >= OFFLINE_BLOCK.val(temp_idx,2)
-            INITIAL_STARTUP_COST_HELPER_VAL(temp5(io))=STARTUP_COST_BLOCK.val(temp_idx,2);
+        if GENVALUE_VAL(temp5(io),initial_hour) >= OFFLINE_BLOCK_VAL(temp_idx,1)
+            INITIAL_STARTUP_COST_HELPER_VAL(temp5(io))=STARTUP_COST_BLOCK_VAL(temp_idx,1);
+        elseif GENVALUE_VAL(temp5(io),initial_hour) >= OFFLINE_BLOCK_VAL(temp_idx,2)
+            INITIAL_STARTUP_COST_HELPER_VAL(temp5(io))=STARTUP_COST_BLOCK_VAL(temp_idx,2);
         else
-            INITIAL_STARTUP_COST_HELPER_VAL(temp5(io))=STARTUP_COST_BLOCK.val(temp_idx,3);
+            INITIAL_STARTUP_COST_HELPER_VAL(temp5(io))=STARTUP_COST_BLOCK_VAL(temp_idx,3);
         end
     end
 end
