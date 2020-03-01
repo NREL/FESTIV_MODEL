@@ -211,10 +211,18 @@ if execution_from_previous==0 || time==start_time
     end
 
     try
-    DAModelSolutionStatus=[];
-    DAModelSolutionStatus=[0 modelSolveStatus numberOfInfes solverStatus relativeGap];
+    DAModelSolutionStatus=[DAModelSolutionStatus;time modelSolveStatus numberOfInfes solverStatus relativeGap];
+    if ~isdeployed 
+      dbstop if warning stophere:DACinfeasible;
+    end
+    if Stop_for_Infeasibilities && numberOfInfes ~= 0 
+        %if stopping for infeasibilities, an automatic LP is solved for
+        %ease of debugging.
+        DEBUG_DASCUC
+        warning('stophere:DACinfeasible', 'Infeasible DAC Solution');
+    end
     catch
-    end;
+    end
     for x=1:size(DASCUC_RULES_POST_in,1)
         try run(DASCUC_RULES_POST_in{x,1});catch;end;
     end;

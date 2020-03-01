@@ -50,6 +50,21 @@ Similar cases are for actual intervals aligning to real-time dispatch.
 %}
 max_price = 1000; %This caps the price only for settlement purposes.
 
+%Include other directories that are used. For example, some companies may
+%want to include a github directory for their own Mods or organize those
+%mods in a specific fashion. For each new path to include, you may either
+%include the full path description, e.g., 'C:\Users\...\my_mod_folder' or a
+%folder that is within the FESTIV directory, e.g.,
+%{strcat(DIRECTORY,filesep,'MODEL_RULES\projectX_Modes')}, with each separated by a semicolon.
+%Do not use a brace [] if only including one directory.
+other_paths_to_include = {};
+
+
+for k=1:size(other_paths_to_include,1)
+    addpath(other_paths_to_include{k,1});
+end
+
+
 %Forecast error when using forecast creation type of 4, in % actual
 %Note that these are the standard deviation based on the energy level
 %for example if value is .1, then forecast is actual + randn()*.1*actual

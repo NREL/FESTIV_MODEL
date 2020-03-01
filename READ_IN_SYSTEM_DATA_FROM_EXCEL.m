@@ -631,21 +631,10 @@ START_PARAMETER.type = 'set';
 DEFAULT_DATA.START_PARAMETER=START_PARAMETER;
 
 try
-% ADRIANO: Made a few changes to keep the variable startup data and add variable startup times to the input data
 if useHDF5==0
-    % ADRIANO: Changing the way we read data as now we also read a startup time that depends on the startup type
-    % Commented the line below
-    %STARTUP_VALUE_VAL = xlsread(inputPath,'STARTUP','B2:K1000');
-    % Added the line below
-    [STARTUP_VALUE_VAL,~,] = xlsread(inputPath,'STARTUP',['B2:G',num2str(ngen+1')]);
+    STARTUP_VALUE_VAL = xlsread(inputPath,'STARTUP','B2:K1000');
     [~, STARTUP_VALUE_STRING1] = xlsread(inputPath,'STARTUP','A2:A1000');
-    % Commented the line below
-    %[~, STARTUP_VALUE_STRING2] = xlsread(inputPath,'STARTUP','B1:K1');
-    % Added the 4 following lines
-    [~, STARTUP_VALUE_STRING3] = xlsread(inputPath,'STARTUP','B1:G1');
-    STARTUP_VALUE_STRING2 = {'HOT','WARM','COLD'};
-    STARTUP_VALUE_VAL = cell2mat(STARTUP_VALUE_VAL);
-    STARTUP_VALUE_VAL(isfinite(STARTUP_VALUE_VAL) == 0) = 0;
+    [~, STARTUP_VALUE_STRING2] = xlsread(inputPath,'STARTUP','B1:K1');
 else
     if ~strcmp(fieldnames(x),'None')
         STARTUP_VALUE_STRING2={'OFF_HOT','COST_HOT','OFF_WARM','COST_WARM','OFF_COLD','COST_COLD'};
@@ -663,21 +652,17 @@ else
 end
 catch
 
-% Commented the line below as that erases the startup data that was read and we need that data to implement var startup
-%STARTUP_VALUE_VAL=[];
+STARTUP_VALUE_VAL=[];
 end;
-%STARTUP_VALUE.uels = {STARTUP_VALUE_STRING1' STARTUP_VALUE_STRING2};
-STARTUP_VALUE.uels = {STARTUP_VALUE_STRING1' STARTUP_VALUE_STRING3};
-% ADRIANO: I propose we remove STARTUP_VALUE from the gdx file, GAMS doesnt use it, only declares and loads it
+STARTUP_VALUE.uels = {STARTUP_VALUE_STRING1' STARTUP_VALUE_STRING2};
 STARTUP_VALUE.name = 'STARTUP_VALUE';
 STARTUP_VALUE.form = 'full';
 STARTUP_VALUE.type = 'parameter';
-% ADRIANO: I removed code here that would make all elements of STARTUP_VALUE_VAL equal to 0 for
+STARTUP_VALUE_VAL(isfinite(STARTUP_VALUE_VAL) == 0) = 0;
 STARTUP_VALUE.val=STARTUP_VALUE_VAL;
 
 DEFAULT_DATA.STARTUP_VALUE=STARTUP_VALUE;
 
-% ADRIANO: I added the following block of code from CREATE_DAC_GAMS_VARIABLES
 if ~isempty(STARTUP_VALUE_VAL)
     OFFLINE_BLOCK_VAL=STARTUP_VALUE_VAL(:,[1:2:size(STARTUP_VALUE_VAL,2)]);
     STARTUP_COST_BLOCK_VAL=STARTUP_VALUE_VAL(:,[2:2:size(STARTUP_VALUE_VAL,2)]);
@@ -696,7 +681,6 @@ STARTUP_COST_BLOCK.name='STARTUP_COST_BLOCK';
 STARTUP_COST_BLOCK.uels={STARTUP_VALUE_STRING1' STARTUP_VALUE_STRING2};
 STARTUP_COST_BLOCK.form='FULL';
 STARTUP_COST_BLOCK.type='parameter';
-% ADRIANO: End of additional code
 
 nvg=0; %variable generation, resources with variable output
 nvcr = 0; %variable capacity resources, resources with variable capacity
