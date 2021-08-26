@@ -3353,7 +3353,7 @@ function add_rtc_gams_rule(~,~)
     datatemp=get(rtc_list_of_selected_gams_rules,'string');
     datatemp=[datatemp;temp2(temp,:)];
     set(rtc_list_of_selected_gams_rules,'string',datatemp);
-    if strcat(dname(1:size(cd,2)),cd)
+    if strcmp(dname(1:size(cd,2)),cd)
         fullpaths=strcat(dname(size(cd,2)+2:end),filesep,temp2(temp,:));
     else
         fullpaths=strcat(repmat(dname,size(temp2,2),1),filesep,temp2(temp,:));
@@ -3425,7 +3425,7 @@ function add_rtd_gams_rule(~,~)
     datatemp=get(rtd_list_of_selected_gams_rules,'string');
     datatemp=[datatemp;temp2(temp,:)];
     set(rtd_list_of_selected_gams_rules,'string',datatemp);
-    if strcat(dname(1:size(cd,2)),cd)
+    if strcmp(dname(1:size(cd,2)),cd)
         fullpaths=strcat(dname(size(cd,2)+2:end),filesep,temp2(temp,:));
     else
         fullpaths=strcat(repmat(dname,size(temp2,2),1),filesep,temp2(temp,:));

@@ -18,7 +18,7 @@ if load_data_create == 1
     if useHDF5 == 0
         for d = 1:simulation_days
     %         if strcmp(model,'DAC')
-                LOAD_FULL_TMP = xlsread(cell2mat(load_input_file(d,1)),'Sheet1');
+                LOAD_FULL_TMP = xlsread(cell2mat(load_input_file(d,1)));
                 if strcmp(model2,'RT')
                     load_multiplier_tmp = zeros(size(LOAD_FULL_TMP));
                     load_multiplier_tmp(:,1:2) = d-1;
@@ -54,7 +54,7 @@ if nvcr > 0
         if useHDF5 == 0
             for d=1:simulation_days
     %             if strcmp(model,'DAC')
-                    [VG_FULL_TMP, VG_FIELD] = xlsread(cell2mat(vg_input_file(d,1)),'Sheet1');
+                    [VG_FULL_TMP, VG_FIELD] = xlsread(cell2mat(vg_input_file(d,1)));
                     if strcmp(model2,'RT')
                         vg_multiplier_tmp = zeros(size(VG_FULL_TMP));
                         vg_multiplier_tmp(:,1:2) = d-1;
@@ -71,7 +71,7 @@ if nvcr > 0
         size_of_initial_input_read= 1;
         if nvcr > nvg
             for d=1:simulation_days
-                [VG_FULL_TMP, VG_FIELD] = xlsread(cell2mat(vg_input_file(d,1)),'Sheet1');
+                [VG_FULL_TMP, VG_FIELD] = xlsread(cell2mat(vg_input_file(d,1)));
                 if strcmp(model2,'RT')
                     vg_multiplier_tmp = zeros(size(VG_FULL_TMP));
                     vg_multiplier_tmp(:,1:2) = d-1;
@@ -113,7 +113,7 @@ if nvcr > 0
         if nvcr > nvg
             for d=1:simulation_days
 %                 if strcmp(model,'DAC')
-                    [VG_FULL_TMP, VG_FIELD] = xlsread(cell2mat(vg_input_file(d,1)),'Sheet1');
+                    [VG_FULL_TMP, VG_FIELD] = xlsread(cell2mat(vg_input_file(d,1)));
                     if strcmp(model2,'RT')
                         vg_multiplier_tmp = zeros(size(VG_FULL_TMP));
                         vg_multiplier_tmp(:,1:2) = d-1;
@@ -165,7 +165,7 @@ try
     if RESERVE_FORECAST_MODE == 2
         if useHDF5 == 0
             for d = 1:simulation_days
-                [DAC_RESERVE_FULL_TMP,RESERVE_FIELD] = xlsread(cell2mat(reserve_input_file(d,1)),'Sheet1');
+                [DAC_RESERVE_FULL_TMP,RESERVE_FIELD] = xlsread(cell2mat(reserve_input_file(d,1)));
                 RESERVE_FULL = [RESERVE_FULL; DAC_RESERVE_FULL_TMP];
             end;
         else
@@ -199,7 +199,7 @@ else
     elseif RESERVE_FORECAST_MODE == 2
         if useHDF5 == 0
             for d = 1:simulation_days
-                [RESERVE_FULL_TMP,RESERVE_FIELD] = xlsread(cell2mat(reserve_input_file(d,1)),'Sheet1');
+                [RESERVE_FULL_TMP,RESERVE_FIELD] = xlsread(cell2mat(reserve_input_file(d,1)));
                 load_multiplier_tmp = zeros(size(RESERVE_FULL_TMP));
                 load_multiplier_tmp(:,1:2) = d-1;
                 RESERVE_FULL_TMP = RESERVE_FULL_TMP + load_multiplier_tmp;
