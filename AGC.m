@@ -93,20 +93,6 @@ for i=1:ngen
             if unit_pumping_agc(i,1) == 1 || unit_pumpdown_agc(i,1) == 1
                 AGC_ramp = min(ramp_agc(i,1),max(-1*ramp_agc(i,1),(next_pump_RTD(1,1+find(storage_to_gen_index==i))-current_pump_agc(1,1+i))/(60*(next_pump_RTD(1,1) - agc_time))));
                 AGC_BASEPOINT(1+i)= min(0,current_pump_agc(1,1+i) + AGC_ramp*(t_AGC/60));
-            elseif unit_startup_agc(i,1) 
-                AGC_ramp = ramp_agc(i,1);
-                if GENVALUE_VAL(i,gen_type) ~= interface_gen_type_index && GENVALUE_VAL(i,gen_type) ~= variable_dispatch_gen_type_index
-                    AGC_BASEPOINT(1+i)= max(0,current_gen_agc(1,1+i) + AGC_ramp*(t_AGC/60));
-                else
-                    AGC_BASEPOINT(1+i)= current_gen_agc(1,1+i) + AGC_ramp*(t_AGC/60);
-                end
-            elseif unit_shutdown_agc(i,1)
-                AGC_ramp = -1*ramp_agc(i,1);
-                if GENVALUE_VAL(i,gen_type) ~= interface_gen_type_index && GENVALUE_VAL(i,gen_type) ~= variable_dispatch_gen_type_index
-                    AGC_BASEPOINT(1+i)= max(0,current_gen_agc(1,1+i) + AGC_ramp*(t_AGC/60));
-                else
-                    AGC_BASEPOINT(1+i)= current_gen_agc(1,1+i) + AGC_ramp*(t_AGC/60);
-                end
             else
                 AGC_ramp = min(ramp_agc(i,1),max(-1*ramp_agc(i,1),(next_RTD(1,1+i)-current_gen_agc(1,1+i))/(60*(next_RTD(1,1) - agc_time))));
                 if GENVALUE_VAL(i,gen_type) ~= interface_gen_type_index && GENVALUE_VAL(i,gen_type) ~= variable_dispatch_gen_type_index

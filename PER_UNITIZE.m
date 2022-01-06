@@ -16,6 +16,7 @@ LOAD.val=LOAD.val./SYSTEMVALUE_VAL(mva_pu);
 RESERVELEVEL.val=RESERVELEVEL.val./SYSTEMVALUE_VAL(mva_pu);
 BRANCHDATA.val(:,line_rating)=BRANCHDATA_VAL(:,line_rating)./SYSTEMVALUE_VAL(mva_pu);
 BRANCHDATA.val(:,ste_rating)=BRANCHDATA_VAL(:,ste_rating)./SYSTEMVALUE_VAL(mva_pu);
+try BRANCHDATA.val(:,9)=BRANCHDATA_VAL(:,9)./SYSTEMVALUE_VAL(mva_pu);catch;end;
 VG_FORECAST.val=VG_FORECAST.val./SYSTEMVALUE_VAL(mva_pu);
 LOSS_BIAS.val=LOSS_BIAS.val./SYSTEMVALUE_VAL(mva_pu);
 COST_CURVE.val(:,[2 4 6 8])=COST_CURVE.val(:,[2 4 6 8])./SYSTEMVALUE_VAL(mva_pu);
