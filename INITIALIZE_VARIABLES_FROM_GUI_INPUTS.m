@@ -50,6 +50,7 @@ minute_end = minutes_to_simulate_in;
 second_end = seconds_to_simulate_in;
 end_time = (daystosimulate)*24 + hour_end + minute_end/60 + second_end/3600;
 simulation_days=ceil(end_time/24);
+start_date = start_date_in;
 
 %%SUB-MODEL INTERVAL DEFINITIONS%%
 

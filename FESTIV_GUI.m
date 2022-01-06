@@ -91,14 +91,16 @@ uicontrol('parent',mainFigure,'units','normalized','position',[.05 .15 .12 .05],
 uicontrol('parent',mainFigure,'units','normalized','position',[.19 .15 .12 .05],'string','AGC Mods','fontunits','normalized','fontsize',0.4,'callback',{@agc_model_rules});
 
 % create simulation time request
-uipanel('parent',mainFigure,'Title','Simulation Time (D:H:M:S)','units','normalized','Position', [.35 .13 .3 .1],'fontunits','normalized','fontsize',0.15,'BackgroundColor',get(mainFigure,'color'));
-days_to_simulate_edit=uicontrol('parent',mainFigure,'style','edit','string','1','units','normalized','position',[.37 .15 .05 .05],'backgroundcolor','white');
-hours_to_simulate_edit=uicontrol('parent',mainFigure,'style','edit','string','0','units','normalized','position',[.44 .15 .05 .05],'backgroundcolor','white');
-minutes_to_simulate_edit=uicontrol('parent',mainFigure,'style','edit','string','0','units','normalized','position',[.51 .15 .05 .05],'backgroundcolor','white');
-seconds_to_simulate_edit=uicontrol('parent',mainFigure,'style','edit','string','0','units','normalized','position',[.58 .15 .05 .05],'backgroundcolor','white');
-uicontrol('parent',mainFigure,'style','text','string',':','units','normalized','position',[.425 .142 .01 .05],'fontunits','normalized','fontsize',0.5);
-uicontrol('parent',mainFigure,'style','text','string',':','units','normalized','position',[.495 .142 .01 .05],'fontunits','normalized','fontsize',0.5);
-uicontrol('parent',mainFigure,'style','text','string',':','units','normalized','position',[.565 .142 .01 .05],'fontunits','normalized','fontsize',0.5);
+uipanel('parent',mainFigure,'Title','Simulation Time (D:H:M:S-Start Date)','units','normalized','Position', [.35 .13 .3 .1],'fontunits','normalized','fontsize',0.15,'BackgroundColor',get(mainFigure,'color'));
+days_to_simulate_edit=uicontrol('parent',mainFigure,'style','edit','string','1','units','normalized','position',[.37 .15 .04 .05],'backgroundcolor','white');
+hours_to_simulate_edit=uicontrol('parent',mainFigure,'style','edit','string','0','units','normalized','position',[.425 .15 .04 .05],'backgroundcolor','white');
+minutes_to_simulate_edit=uicontrol('parent',mainFigure,'style','edit','string','0','units','normalized','position',[.48 .15 .04 .05],'backgroundcolor','white');
+seconds_to_simulate_edit=uicontrol('parent',mainFigure,'style','edit','string','0','units','normalized','position',[.535 .15 .04 .05],'backgroundcolor','white');
+start_date_edit=uicontrol('parent',mainFigure,'style','edit','string','1','units','normalized','position',[.595 .15 .04 .05],'backgroundcolor','white');
+uicontrol('parent',mainFigure,'style','text','string',':','units','normalized','position',[.415 .142 .007 .05],'fontunits','normalized','fontsize',0.5);
+uicontrol('parent',mainFigure,'style','text','string',':','units','normalized','position',[.47 .142 .007 .05],'fontunits','normalized','fontsize',0.5);
+uicontrol('parent',mainFigure,'style','text','string',':','units','normalized','position',[.525 .142 .007 .05],'fontunits','normalized','fontsize',0.5);
+uicontrol('parent',mainFigure,'style','text','string','-','units','normalized','position',[.58 .142 .007 .05],'fontunits','normalized','fontsize',0.5);
 
 % create extra options input request interfaces
 options=uipanel('parent',mainFigure,'Title','Extra Options','units','normalized','Position', [.02 .03 .74 .09],'fontunits','normalized','fontsize',0.2,'BackgroundColor',get(mainFigure,'color'));
@@ -587,6 +589,11 @@ try
 catch
 end;
 try 
+    a=evalin('base','start_date_in');
+    set(start_date_edit,'string',num2str(a));
+catch
+end;
+try 
     a=evalin('base','checkthenetwork');
     if strcmp(a,'YES')
     set(radiobutton1,'value',1)
@@ -883,6 +890,7 @@ function addruns_callback(~,~)
     hours_to_simulate_in   = str2double(get(hours_to_simulate_edit,'string'));
     minutes_to_simulate_in = str2double(get(minutes_to_simulate_edit,'string'));
     seconds_to_simulate_in = str2double(get(seconds_to_simulate_edit,'string'));
+    start_date_in = str2double(get(start_date_edit,'string'));
     
     if HRTD_in > HRTC_in
         HRTD_in=HRTC_in;
@@ -936,6 +944,7 @@ function addruns_callback(~,~)
     assignin('base','hours_to_simulate_in',hours_to_simulate_in);
     assignin('base','minutes_to_simulate_in',minutes_to_simulate_in);
     assignin('base','seconds_to_simulate_in',seconds_to_simulate_in);
+    assignin('base','start_date_in',start_date_in);
     assignin('base','RTD_load_forecast_data_create_in',RTD_load_forecast_data_create_in);
     assignin('base','RTD_vg_forecast_data_create_in',RTD_vg_forecast_data_create_in);
     assignin('base','RTC_load_forecast_data_create_in',RTC_load_forecast_data_create_in);
@@ -1040,6 +1049,7 @@ function runFESTIV(~,~)
         hours_to_simulate_in   = str2double(get(hours_to_simulate_edit,'string'));
         minutes_to_simulate_in = str2double(get(minutes_to_simulate_edit,'string'));
         seconds_to_simulate_in = str2double(get(seconds_to_simulate_edit,'string'));
+        start_date_in = str2double(get(start_date_edit,'string'));
     
         if HRTD_in > HRTC_in
             HRTD_in=HRTC_in;
@@ -1094,6 +1104,7 @@ function runFESTIV(~,~)
         assignin('base','hours_to_simulate_in',hours_to_simulate_in);
         assignin('base','minutes_to_simulate_in',minutes_to_simulate_in);
         assignin('base','seconds_to_simulate_in',seconds_to_simulate_in);
+        assignin('base','start_date_in',start_date_in);
         assignin('base','RTD_load_forecast_data_create_in',RTD_load_forecast_data_create_in);
         assignin('base','RTD_vg_forecast_data_create_in',RTD_vg_forecast_data_create_in);
         assignin('base','RTC_load_forecast_data_create_in',RTC_load_forecast_data_create_in);
@@ -3674,7 +3685,7 @@ function save_rules_callback(~,~)
     hours_to_simulate=str2double(get(hours_to_simulate_edit,'string'));
     minutes_to_simulate=str2double(get(minutes_to_simulate_edit,'string'));
     seconds_to_simulate=str2double(get(seconds_to_simulate_edit,'string'));
-
+    start_date=str2double(get(start_date_edit,'string'));
         
         
     answer = inputdlg('Save name:');
@@ -3693,7 +3704,7 @@ function save_rules_callback(~,~)
     'HRTC_in','IRTC_in','tRTC_in','PRTC_in','tRTCSTART_in','HRTD_in','IRTD_in','tRTD_in','PRTD_in','IRTDADV_in','DAC_load_forecast_data_create_in','DAC_vg_forecast_data_create_in',...
     'RTC_load_forecast_data_create_in','RTC_vg_forecast_data_create_in','RTD_load_forecast_data_create_in','RTD_vg_forecast_data_create_in','DAC_RESERVE_FORECAST_MODE_in',...
     'RTC_RESERVE_FORECAST_MODE_in','RTD_RESERVE_FORECAST_MODE_in','radiobutton1_in','radiobutton2_in',...
-    'radiobutton3_in','radiobutton4_in', 'days_to_simulate','hours_to_simulate','minutes_to_simulate','seconds_to_simulate',...
+    'radiobutton3_in','radiobutton4_in', 'days_to_simulate','hours_to_simulate','minutes_to_simulate','seconds_to_simulate','start_date',...
     'ALLOW_RPU_in','ACE_RPU_THRESHOLD_MW_in','ACE_RPU_THRESHOLD_T_in','restrict_multiple_rpu_time_in');
 end
 
@@ -3725,7 +3736,7 @@ function load_rules_callback(~,~)
     % EDIT BY GP
     % Variables are initialized here
     radiobutton1_in=[];radiobutton2_in=[];radiobutton3_in=[];radiobutton4_in=[];
-    days_to_simulate=[];hours_to_simulate=[];minutes_to_simulate=[];seconds_to_simulate=[];
+    days_to_simulate=[];hours_to_simulate=[];minutes_to_simulate=[];seconds_to_simulate=[];start_date=[];
     agc_deadband_in=[];Type3_integral_in=[];K1_in=[];K2_in=[];
     ALLOW_RPU_in=[];ACE_RPU_THRESHOLD_MW_in=[];ACE_RPU_THRESHOLD_T_in=[];restrict_multiple_rpu_time_in=[];
     
@@ -3843,6 +3854,7 @@ function load_rules_callback(~,~)
     assignin('base','hours_to_simulate',hours_to_simulate);
     assignin('base','minutes_to_simulate',minutes_to_simulate);
     assignin('base','seconds_to_simulate',seconds_to_simulate);
+    assignin('base','start_date',start_date);
     assignin('base','agc_deadband_in',agc_deadband_in);
     assignin('base','Type3_integral_in',Type3_integral_in);
     assignin('base','K1_in',K1_in);
@@ -3891,6 +3903,7 @@ function load_rules_callback(~,~)
     set(hours_to_simulate_edit,'string',hours_to_simulate);
     set(minutes_to_simulate_edit,'string',minutes_to_simulate);
     set(seconds_to_simulate_edit,'string',seconds_to_simulate);
+    set(start_date_edit,'string',start_date);
     end
     
     

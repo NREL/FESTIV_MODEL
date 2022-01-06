@@ -10,10 +10,12 @@ global ngen nbus nvg nvcr nESR nbranch npar nhvdc nctgc nblock nreserve storage_
 %VG AND LOAD DATA
 fprintf('Input File: %s\n',inputfilename);
 fprintf('Reading Input Files...')
+
 %actuals
 if useHDF5==0
     try
         [~, actual_load_input_file] = xlsread(inputPath,'ACTUAL_LOAD_REF','A2:A400');
+        actual_load_input_file=actual_load_input_file(start_date:start_date+daystosimulate-1);
         for d=1:size(actual_load_input_file,1)
             actual_load_input_file(d,1)=strcat(pathstr, filesep, 'TIMESERIES', filesep,actual_load_input_file(d,1));
         end;
@@ -23,6 +25,7 @@ if useHDF5==0
     end
     try
         [~, actual_vg_input_file] = xlsread(inputPath,'ACTUAL_VG_REF','A2:A400');
+        actual_vg_input_file=actual_vg_input_file(start_date:start_date+daystosimulate-1);
         for d=1:size(actual_vg_input_file,1)
             actual_vg_input_file(d,1)=strcat(pathstr,filesep, 'TIMESERIES', filesep,actual_vg_input_file(d,1));
         end;
@@ -36,6 +39,7 @@ end
 if useHDF5==0
     try
         [~, dac_load_input_file] = xlsread(inputPath,'DA_LOAD_REF','A2:A400');
+        dac_load_input_file=dac_load_input_file(start_date:start_date+daystosimulate-1);
         for d=1:size(dac_load_input_file,1)
             dac_load_input_file(d,1)=strcat(pathstr,filesep, 'TIMESERIES', filesep,dac_load_input_file(d,1));
         end;
@@ -44,6 +48,7 @@ if useHDF5==0
     end;
     try
         [~, dac_vg_input_file] = xlsread(inputPath,'DA_VG_REF','A2:A400');
+        dac_vg_input_file=dac_vg_input_file(start_date:start_date+daystosimulate-1);
         for d=1:size(dac_vg_input_file,1)
             dac_vg_input_file(d,1)=strcat(pathstr,filesep, 'TIMESERIES', filesep,dac_vg_input_file(d,1));
         end;
@@ -56,6 +61,7 @@ end
 if useHDF5==0
     try
         [~, rtc_load_input_file] = xlsread(inputPath,'RTC_LOAD_REF','A2:A400');
+        rtc_load_input_file=rtc_load_input_file(start_date:start_date+daystosimulate-1);
         for d=1:size(rtc_load_input_file,1)
             rtc_load_input_file(d,1)=strcat(pathstr,filesep, 'TIMESERIES', filesep,rtc_load_input_file(d,1));
         end;
@@ -64,6 +70,7 @@ if useHDF5==0
     end;
     try
         [~, rtc_vg_input_file] = xlsread(inputPath,'RTC_VG_REF','A2:A400');
+        rtc_vg_input_file=rtc_vg_input_file(start_date:start_date+daystosimulate-1);
         for d=1:size(rtc_vg_input_file,1)
             rtc_vg_input_file(d,1)=strcat(pathstr,filesep, 'TIMESERIES', filesep,rtc_vg_input_file(d,1));
         end;
@@ -76,6 +83,7 @@ end
 if useHDF5==0
     try
         [~, rtd_load_input_file] = xlsread(inputPath,'RTD_LOAD_REF','A2:A400');
+        rtd_load_input_file=rtd_load_input_file(start_date:start_date+daystosimulate-1);
         for d=1:size(rtd_load_input_file,1)
             rtd_load_input_file(d,1)=strcat(pathstr,filesep, 'TIMESERIES', filesep,rtd_load_input_file(d,1));
         end;
@@ -84,6 +92,7 @@ if useHDF5==0
     end;
     try
         [~, rtd_vg_input_file] = xlsread(inputPath,'RTD_VG_REF','A2:A400');
+        rtd_vg_input_file=rtd_vg_input_file(start_date:start_date+daystosimulate-1);
         for d=1:size(rtd_vg_input_file,1)
             rtd_vg_input_file(d,1)=strcat(pathstr,filesep, 'TIMESERIES', filesep,rtd_vg_input_file(d,1));
         end;
@@ -96,6 +105,7 @@ end
 if useHDF5==0
     try
         [~,dac_reserve_input_file]= xlsread(inputPath,'DA_RESERVE_REF','A2:A400');
+        dac_reserve_input_file=dac_reserve_input_file(start_date:start_date+daystosimulate-1);
         for d=1:size(dac_reserve_input_file,1)
             dac_reserve_input_file(d,1)=strcat(pathstr,filesep, 'TIMESERIES', filesep,dac_reserve_input_file(d,1));
         end;
@@ -104,6 +114,7 @@ if useHDF5==0
     end;
     try
         [~,rtc_reserve_input_file]= xlsread(inputPath,'RTC_RESERVE','A2:A400');
+        rtc_reserve_input_file=rtc_reserve_input_file(start_date:start_date+daystosimulate-1);
         for d=1:size(rtc_reserve_input_file,1)
             rtc_reserve_input_file(d,1)=strcat(pathstr,filesep, 'TIMESERIES', filesep,rtc_reserve_input_file(d,1));
         end;
@@ -112,6 +123,7 @@ if useHDF5==0
     end;
     try
         [~,rtd_reserve_input_file] = xlsread(inputPath,'RTD_RESERVE','A2:A400');
+        rtd_reserve_input_file=rtd_reserve_input_file(start_date:start_date+daystosimulate-1);
         for d=1:size(rtd_reserve_input_file,1)
             rtd_reserve_input_file(d,1)=strcat(pathstr,filesep, 'TIMESERIES', filesep,rtd_reserve_input_file(d,1));
         end;
@@ -302,6 +314,9 @@ end
 catch
 BRANCH_VAL = [];
 end
+
+
+
 BRANCH.uels = BRANCH_VAL';
 BRANCH.name = 'BRANCH';
 BRANCH.form = 'full';
@@ -440,6 +455,16 @@ BRANCHDATA_VAL(isfinite(BRANCHDATA_VAL) == 0) = 0;
 if strcmp(NETWORK_CHECK,'NO')
     BRANCHDATA_VAL(:,resistance)=0;
 end;
+
+try
+tmp_idx1=find(strcmp(BRANCHPARAM_VAL,'REVERSE_LINEFLOW_LIMIT'));
+tmp_idx2=find(strcmp(BRANCHPARAM_VAL,'LINE_RATING'));
+for b=1:nbranch
+   BRANCHDATA_VAL(b,tmp_idx1)=BRANCHDATA_VAL(b,tmp_idx1)/100*BRANCHDATA_VAL(b,tmp_idx2); 
+end
+catch;
+end;
+
 BRANCHDATA.val = BRANCHDATA_VAL;
 DEFAULT_DATA.BRANCHDATA=BRANCHDATA;
 
