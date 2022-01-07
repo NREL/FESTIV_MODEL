@@ -21,7 +21,7 @@ RTSCUC_INITIAL_SHUT_TIME(RTSCUC_INITIAL_SHUT_TIME+eps>=time)=-1;
 for i=1:ngen
     t=1;
     while t<=HRTC 
-        if RTCUNITSTARTUP.val(i,t) == 1
+        if abs(RTCUNITSTARTUP.val(i,t) - 1) <= eps
             SU_min_gen_time_index = t+find(RTCGENSCHEDULE.val(i,t:end)+eps>=GENVALUE_VAL(i,min_gen),1)-1;
             if isempty(SU_min_gen_time_index)==0
                 RTSCUC_END_START_TIME(i,1) = RTC_LOOKAHEAD_INTERVAL_VAL(SU_min_gen_time_index,1); 
