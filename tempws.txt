@@ -1,0 +1,88 @@
+;----- Simulation Options -----;
+inputPath = /path/to/input/file/FESTIV_case.xlsx
+daystosimulate = 1
+hours_to_simulate_in = 0
+minutes_to_simulate_in = 0
+seconds_to_simulate_in = 0
+start_date_in = 1
+
+;----- DASCUC Options -----;
+
+DAC_RESERVE_FORECAST_MODE_in = 2
+DAC_load_forecast_data_create_in = 1
+DAC_vg_forecast_data_create_in = 1
+GDAC_in = 12
+HDAC_in = 48
+IDAC_in = 1
+PDAC_in = 1
+tDAC_in = 24
+DAHORIZONTYPE_in = 1
+
+;----- RTSCUC Options -----;
+
+RTC_RESERVE_FORECAST_MODE_in = 1
+RTC_load_forecast_data_create_in = 2
+RTC_vg_forecast_data_create_in = 2
+HRTC_in = 12
+IRTC_in = 15
+tRTC_in = 15
+tRTCSTART_in = 1
+PRTC_in = 15
+
+;----- RTSCED Options -----;
+
+RTD_RESERVE_FORECAST_MODE_in = 1
+RTD_load_forecast_data_create_in = 2
+RTD_vg_forecast_data_create_in = 2
+HRTD_in = 12
+PRTD_in = 5
+tRTD_in = 5
+IRTDADV_in = 5
+IRTD_in = 5
+
+;----- RPU Options -----;
+
+ALLOW_RPU_in = NO
+ACE_RPU_THRESHOLD_MW_in = 200
+ACE_RPU_THRESHOLD_T_in = 2
+HRPU_in = 4
+IRPU_in = 15
+PRPU_in = 0
+restrict_multiple_rpu_time_in = 10
+
+;----- Post Processing Options -----;
+
+CPS2_interval_in = 10
+Type3_integral_in = 180
+K1_in = 1
+K2_in = 0.5
+L10_in = 35.6
+
+; ----- AGC Options -----;
+
+agcmode = 1
+agc_deadband_in = 5
+
+;----- Contingency Options -----;
+
+SIMULATE_CONTINGENCIES_in = NO
+Contingency_input_check_in = 0
+contingencycheck = NO
+checkthenetwork = YES
+gen_outage_time_in = 0
+multiplefilecheck = 0
+multiplerunscheckvalue = 0
+
+;----- Debug Options -----;
+
+debugcheck_in = 0
+autosavecheck = 0
+suppress_plots_in = YES
+timefordebugstop_in = 999
+useHDF5 = 0
+USE_INTEGER_in = YES
+solver_in = CPLEX
+
+;----- Model Rule Options -----;
+
+FORECASTING_POST_in = Some_Model_Rule.m

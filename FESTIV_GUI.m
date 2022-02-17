@@ -244,12 +244,15 @@ assignin('base','SIMULATE_CONTINGENCIES_in','NO');
 SIMULATE_CONTINGENCIES_in=evalin('base','SIMULATE_CONTINGENCIES_in');   
 evalin('base','ctgctabledata=[];');
 radiobutton10=[];
+radiobutton20=[];
 radiobutton12=[];
 radiobutton13=[];
 radiobutton15=[];
 timefordebugstop_in_edit=[];
 assignin('base','USE_INTEGER_in','YES');
 USE_INTEGER_in=evalin('base','USE_INTEGER_in');
+assignin('base','solver_in','CPLEX');
+solver_in=evalin('base','solver_in');
 try 
     suppress_plots_in=evalin('base','suppress_plots_in');
 catch
@@ -918,6 +921,7 @@ function addruns_callback(~,~)
     gen_outage_time_in=evalin('base','gen_outage_time_in');
     
     USE_INTEGER_in=evalin('base','USE_INTEGER_in');
+    solver_in=evalin('base','solver_in');
     timefordebugstop_in=evalin('base','timefordebugstop_in');
     debugcheck_in=evalin('base','debugcheck_in');
     suppress_plots_in=evalin('base','suppress_plots_in');
@@ -956,6 +960,7 @@ function addruns_callback(~,~)
     assignin('base','DAC_vg_forecast_data_create_in',DAC_vg_forecast_data_create_in);
     
     assignin('base','USE_INTEGER_in',USE_INTEGER_in);
+    assignin('base','solver_in',solver_in);
     assignin('base','timefordebugstop_in',timefordebugstop_in);
     assignin('base','debugcheck_in',debugcheck_in);
     assignin('base','suppress_plots_in',suppress_plots_in);
@@ -1000,6 +1005,7 @@ function addruns_callback(~,~)
     assignin('base','gen_outage_time_in',0);
     evalin('base','ctgctabledata=[];');
     assignin('base','USE_INTEGER_in','YES');
+    assignin('base','solver_in','CPLEX');
     assignin('base','debugcheck_in',0);
     assignin('base','timefordebugstop_in',999);
 
@@ -1067,6 +1073,7 @@ function runFESTIV(~,~)
         RTD_RESERVE_FORECAST_MODE_in = get(RTD_RESERVE_FORECAST_MODE_in_GUI,'value');
         
         USE_INTEGER_in=evalin('base','USE_INTEGER_in');
+        solver_in=evalin('base','solver_in');
         timefordebugstop_in=evalin('base','timefordebugstop_in');
         debugcheck_in=evalin('base','debugcheck_in');
         suppress_plots_in=evalin('base','suppress_plots_in');
@@ -1120,6 +1127,7 @@ function runFESTIV(~,~)
         assignin('base','autosavecheck',autosavecheck);
         
         assignin('base','USE_INTEGER_in',USE_INTEGER_in);
+        assignin('base','solver_in',solver_in);
         assignin('base','timefordebugstop_in',timefordebugstop_in);
         assignin('base','debugcheck_in',debugcheck_in);
         assignin('base','suppress_plots_in',suppress_plots_in);
@@ -2754,23 +2762,28 @@ end
 
 %% Create debugging input dialog box
 function debugging_callback(~,~)
-    debug_figure=figure('name','Debugging Parameters Input Dialog','NumberTitle','off','position',[50 50 350 250],'menubar','none','color',[.9412 .9412 .9412],'visible','off');
+    debug_figure=figure('name','Debugging Parameters Input Dialog','NumberTitle','off','position',[50 50 400 350],'menubar','none','color',[.9412 .9412 .9412],'visible','off');
     movegui(debug_figure,'center');
 
     % create panels
-    useintpanel=uibuttongroup('parent',debug_figure,'title','Solver Options','units','normalized','position',[.025 .57 .95 .200],'fontunits','normalized','fontsize',0.185);
-    dbstoppanel=uibuttongroup('parent',debug_figure,'units','normalized','position',[.025 .195 .95 .350],'title','Execution Options','selectionchangefcn',{@debugtimestop_callback});
-    supressfigurespanel=uibuttongroup('parent',debug_figure,'title','Suppress Outputs','units','normalized','position',[.025 .79 .95 .200],'fontunits','normalized','fontsize',0.185);
+    useintpanel=uibuttongroup('parent',debug_figure,'title','Solver Options','units','normalized','position',[.025 .51 .95 .15],'fontunits','normalized','fontsize',0.23);
+    solverpanel=uibuttongroup('parent',debug_figure,'title','Solver Options','units','normalized','position',[.025 .67 .95 .15],'fontunits','normalized','fontsize',0.23);
+    dbstoppanel=uibuttongroup('parent',debug_figure,'units','normalized','position',[.025 .195 .95 .300],'title','Execution Options','selectionchangefcn',{@debugtimestop_callback});
+    supressfigurespanel=uibuttongroup('parent',debug_figure,'title','Suppress Outputs','units','normalized','position',[.025 .825 .95 .150],'fontunits','normalized','fontsize',0.23);
 
     % determine how to solve UC
-    uicontrol('parent',useintpanel,'style','text','string','Should integers be used?','units','normalized','position',[.025 .2225 .60 .60],'fontunits','normalized','fontsize',0.55,'horizontalalignment','left');
-    radiobutton10=uicontrol('parent',useintpanel,'style','radiobutton','units','normalized','position',[.65 .40 .15 .45],'string','Yes','fontunits','normalized','fontsize',0.8,'value',1);
-    uicontrol('parent',useintpanel,'style','radiobutton','units','normalized','position',[.82 .40 .15 .45],'string','No','fontunits','normalized','fontsize',0.8,'value',0);
+    uicontrol('parent',useintpanel,'style','text','string','Should integers be used?','units','normalized','position',[.025 .3 .60 .50],'fontunits','normalized','fontsize',0.85,'horizontalalignment','left');
+    radiobutton10=uicontrol('parent',useintpanel,'style','radiobutton','units','normalized','position',[.55 .3 .15 .45],'string','Yes','fontunits','normalized','fontsize',0.8,'value',1);
+    uicontrol('parent',useintpanel,'style','radiobutton','units','normalized','position',[.77 .3 .15 .45],'string','No','fontunits','normalized','fontsize',0.8,'value',0);
+    
+    uicontrol('parent',solverpanel,'style','text','string','Which solver?','units','normalized','position',[.025 .3 .60 .50],'fontunits','normalized','fontsize',0.9,'horizontalalignment','left');
+    radiobutton20=uicontrol('parent',solverpanel,'style','radiobutton','units','normalized','position',[.55 .3 .2 .45],'string','Cplex','fontunits','normalized','fontsize',0.8,'value',1);
+    uicontrol('parent',solverpanel,'style','radiobutton','units','normalized','position',[.77 .3 .2 .45],'string','Gurobi','fontunits','normalized','fontsize',0.8,'value',0);
     
     % determine if output plots should be suppressed
     uicontrol('parent',supressfigurespanel,'style','text','string','Suppress output plots?','units','normalized','position',[.025 .2225 .60 .60],'fontunits','normalized','fontsize',0.55,'horizontalalignment','left');
-    radiobutton15=uicontrol('parent',supressfigurespanel,'style','radiobutton','units','normalized','position',[.65 .40 .15 .45],'string','Yes','fontunits','normalized','fontsize',0.8,'value',0);
-    uicontrol('parent',supressfigurespanel,'style','radiobutton','units','normalized','position',[.82 .40 .15 .45],'string','No','fontunits','normalized','fontsize',0.8,'value',1);
+    radiobutton15=uicontrol('parent',supressfigurespanel,'style','radiobutton','units','normalized','position',[.55 .40 .15 .45],'string','Yes','fontunits','normalized','fontsize',0.8,'value',0);
+    uicontrol('parent',supressfigurespanel,'style','radiobutton','units','normalized','position',[.77 .40 .15 .45],'string','No','fontunits','normalized','fontsize',0.8,'value',1);
     try
         suppress_plots_in=evalin('base','suppress_plots_in');
         if strcmp(suppress_plots_in,'YES')
@@ -2782,10 +2795,10 @@ function debugging_callback(~,~)
     end
     
     % determine if execution should be stopped at a certain time
-    uicontrol('parent',dbstoppanel,'style','text','string','Stop execution at a certain time?','units','normalized','position',[0.025 .75 .60 .20],'fontunits','normalized','fontsize',0.9,'horizontalalignment','left');
-    radiobutton12=uicontrol('parent',dbstoppanel,'style','radiobutton','units','normalized','position',[.65 .75 .15 .25],'string','Yes','fontunits','normalized','fontsize',0.9,'value',0);
-    radiobutton13=uicontrol('parent',dbstoppanel,'style','radiobutton','units','normalized','position',[.82 .75 .15 .25],'string','No','fontunits','normalized','fontsize',0.9,'value',1);
-    uicontrol('parent',dbstoppanel,'style','text','string','Time to stop [hr] :','units','normalized','position',[.025 0.25 .60 .20],'fontunits','normalized','fontsize',0.9,'horizontalalignment','left');
+    uicontrol('parent',dbstoppanel,'style','text','string','Stop execution at a certain time?','units','normalized','position',[0.025 .75 .60 .20],'fontunits','normalized','fontsize',0.8,'horizontalalignment','left');
+    radiobutton12=uicontrol('parent',dbstoppanel,'style','radiobutton','units','normalized','position',[.65 .75 .15 .25],'string','Yes','fontunits','normalized','fontsize',0.8,'value',0);
+    radiobutton13=uicontrol('parent',dbstoppanel,'style','radiobutton','units','normalized','position',[.82 .75 .15 .25],'string','No','fontunits','normalized','fontsize',0.8,'value',1);
+    uicontrol('parent',dbstoppanel,'style','text','string','Time to stop [hr] :','units','normalized','position',[.025 0.25 .60 .20],'fontunits','normalized','fontsize',0.8,'horizontalalignment','left');
     timefordebugstop_in_edit=uicontrol('parent',dbstoppanel,'style','edit','units','normalized','position',[0.65 .175 .30 .35],'fontunits','normalized','fontsize',0.65,'backgroundcolor','white','enable','off');
 
     % creat done button
@@ -2827,6 +2840,12 @@ function get_debug_options(~,~)
     else
         USE_INTEGER_in='NO';
     end
+    temp=get(radiobutton20,'value');
+    if temp == 1
+        solver_in='CPLEX';
+    else
+        solver_in='GUROBI';
+    end
     temp=get(radiobutton12,'value');
     if temp == 1
         debugcheck_in=1;
@@ -2845,6 +2864,7 @@ function get_debug_options(~,~)
         suppress_plots_in='NO';
     end
     assignin('base','USE_INTEGER_in',USE_INTEGER_in);
+    assignin('base','solver_in',solver_in);
     assignin('base','timefordebugstop_in',timefordebugstop_in);
     assignin('base','debugcheck_in',debugcheck_in);
     assignin('base','suppress_plots_in',suppress_plots_in);
