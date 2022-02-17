@@ -55,8 +55,8 @@ DETECT_HARDWARE_OPTIONS;
 %% Input Prompt
 %if system allows, run GUI for user input. If not, user would have already
 %loaded information into tempws workspace.
-try load tempws;catch;end;
 if feature('ShowFigureWindows') && use_gui
+try load tempws;catch;end;
 cancel=1;
 FESTIV_GUI 
 uiwait(gcf)

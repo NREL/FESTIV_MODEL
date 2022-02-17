@@ -1,0 +1,87 @@
+;----- Header -----;
+Header = MODEL_RULES\GAMS_Model_Files\Other\Base_DAC_Header.txt
+
+;----- User Defined 1 -----;
+User_Defined_1 = 
+
+;----- Declare Sets -----;
+Declare_Sets = MODEL_RULES\GAMS_Model_Files\Sets\Base_Set_Declarations_Gen.txt,MODEL_RULES\GAMS_Model_Files\Sets\Base_Set_Declarations_Network.txt,MODEL_RULES\GAMS_Model_Files\Sets\Base_Set_Declarations_Reserve.txt,MODEL_RULES\GAMS_Model_Files\Sets\Base_Set_Declarations_Storage.txt,MODEL_RULES\GAMS_Model_Files\Sets\Base_DAC_Set_Declarations_UC.txt,MODEL_RULES\GAMS_Model_Files\Sets\Base_DAC_Set_Declarations_Var_Startup.txt
+
+;----- User Defined 2 -----;
+User_Defined_2 = 
+
+;----- Declare Parameters -----;
+Declare_Parameters = MODEL_RULES\GAMS_Model_Files\Parameters\Base_Scalar_Declarations.txt,MODEL_RULES\GAMS_Model_Files\Parameters\Base_Parameter_Declarations_Gen.txt,MODEL_RULES\GAMS_Model_Files\Parameters\Base_Parameter_Declarations_Network.txt,MODEL_RULES\GAMS_Model_Files\Parameters\Base_Parameter_Declarations_Reserve.txt,MODEL_RULES\GAMS_Model_Files\Parameters\Base_Parameter_Declarations_Storage.txt,MODEL_RULES\GAMS_Model_Files\Parameters\Base_Parameter_Declarations_Storage_UC.txt,MODEL_RULES\GAMS_Model_Files\Parameters\Base_Parameter_Declarations_UC.txt,MODEL_RULES\GAMS_Model_Files\Parameters\Base_DAC_Parameter_Declarations_Var_Startup.txt
+
+;----- User Defined 3 -----;
+User_Defined_3 = 
+
+;----- Load Inputs -----;
+Load_Inputs = MODEL_RULES\GAMS_Model_Files\Load_Inputs\Base_Load_Input.txt,MODEL_RULES\GAMS_Model_Files\Load_Inputs\Base_DAC_Load_Input_Gen.txt,MODEL_RULES\GAMS_Model_Files\Load_Inputs\Base_DAC_Load_Input_Network.txt,MODEL_RULES\GAMS_Model_Files\Load_Inputs\Base_DAC_Load_Input_Reserve.txt,MODEL_RULES\GAMS_Model_Files\Load_Inputs\Base_DAC_Load_Input_Storage.txt,MODEL_RULES\GAMS_Model_Files\Load_Inputs\Base_DAC_Load_Input_Storage_UC.txt,MODEL_RULES\GAMS_Model_Files\Load_Inputs\Base_DAC_Load_Input_UC.txt,MODEL_RULES\GAMS_Model_Files\Load_Inputs\Base_DAC_Load_Input_Var_Startup.txt
+
+;----- User Defined 4 -----;
+User_Defined_4 = 
+
+;----- Define Sets -----;
+Define_Sets = MODEL_RULES\GAMS_Model_Files\Sets\Base_Set_Definitions_Gen.txt,MODEL_RULES\GAMS_Model_Files\Sets\Base_Set_Definitions_Network.txt,MODEL_RULES\GAMS_Model_Files\Sets\Base_Set_Definitions_Reserve.txt,MODEL_RULES\GAMS_Model_Files\Sets\Base_Set_Definitions_Storage.txt,MODEL_RULES\GAMS_Model_Files\Sets\Base_DAC_Set_Definitions_UC.txt,MODEL_RULES\GAMS_Model_Files\Sets\Base_DAC_Set_Definitions_Var_Startup.txt
+
+;----- User Defined 5 -----;
+User_Defined_5 = 
+
+;----- Define Parameters -----;
+Define_Parameters = MODEL_RULES\GAMS_Model_Files\Parameters\Base_Parameter_Definitions_Network.txt
+
+;----- User Defined 6 -----;
+User_Defined_6 = 
+
+;----- Declare Variables -----;
+Declare_Variables = MODEL_RULES\GAMS_Model_Files\Variables\Base_Variable_Declarations_Gen.txt,MODEL_RULES\GAMS_Model_Files\Variables\Base_Variable_Declarations_Network.txt,MODEL_RULES\GAMS_Model_Files\Variables\Base_Variable_Declarations_Reserve.txt,MODEL_RULES\GAMS_Model_Files\Variables\Base_Variable_Declarations_Storage.txt,MODEL_RULES\GAMS_Model_Files\Variables\Base_Variable_Declarations_Storage_UC.txt,MODEL_RULES\GAMS_Model_Files\Variables\Base_Variable_Declarations_UC.txt,MODEL_RULES\GAMS_Model_Files\Variables\Base_DAC_Variable_Declarations_Var_Startup.txt
+
+;----- User Defined 7 -----;
+User_Defined_7 = 
+
+;----- Define Variables -----;
+Define_Variables = MODEL_RULES\GAMS_Model_Files\Variables\Base_Variable_Definitions_Gen.txt,MODEL_RULES\GAMS_Model_Files\Variables\Base_Variable_Definitions_Network.txt,MODEL_RULES\GAMS_Model_Files\Variables\Base_Variable_Definitions_Reserve.txt,MODEL_RULES\GAMS_Model_Files\Variables\Base_Variable_Definitions_Storage.txt,MODEL_RULES\GAMS_Model_Files\Variables\Base_Variable_Definitions_Storage_UC.txt,MODEL_RULES\GAMS_Model_Files\Variables\Base_Variable_Definitions_UC.txt,MODEL_RULES\GAMS_Model_Files\Variables\Base_DAC_Variable_Definitions_Var_Startup.txt
+
+;----- User Defined 8 -----;
+User_Defined_8 = 
+
+;----- Declare Equations -----;
+Declare_Equations = MODEL_RULES\GAMS_Model_Files\Equations\Base_Equation_Declarations_Gen.txt,MODEL_RULES\GAMS_Model_Files\Equations\Base_Equation_Declarations_Network.txt,MODEL_RULES\GAMS_Model_Files\Equations\Base_Equation_Declarations_Reserve.txt,MODEL_RULES\GAMS_Model_Files\Equations\Base_Equation_Declarations_UC.txt,MODEL_RULES\GAMS_Model_Files\Equations\Base_Equation_Declarations_StorageDispatch.txt,MODEL_RULES\GAMS_Model_Files\Equations\Base_Equation_Declarations_Storage_UC.txt,MODEL_RULES\GAMS_Model_Files\Equations\Base_Equation_Declarations_SUSD_Trajectory.txt,MODEL_RULES\GAMS_Model_Files\Equations\Base_Equation_Declarations_SUSD_Trajectory_Storage.txt,MODEL_RULES\GAMS_Model_Files\Equations\Base_Equation_Declarations_StorageEnergyLim.txt,MODEL_RULES\GAMS_Model_Files\Equations\Base_DAC_Equation_Declarations_InitialGen.txt,MODEL_RULES\GAMS_Model_Files\Equations\Base_DAC_Equation_Declarations_InitialStorage.txt,MODEL_RULES\GAMS_Model_Files\Equations\Base_DAC_Equation_Declarations_Var_Startup.txt
+
+;----- User Defined 9 -----;
+User_Defined_9 = 
+
+;----- Define Equations -----;
+Define_Equations = MODEL_RULES\GAMS_Model_Files\Equations\Base_Equation_Definitions_LoadBalance.txt,MODEL_RULES\GAMS_Model_Files\Equations\Base_Equation_Definitions_Normal_Generator_Limits.txt,MODEL_RULES\GAMS_Model_Files\Equations\Base_Equation_Definitions_Network.txt,MODEL_RULES\GAMS_Model_Files\Equations\Base_Equation_Definitions_Reserve.txt,MODEL_RULES\GAMS_Model_Files\Equations\Base_Equation_Definitions_Contingency.txt,MODEL_RULES\GAMS_Model_Files\Equations\Base_Equation_Definitions_Generator_Commitment.txt,MODEL_RULES\GAMS_Model_Files\Equations\Base_Equation_Definitions_Phase_Shifter_HVDC.txt,MODEL_RULES\GAMS_Model_Files\Equations\Base_Equation_Definitions_SUSD_Trajectory.txt,MODEL_RULES\GAMS_Model_Files\Equations\Base_Equation_Definitions_Storage_Dispatch.txt,MODEL_RULES\GAMS_Model_Files\Equations\Base_Equation_Definitions_Storage_EnergyLim.txt,MODEL_RULES\GAMS_Model_Files\Equations\Base_Equation_Definitions_Storage_UC.txt,MODEL_RULES\GAMS_Model_Files\Equations\Base_Equation_Definitions_SUSD_Trajectory_Storage.txt,MODEL_RULES\GAMS_Model_Files\Equations\Base_DAC_Equation_Definitions_Objective_Function.txt,MODEL_RULES\GAMS_Model_Files\Equations\Base_DAC_Equation_Definitions_InitialGen.txt,MODEL_RULES\GAMS_Model_Files\Equations\Base_DAC_Equation_Definitions_InitialStorage.txt,MODEL_RULES\GAMS_Model_Files\Equations\Base_DAC_Equation_Definitions_Variable_Startup.txt
+
+;----- User Defined 10 -----;
+User_Defined_10 = 
+
+;----- Define Model -----;
+Define_Model = MODEL_RULES\GAMS_Model_Files\Other\Base_DAC_Model_Definition.txt
+
+;----- User Defined 11 -----;
+User_Defined_11 = 
+
+;----- Solver Options -----;
+Solver_Options = MODEL_RULES\GAMS_Model_Files\Other\Base_DAC_Solver_Options.txt
+
+;----- User Defined 12 -----;
+User_Defined_12 = 
+
+;----- Solve Statement -----;
+Solve_Statement = MODEL_RULES\GAMS_Model_Files\Other\Base_DAC_Solve_Statement.txt
+
+;----- User Defined 13 -----;
+User_Defined_13 = 
+
+;----- Post Processing -----;
+Post_Processing = MODEL_RULES\GAMS_Model_Files\Other\Base_DAC_Post_Processing.txt,MODEL_RULES\GAMS_Model_Files\Other\Base_Post_Processing_Storage.txt
+
+;----- User Defined 14 -----;
+User_Defined_14 = 
+
+;----- Footer -----;
+Footer = MODEL_RULES\GAMS_Model_Files\Other\Base_DAC_Footer.txt
+

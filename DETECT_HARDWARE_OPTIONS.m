@@ -6,13 +6,14 @@
 %related to high performance computing and other options.
 GUI_HPC_Options;
 
-%The following determines whether running on High Performance Computing at
-%NREL. It is specific to NREL use.
-[~,sysout] = system('dnsdomainname'); 
-sysout = strtrim(sysout);
-if strcmp(sysout, 'hpc.nrel.gov')
-  fprintf('Detected host hpc.nrel.gov\n')
+%The following determines whether running on High Performance Computing or
+%any linux machine.
+if isunix
+  fprintf('Detected Linux machine.\n')
   on_hpc = 1;  % hpc flag
+  READ_TEMPWS_TXT_FILE
+  CREATE_GAMS_NO_GUI
+  use_gui = 0;
 end
 
 % Detects whether it is an option to use the gui
@@ -26,9 +27,9 @@ end
 
 % set gams solver flags
 if on_hpc
-  gams_mip_flag = ' mip=gurobi ';
+  gams_mip_flag = [' mip=',lower(solver_in),' '];
   fprintf(['Set gams MIP flag : ', gams_mip_flag, '\n'])
-  gams_lp_flag = ' lp=gurobi ';
+  gams_lp_flag = [' lp=',lower(solver_in),' '];
   fprintf(['Set gams LP flag : ', gams_lp_flag, '\n'])
 end
 

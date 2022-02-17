@@ -1,0 +1,86 @@
+;----- Header -----;
+Header = 
+
+;----- User Defined 1 -----;
+User_Defined_1 = 
+
+;----- Declare Sets -----;
+Declare_Sets = 
+
+;----- User Defined 2 -----;
+User_Defined_2 = 
+
+;----- Declare Parameters -----;
+Declare_Parameters = 
+
+;----- User Defined 3 -----;
+User_Defined_3 = 
+
+;----- Load Inputs -----;
+Load_Inputs = 
+
+;----- User Defined 4 -----;
+User_Defined_4 = 
+
+;----- Define Sets -----;
+Define_Sets = 
+
+;----- User Defined 5 -----;
+User_Defined_5 = 
+
+;----- Define Parameters -----;
+Define_Parameters = 
+
+;----- User Defined 6 -----;
+User_Defined_6 = 
+
+;----- Declare Variables -----;
+Declare_Variables = 
+
+;----- User Defined 7 -----;
+User_Defined_7 = 
+
+;----- Define Variables -----;
+Define_Variables = 
+
+;----- User Defined 8 -----;
+User_Defined_8 = 
+
+;----- Declare Equations -----;
+Declare_Equations = 
+
+;----- User Defined 9 -----;
+User_Defined_9 = 
+
+;----- Define Equations -----;
+Define_Equations = 
+
+;----- User Defined 10 -----;
+User_Defined_10 = 
+
+;----- Define Model -----;
+Define_Model = 
+
+;----- User Defined 11 -----;
+User_Defined_11 = 
+
+;----- Solver Options -----;
+Solver_Options = 
+
+;----- User Defined 12 -----;
+User_Defined_12 = 
+
+;----- Solve Statement -----;
+Solve_Statement = 
+
+;----- User Defined 13 -----;
+User_Defined_13 = 
+
+;----- Post Processing -----;
+Post_Processing = 
+
+;----- User Defined 14 -----;
+User_Defined_14 = 
+
+;----- Footer -----;
+Footer = 
