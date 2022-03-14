@@ -12,7 +12,7 @@ if Solving_Initial_Models == 0
             RTSCUCPUMPSTART_YES_TMP = 0;
         end;
         if RTSCUCSTART_YES(i,1) || RTSCUCPUMPSTART_YES_TMP
-            min_down_check_start_time = max(1,RTSCUC_binding_interval_index -GENVALUE_VAL(i,md_time)*rtscuc_I_perhour+1);
+            min_down_check_start_time = max(1,floor(RTSCUC_binding_interval_index - GENVALUE_VAL(i,md_time)*rtscuc_I_perhour+1));
             min_down_check_end_time = RTSCUC_binding_interval_index - 1;
             min_down_interval_enforced=0;
             min_down_check_time = min_down_check_start_time;
@@ -25,7 +25,7 @@ if Solving_Initial_Models == 0
                     mindown_last_status = STATUS(min_down_check_time-1,1+i)+PUMPSTATUS(min_down_check_time-1,1+i);
                 end;
                 if mindown_last_status - (STATUS(max(1,min_down_check_time),1+i)+ PUMPSTATUS(max(1,min_down_check_time),1+i))== 1  
-                    min_down_interval_enforced = GENVALUE_VAL(i,md_time)*rtscuc_I_perhour - (min_down_check_end_time - min_down_check_time)-1;
+                    min_down_interval_enforced = floor(GENVALUE_VAL(i,md_time)*rtscuc_I_perhour - (min_down_check_end_time - min_down_check_time)-1);
                     min_down_check_time = min_down_check_end_time + 1;
                 else
                     min_down_interval_enforced = 0;
@@ -38,7 +38,7 @@ if Solving_Initial_Models == 0
             end;
         end;
         if RTSCUCSHUT_YES(i,1)
-            min_run_check_start_time = max(1,RTSCUC_binding_interval_index -GENVALUE_VAL(i,mr_time)*rtscuc_I_perhour+1);
+            min_run_check_start_time = max(1,floor(RTSCUC_binding_interval_index -GENVALUE_VAL(i,mr_time)*rtscuc_I_perhour+1));
             min_run_check_end_time = RTSCUC_binding_interval_index - 1;
             min_run_interval_enforced=0;
             min_run_check_time = min_run_check_start_time;
@@ -49,7 +49,7 @@ if Solving_Initial_Models == 0
                     minrun_last_status = STATUS(min_run_check_time-1,1+i);
                 end;
                 if STATUS(min_run_check_time,1+i)-minrun_last_status == 1
-                    min_run_interval_enforced = GENVALUE_VAL(i,mr_time)*rtscuc_I_perhour - (min_run_check_end_time - min_run_check_time)-1;
+                    min_run_interval_enforced = floor(GENVALUE_VAL(i,mr_time)*rtscuc_I_perhour - (min_run_check_end_time - min_run_check_time)-1);
                     min_run_check_time = min_run_check_end_time + 1;
                 else
                     min_run_interval_enforced = 0;
@@ -63,7 +63,7 @@ if Solving_Initial_Models == 0
     end;
     for e=1:nESR
         if RTSCUCPUMPSHUT_YES(e,1)
-            min_pump_check_start_time = max(1,RTSCUC_binding_interval_index -STORAGEVALUE_VAL(e,min_pump_time)*rtscuc_I_perhour+1);
+            min_pump_check_start_time = max(1,floor(RTSCUC_binding_interval_index -STORAGEVALUE_VAL(e,min_pump_time)*rtscuc_I_perhour+1));
             min_pump_check_end_time = RTSCUC_binding_interval_index - 1;
             min_pump_interval_enforced=0;
             min_pump_check_time = min_pump_check_start_time;
@@ -74,7 +74,7 @@ if Solving_Initial_Models == 0
                     minpump_last_status = PUMPSTATUS(min_pump_check_time-1,1+storage_to_gen_index(e,1));
                 end;
                 if PUMPSTATUS(min_pump_check_time,1+storage_to_gen_index(e,1))-minpump_last_status == 1
-                    min_pump_interval_enforced = STORAGEVALUE_VAL(e,min_pump_time)*rtscuc_I_perhour - (min_pump_check_end_time - min_pump_check_time)-1;
+                    min_pump_interval_enforced = floor(STORAGEVALUE_VAL(e,min_pump_time)*rtscuc_I_perhour - (min_pump_check_end_time - min_pump_check_time)-1);
                     min_pump_check_time = min_pump_check_end_time + 1;
                 else
                     min_pump_interval_enforced = 0;
