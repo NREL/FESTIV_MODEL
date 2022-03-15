@@ -6,6 +6,7 @@ function definitions=getGamsDefinitions(startofsection,endofsection,path)
 
 % Read in set definitions
 %    path
+    %disp(path)
     fid = fopen(path,'r+');
     tline = fgetl(fid);
     i=1;

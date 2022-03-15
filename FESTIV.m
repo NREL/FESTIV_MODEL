@@ -211,7 +211,7 @@ if execution_from_previous==0 || time==start_time
     end
 
     try
-    DAModelSolutionStatus=[DAModelSolutionStatus;time modelSolveStatus numberOfInfes solverStatus relativeGap];
+    DAModelSolutionStatus=[time modelSolveStatus numberOfInfes solverStatus relativeGap];
     if ~isdeployed 
       dbstop if warning stophere:DACinfeasible;
     end
@@ -392,7 +392,7 @@ if execution_from_previous==0 || time==start_time
     end
     
 else %continuing from previous FESTIV run
-    festivBanner;
+    FESTIVBANNER;
     fprintf('\nNOTICE: Continuing FESTIV from previous Run.\nIf done by mistake, end run and enter ''clear execution_from_previous'' in command window to restart FESTIV.\n\n\n ');
     fprintf('Study Period: %03d days %02d hours %02d minutes %02d seconds\n',simulation_days+floor((hour_end+eps)/24),rem(hour_end,24),minute_end,second_end);
 end;
@@ -401,7 +401,7 @@ end;
 %Entering the Time Loop
 while(time < end_time)
 %% Day-Ahead SCUC 
-    if dascuc_update + eps >= tDAC && (DASCUC_binding_interval_index-1)*HDAC + eps < end_time
+    if dascuc_update + eps >= tDAC && (DASCUC_binding_interval_index-1)*IDAC*HDAC + eps < end_time
         
         dascuc_update = 0;
         %Let FESTIV and all Functional Mods know that DASCUC is currently running.
@@ -638,7 +638,12 @@ while(time < end_time)
 %% ACE Calculator
 
     %Calculate losses for the AGC time frame to calculate ACE
-    GATHER_LOSSES_FOR_ACE_CALCULATOR;
+    if strcmp(NETWORK_CHECK,'YES')
+        %Calculate losses for the AGC time frame to calculate ACE
+        GATHER_LOSSES_FOR_ACE_CALCULATOR;
+    else
+        losses=0;
+    end
     
     %All the current generator outputs and other inputs at AGC time frame
     GATHER_CURRENT_GEN_CONDITIONS_FOR_ACE_CALCULATOR_AND_AGC;
