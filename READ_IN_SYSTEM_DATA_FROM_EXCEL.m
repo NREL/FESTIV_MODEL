@@ -456,14 +456,7 @@ if strcmp(NETWORK_CHECK,'NO')
     BRANCHDATA_VAL(:,resistance)=0;
 end;
 
-try
-tmp_idx1=find(strcmp(BRANCHPARAM_VAL,'REVERSE_LINEFLOW_LIMIT'));
-tmp_idx2=find(strcmp(BRANCHPARAM_VAL,'LINE_RATING'));
-for b=1:nbranch
-   BRANCHDATA_VAL(b,tmp_idx1)=BRANCHDATA_VAL(b,tmp_idx1)/100*BRANCHDATA_VAL(b,tmp_idx2); 
-end
-catch;
-end;
+
 
 BRANCHDATA.val = BRANCHDATA_VAL;
 DEFAULT_DATA.BRANCHDATA=BRANCHDATA;
