@@ -3,14 +3,24 @@ if exist('multiplefilecheck')==1
         if autosavecheck==1
             print_final_results = outputname;
         else
-            print_final_results = input('Please type a filename to save the final results. Otherwise press enter.\n             (NOTE: Only open figures will be saved)\n','s');
+            if isunix
+                tmp=split(pwd,filesep);
+                print_final_results=tmp{end};
+            else
+                print_final_results = input('Please type a filename to save the final results. Otherwise press enter.\n             (NOTE: Only open figures will be saved)\n','s');
+            end
             outputname = print_final_results;
         end
     else
         print_final_results = outputname;       
     end
 else
-    print_final_results = input('Please type a filename to save the final results. Otherwise press enter.\n             (NOTE: Only open figures will be saved)\n','s');
+    if isunix
+        tmp=split(pwd,filesep);
+        print_final_results=tmp{end};
+    else
+        print_final_results = input('Please type a filename to save the final results. Otherwise press enter.\n             (NOTE: Only open figures will be saved)\n','s');
+    end
     outputname = print_final_results;
 end
 
@@ -20,7 +30,7 @@ else
     fprintf('\nSaving Output Files...');
     f=strcat('OUTPUT', filesep,print_final_results, filesep);
     currentdir=pwd;
-    print_final_results1 = strcat('OUTPUT',filesep,print_final_results,filesep ,print_final_results,' Summary.h5');
+    print_final_results1 = strcat('OUTPUT',filesep,print_final_results,filesep ,print_final_results,'_Summary.h5');
     fileName=fullfile(currentdir,print_final_results1);
     
     % Case Summary tab/Input Data

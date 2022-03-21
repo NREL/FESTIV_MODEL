@@ -884,8 +884,9 @@ if ~ispc
     SAVE_OUTPUT_TO_HDF5;  % HPC-HDF5
   catch
     tmp_err = lasterror;
+    save(['OUTPUT',filesep,'Workspace.mat']);
     fprintf('Error calling SAVE_OUTPUT_TO_HDF5\n')
-    disp(tmp_err)
+    %disp(tmp_err)
   end
 else
     SAVE_CURRENT_FESTIV_CASE;  % Windows-Excel
@@ -926,3 +927,4 @@ else
 end
 end;
 
+fprintf('\nFESTIV execution complete.\n');

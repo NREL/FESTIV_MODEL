@@ -102,7 +102,12 @@ for i=1:ngen
             end;
             %SU and SD trajectories
             if t==1
-                last_startup = 0;
+                %last_startup = 0;
+                if time == 0
+                    last_startup = double(GENVALUE_VAL(i,initial_status) == 0 && RTSCUCBINDINGSCHEDULE(1,i+1) > 0);
+                else
+                    last_startup = double(sum(diff(STATUS(max(1,ceil((RTD_LOOKAHEAD_INTERVAL_VAL(1)-GENVALUE_VAL(i,su_time))/(IRTC/60))*(IRTC/60)/(IRTC/60)+1):RTSCUC_binding_interval_index-1,i+1))>0)>0);
+                end
                 last_status = LAST_STATUS_VAL(i,1);
             else
                 last_startup = UNIT_STARTINGUP_VAL(i,t-1); % for knowing whether start-up is continuous or new.
