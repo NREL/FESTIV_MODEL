@@ -23,6 +23,10 @@ else
         ACTUAL_GEN_OUTPUT_VAL = ACTUAL_GENERATION(AGC_interval_index-round(PRTD*60/t_AGC),2:ngen+1)';
     end;
 end;
+LAST_STATUS_VAL = zeros(ngen,1);
+LAST_STATUS_ACTUAL_VAL = zeros(ngen,1);
+LAST_STATUS_VAL(abs(LAST_GEN_SCHEDULE_VAL)>0)=1;  
+LAST_STATUS_ACTUAL_VAL(abs(ACTUAL_GEN_OUTPUT_VAL)>0)=1; 
 
 if Solving_Initial_Models 
     for e=1:nESR
@@ -44,6 +48,22 @@ else
         ACTUAL_PUMP_OUTPUT_VAL = ACTUAL_PUMP(AGC_interval_index-round(PRTD*60/t_AGC),2:nESR+1)';
     end;
 end;
+LAST_PUMPSTATUS_VAL = zeros(nESR,1);
+LAST_PUMPSTATUS_ACTUAL_VAL = zeros(nESR,1);
+LAST_PUMPSTATUS_VAL(LAST_PUMP_SCHEDULE_VAL>0)=1;  
+LAST_PUMPSTATUS_ACTUAL_VAL(ACTUAL_PUMP_OUTPUT_VAL>0)=1; 
+UNIT_PUMPINGUP_ACTUAL_VAL=zeros(nESR,1);
+UNIT_STARTINGUP_ACTUAL_VAL=zeros(ngen,1);
+for e=1:nESR
+    if ACTUAL_PUMP_OUTPUT_VAL(e,1)<STORAGEVALUE_VAL(e,min_pump) && LAST_PUMP_SCHEDULE_VAL(e,1)>=STORAGEVALUE_VAL(e,min_pump)
+        UNIT_PUMPINGUP_ACTUAL_VAL(e,1)=1;
+    end
+end
+for i=1:ngen
+    if ACTUAL_GEN_OUTPUT_VAL(i,1)<GENVALUE_VAL(i,min_gen) && LAST_GEN_SCHEDULE_VAL(i,1)>=GENVALUE_VAL(i,min_gen)
+        UNIT_STARTINGUP_ACTUAL_VAL(i,1)=1;
+    end
+end
 
 for i=1:ngen
     RAMP_SLACK_UP_VAL(i,1) = max(0,ACTUAL_GEN_OUTPUT_VAL(i,1) - (PRTD+IRTD)*GENVALUE_VAL(i,ramp_rate) ...
