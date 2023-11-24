@@ -273,11 +273,7 @@ INITIAL_DISPATCH_SLACK_SET.uels = {'IGNORE_ACTUAL' 'IGNORE_BP'};
 INITIAL_DISPATCH_SLACK_SET.type = 'set';
 
 %This is a gams parameter to avoid using the time 0 ramp constraints.
-if Solving_Initial_Models == 1
-    INITIAL_DISPATCH_SLACK.val = [1;1] ; 
-else
-    INITIAL_DISPATCH_SLACK.val = [0;0] ; 
-end;
+INITIAL_DISPATCH_SLACK.val = INITIAL_DISPATCH_SLACK_VAL; 
 INITIAL_DISPATCH_SLACK.name = 'INITIAL_DISPATCH_SLACK';
 INITIAL_DISPATCH_SLACK.form = 'full';
 INITIAL_DISPATCH_SLACK.uels = INITIAL_DISPATCH_SLACK_SET.uels;

@@ -15,6 +15,9 @@ end
 if ~exist('agc_deadband_in','var')
     agc_deadband_in=zeros(size(GEN_AGC_MODES));
 end
+if ~exist('agc_vg_curtailment','var')
+    agc_vg_curtailment=zeros(ngen,1);
+end
 Time_Left_in_CPS2_interval = CPS2_interval - mod(agc_time*60,CPS2_interval);
 Anticipated_CPS2 = ACE_CPS2 + ACE_raw*(Time_Left_in_CPS2_interval/CPS2_interval);
 ACE_Target(GEN_AGC_MODES==1)=0;
@@ -87,6 +90,12 @@ for i=1:ngen
                 Max_Reg_Limit_Hit(1,1) = Max_Reg_Limit_Hit(1,1) + 1;
                 Max_Reg_Limit_Hit(1,2) = max_interval_limit_hit + 1;
             end;
+            if (GENVALUE_VAL(i,gen_type) == PV_gen_type_index || GENVALUE_VAL(i,gen_type) == wind_gen_type_index)  && ((ACE_Target(i) < -1*agc_deadband_Target(i) && REGULATION_UP(:,1+i) > eps) ...
+            || ( ACE_Target(i) > agc_deadband_Target(i) && REGULATION_DOWN(:,1+i) > eps)) 
+                agc_vg_curtailment(i,1) = 1;
+            else
+                agc_vg_curtailment(i,1) = 0;
+            end
     elseif  ((REGULATION_UP(:,1+i) < eps && REGULATION_DOWN(:,1+i) < eps) ...
             || ( ACE_Target(i) >= -1*agc_deadband_Target(i) && REGULATION_UP(:,1+i) > eps) ...
             || ( ACE_Target(i) <= agc_deadband_Target(i) && REGULATION_DOWN(:,1+i) > eps) )  
@@ -118,6 +127,5 @@ for i=1:ngen
     end;
             
 end;
-
 
 

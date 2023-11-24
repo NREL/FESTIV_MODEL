@@ -42,7 +42,7 @@ SHUTTINGDOWN_VAL = 0;
 if gentype ~= 7 && gentype ~= 10 && gentype ~= 14 && gentype ~= 16
     latest_shut_index = min(size(UNITSTATUS,1),ceil((Interval_Time + UNITVALUE(1,sd_time_index))*rtscuc_I_perhour-eps)+1);
     shutdown_time_check_index = ceil(Interval_Time*rtscuc_I_perhour-eps) + 1;
-    while(shutdown_time_check_index <= latest_shut_index)
+    while(shutdown_time_check_index < latest_shut_index)
         if shutdown_time_check_index <= 1
             Initial_RTD_last_shutdown_check = UNITVALUE(1,initial_status_index);
             initialflag=1;

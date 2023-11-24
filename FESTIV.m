@@ -52,6 +52,10 @@ execution_from_previous=0;
 
 DETECT_HARDWARE_OPTIONS;
 
+%% User options to be seen throughout
+%A number of different options to change from default values if the user wishes. Users can modify this file.
+FESTIV_ADDL_OPTIONS
+
 %% Input Prompt
 %if system allows, run GUI for user input. If not, user would have already
 %loaded information into tempws workspace.
@@ -145,8 +149,6 @@ if execution_from_previous==0 || time==start_time
         try run(SHIFT_FACTOR_POST_in{x,1});catch;end;
     end;
     
-    %A number of different options to change from default values if the user wishes. Users can modify this file.
-    FESTIV_ADDL_OPTIONS
     
     %Initialize variables with zeros and others that need initialization before simulations start
     INITIALIZE_VARIABLES_FOR_RT
@@ -260,6 +262,9 @@ if execution_from_previous==0 || time==start_time
     %Gather RESERVE levels
     RESERVELEVEL_VAL=GATHER_RESERVE_INPUT_FOR_SCHEDULING_PROCESS(RTC_RESERVE_FULL,RTSCUC_binding_interval_index,HRTC);
 
+    %Get data pertaining to allowing ramp slacks in initial models
+    GATHER_INITIAL_DISPATCH_SLACK
+
     %Distinguish between units that can have commitment decisions modified in RTSCUC and those that cannot.
     RTSCUCSTART_MODE = RTSCUCSTART_MODE_RTC;
     RTSCUCSTART;
@@ -324,6 +329,9 @@ if execution_from_previous==0 || time==start_time
     %Gather RESERVE levels
     RESERVELEVEL_VAL=GATHER_RESERVE_INPUT_FOR_SCHEDULING_PROCESS(RTD_RESERVE_FULL,RTSCED_binding_interval_index,HRTD);
 
+    %Get data pertaining to allowing ramp slacks in initial models
+    GATHER_INITIAL_DISPATCH_SLACK
+    
     %ACTUAL_GEN_OUTPUT and LAST_GEN_SCHEDULE and ACTUAL/LAST STATUS for gen and storage
     GATHER_ACTUALS_AND_LAST_GEN_SCHEDULE_FOR_RTSCED;
     

@@ -43,9 +43,9 @@ RPUBINDINGRESERVEPRICE(RTSCED_binding_interval_index,:) = [RPU_LOOKAHEAD_INTERVA
 %follow those directions.
 for i=1:ngen
     if RPUVGCURTAILMENT.val(i,1) > eps
-        binding_vg_curtailment(i,1) = 1;
+        rtd_binding_vg_curtailment(i,1) = 1;
     else
-        binding_vg_curtailment(i,1) = 0;
+        rtd_binding_vg_curtailment(i,1) = 0;
     end;
 end;
 DISPATCH(RTSCED_binding_interval_index-1,:) = RPUBINDINGSCHEDULE(RPU_binding_interval_index,:);

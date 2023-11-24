@@ -12,7 +12,7 @@
                     w = 1;
                     while(w<=size(ACTUAL_VG_FIELD,2)-1)
                         if(strcmp(GEN_VAL(i,1),ACTUAL_VG_FIELD(1+w)))
-                        if binding_vg_curtailment(i,1) == 1
+                        if rtd_binding_vg_curtailment(i,1) == 1 || agc_vg_curtailment(i,1)==1
                             ACTUAL_GENERATION(AGC_interval_index,1+i) = min(ACTUAL_VG_FULL(AGC_interval_index,1+w),min(GENVALUE_VAL(i,capacity),...
                                 max((UNIT_STATUS_VAL(i,1)-UNIT_STARTINGUP_VAL(i,1)-UNIT_SHUTTINGDOWN_VAL(i,1))*GENVALUE_VAL(i,min_gen),...
                                 AGC_SCHEDULE(AGC_interval_index-1,1+i)*(1+(1-GENVALUE_VAL(i,behavior_rate))*randn(1)) ...
@@ -66,7 +66,7 @@
                     w = 1;
                     while(w<=nvg)
                         if(strcmp(GEN_VAL(i,1),ACTUAL_VG_FIELD(1+w)))
-                        if binding_vg_curtailment(i,1) == 1
+                        if rtd_binding_vg_curtailment(i,1) == 1 || agc_vg_curtailment(i,1)==1
                             ACTUAL_GENERATION(AGC_interval_index,1+i) = min(ACTUAL_VG_FULL(AGC_interval_index,1+w),min(GENVALUE_VAL(i,capacity),...
                                 max((UNIT_STATUS_VAL(i,1)-UNIT_STARTINGUP_VAL(i,1)-UNIT_SHUTTINGDOWN_VAL(i,1))*GENVALUE_VAL(i,min_gen),...
                                 AGC_SCHEDULE(AGC_interval_index-1,1+i)*(1+(1-GENVALUE_VAL(i,behavior_rate))*randn(1)))));

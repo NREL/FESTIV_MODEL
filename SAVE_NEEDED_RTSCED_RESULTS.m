@@ -31,12 +31,12 @@ else
 end
 
 %need to know if the vg was directed to be curtailed
-binding_vg_curtailment = zeros(ngen,1); %Iniitialize here
+rtd_binding_vg_curtailment = zeros(ngen,1); %Iniitialize here
 for i=1:ngen
     if RTDVGCURTAILMENT.val(i,1) > eps && (GENVALUE_VAL(i,gen_type) == wind_gen_type_index || GENVALUE_VAL(i,gen_type) == PV_gen_type_index)
-        binding_vg_curtailment(i,1) = 1;
+        rtd_binding_vg_curtailment(i,1) = 1;
     else
-        binding_vg_curtailment(i,1) = 0;
+        rtd_binding_vg_curtailment(i,1) = 0;
     end;
 end;
 

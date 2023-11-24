@@ -7,7 +7,7 @@ ACTUAL_VG_FIELD = [];
 %Retrieve actual load and actual vg through timeseries.
 if useHDF5==0
     for d = 1:simulation_days
-        ACTUAL_LOAD_FULL_TMP = xlsread(cell2mat(actual_load_input_file(d,1)),'A1:B90000');
+        ACTUAL_LOAD_FULL_TMP = xlsread(cell2mat(actual_load_input_file(d,1)));
         actual_load_multiplier_tmp = zeros(size(ACTUAL_LOAD_FULL_TMP));
         actual_load_multiplier_tmp(:,1) = d-1;
         ACTUAL_LOAD_FULL_TMP = ACTUAL_LOAD_FULL_TMP + actual_load_multiplier_tmp;

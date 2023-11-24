@@ -77,9 +77,6 @@ for i=1:ngen
         Actuals_time = ACTUAL_GENERATION(AGC_interval_index-round(PRTD*60/t_AGC),1);
         lookahead_interval_index_ceil = min(size(STATUS,1),ceil(Actuals_time*rtscuc_I_perhour-eps) + 1);
         lookahead_interval_index_floor = min(size(STATUS,1),floor(Actuals_time*rtscuc_I_perhour+eps) + 1); 
-        if i==13
-            last_status;
-        end
         [UNIT_STARTINGUP_ACTUAL_VAL(i,1),~,UNIT_SHUTTINGDOWN_ACTUAL_VAL(i,t)]=RTSCED_SUSD_Trajectories(STATUS(:,1+i),LAST_STATUS_VAL(i,1),LAST_STATUS_ACTUAL_VAL(i,1),GENVALUE_VAL(i,gen_type),GENVALUE_VAL(i,:),ACTUAL_START_TIME(i,1),Actuals_time,INTERVAL_MINUTES_VAL,rtscuc_I_perhour,eps,su_time,sd_time,min_gen,initial_status,t,time,IDAC,0);
         end
         
@@ -102,7 +99,7 @@ for i=1:ngen
             end;
             %SU and SD trajectories
             if t==1
-                last_startup = 0;
+                last_startup = ACTUAL_START_TIME(i,1)<RTD_LOOKAHEAD_INTERVAL_VAL(t,1)-(tRTD/60);
                 last_status = LAST_STATUS_VAL(i,1);
             else
                 last_startup = UNIT_STARTINGUP_VAL(i,t-1); % for knowing whether start-up is continuous or new.
