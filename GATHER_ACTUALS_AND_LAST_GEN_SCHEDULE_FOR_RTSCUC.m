@@ -23,7 +23,7 @@ else
     if time - PRTC/60 < ACTUAL_GENERATION(1,1)
         ACTUAL_GEN_OUTPUT_VAL = ACTUAL_GENERATION(1,2:ngen+1)'; 
     else
-        ACTUAL_GEN_OUTPUT_VAL = ACTUAL_GENERATION(AGC_interval_index-round(PRTC*60/t_AGC)+1,2:ngen+1)';
+        ACTUAL_GEN_OUTPUT_VAL = ACTUAL_GENERATION(AGC_interval_index-round(PRTC*60/t_AGC),2:ngen+1)';
     end;
 end;
 LAST_STATUS_ACTUAL_VAL(ACTUAL_GEN_OUTPUT_VAL>0)=1; 

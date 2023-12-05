@@ -65,7 +65,7 @@ for i=1:ngen
        catch; end;
    else
         GEN_FORCED_OUT_VAL(i,1) = 0;
-        t = 1;
+        t = 0;
         UNIT_STARTUPMINGENHELP_VAL(i,1) = 0;
         if Solving_Initial_Models && RTSCUCBINDINGSCHEDULE(1,1+i) > 0 && GENVALUE_VAL(i,initial_MW) < eps
            ACTUAL_START_TIME(i,1) = -1*IDAC; 
@@ -77,7 +77,7 @@ for i=1:ngen
         Actuals_time = ACTUAL_GENERATION(AGC_interval_index-round(PRTD*60/t_AGC),1);
         lookahead_interval_index_ceil = min(size(STATUS,1),ceil(Actuals_time*rtscuc_I_perhour-eps) + 1);
         lookahead_interval_index_floor = min(size(STATUS,1),floor(Actuals_time*rtscuc_I_perhour+eps) + 1); 
-        [UNIT_STARTINGUP_ACTUAL_VAL(i,1),~,UNIT_SHUTTINGDOWN_ACTUAL_VAL(i,t)]=RTSCED_SUSD_Trajectories(STATUS(:,1+i),LAST_STATUS_VAL(i,1),LAST_STATUS_ACTUAL_VAL(i,1),GENVALUE_VAL(i,gen_type),GENVALUE_VAL(i,:),ACTUAL_START_TIME(i,1),Actuals_time,INTERVAL_MINUTES_VAL,rtscuc_I_perhour,eps,su_time,sd_time,min_gen,initial_status,t,time,IDAC,0);
+        [UNIT_STARTINGUP_ACTUAL_VAL(i,1),~,UNIT_SHUTTINGDOWN_ACTUAL_VAL(i,1)]=RTSCED_SUSD_Trajectories(STATUS(:,1+i),LAST_STATUS_VAL(i,1),LAST_STATUS_ACTUAL_VAL(i,1),GENVALUE_VAL(i,gen_type),GENVALUE_VAL(i,:),ACTUAL_START_TIME(i,1),Actuals_time,INTERVAL_MINUTES_VAL,rtscuc_I_perhour,eps,su_time,sd_time,min_gen,initial_status,t,time,IDAC,0);
         end
         
         for t=1:HRTD

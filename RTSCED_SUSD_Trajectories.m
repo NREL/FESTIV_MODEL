@@ -23,7 +23,7 @@ if gentype ~= 7 && gentype ~= 10 && gentype ~= 14 && gentype ~= 16
             end
                 if ACTUAL_START_TIME < time && last_startup==1
                     STARTUPMINGENHELP_VAL = UNITVALUE(1,min_gen_index)*(time-ACTUAL_START_TIME)/UNITVALUE(1,su_time_index);
-                    if t == 1
+                    if t <= 1
                         if STARTUPMINGENHELP_VAL >= UNITVALUE(1,min_gen_index)
                             STARTUPMINGENHELP_VAL = 0;
                             STARTINGUP_VAL = 0;
@@ -39,6 +39,29 @@ if gentype ~= 7 && gentype ~= 10 && gentype ~= 14 && gentype ~= 16
     end;
 end;
 SHUTTINGDOWN_VAL = 0;
+if t==0 %test for now, can be consolodated or simplified.
+if gentype ~= 7 && gentype ~= 10 && gentype ~= 14 && gentype ~= 16
+    latest_shut_index = min(size(UNITSTATUS,1),ceil((Interval_Time + UNITVALUE(1,sd_time_index))*rtscuc_I_perhour-eps)+1);
+    shutdown_time_check_index = ceil(Interval_Time*rtscuc_I_perhour-eps) + 1;
+    while(shutdown_time_check_index <= latest_shut_index)
+        if shutdown_time_check_index <= 1
+            Initial_RTD_last_shutdown_check = UNITVALUE(1,initial_status_index);
+            initialflag=1;
+        else
+            Initial_RTD_last_shutdown_check = UNITSTATUS(shutdown_time_check_index-1,1);
+            initialflag=0;
+        end
+        if Initial_RTD_last_shutdown_check - UNITSTATUS(shutdown_time_check_index,1) == 1 && last_status==1
+            if initialflag && UNITVALUE(1,sd_time_index)<IDAC
+                SHUTTINGDOWN_VAL = 0;
+            else    
+                SHUTTINGDOWN_VAL = 1;
+            end;
+        end;
+        shutdown_time_check_index = shutdown_time_check_index + 1;
+    end;
+end;
+else
 if gentype ~= 7 && gentype ~= 10 && gentype ~= 14 && gentype ~= 16
     latest_shut_index = min(size(UNITSTATUS,1),ceil((Interval_Time + UNITVALUE(1,sd_time_index))*rtscuc_I_perhour-eps)+1);
     shutdown_time_check_index = ceil(Interval_Time*rtscuc_I_perhour-eps) + 1;
@@ -60,7 +83,7 @@ if gentype ~= 7 && gentype ~= 10 && gentype ~= 14 && gentype ~= 16
         shutdown_time_check_index = shutdown_time_check_index + 1;
     end;
 end;
-
+end
 
 
 

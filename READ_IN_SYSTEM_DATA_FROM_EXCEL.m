@@ -747,15 +747,15 @@ for e=1:nESR
 end;
 
 %How FESTIV AGC knows what can provide
-regulation_up_index=0;
-regulation_down_index=0;
+regulation_up_index=[];
+regulation_down_index=[];
 for r=1:nreserve
     if RESERVEVALUE_VAL(r,res_agc) == 1
         if RESERVEVALUE_VAL(r,res_dir) == 1 || RESERVEVALUE_VAL(r,res_dir) == 3
-            regulation_up_index = r;
+            regulation_up_index = [regulation_up_index;r];
         end;
         if RESERVEVALUE_VAL(r,res_dir) == 2 || RESERVEVALUE_VAL(r,res_dir) == 3
-            regulation_down_index = r;
+            regulation_down_index = [regulation_down_index;r];
         end;
     end;
 end;
