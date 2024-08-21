@@ -1,7 +1,7 @@
 figure
-plot(ACE(:,ACE_time_index),ACE(:,raw_ACE_index:CPS2_ACE_index));
-title('ACE levels')
-legend('raw Ace','Continuous integrated ACE','CPS2 ACE')
+plot(ACE(:,ACE_time_index),ACE(:,2));
+title('ACE')
+% legend('raw Ace','Continuous integrated ACE','CPS2 ACE')
 fig1=gcf;
 figure
 temp=ACTUAL_GENERATION(:,2:ngen+1);
@@ -41,7 +41,7 @@ title('Day-Ahead Schedules')
 legend(GEN_VAL,'interpreter','none')
 fig6=gcf;
 figure
-sumgen = sum(ACTUAL_GENERATION(:,2:ngen+1)')'-sum(ACTUAL_PUMP(:,2:nESR+1)')';
+sumgen = sum(ACTUAL_GENERATION(:,2:ngen+1),2)-sum(ACTUAL_PUMP(:,2:nESR+1),2);
 plot(ACTUAL_GENERATION(:,1),sumgen);
 hold('on')
 line(ACTUAL_GENERATION(1:AGC_interval_index-1,1),ACTUAL_LOAD_FULL(1:AGC_interval_index-1,2)+storelosses(1:AGC_interval_index-1),'color','red');

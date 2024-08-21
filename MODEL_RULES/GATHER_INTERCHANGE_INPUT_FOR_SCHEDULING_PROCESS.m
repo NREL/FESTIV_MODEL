@@ -19,10 +19,15 @@ elseif rtsced_running
     INTERCHANGE_FIELD=RTD_INTERCHANGE_FIELD;
 end
 
-INTERCHANGE_VAL(:,:)=INTERCHANGE_FULL(H*(interval_index-1)+1:H*(interval_index-1)+H,3:end);
+inttmp = {'1'};
+for t=2:H
+    inttmp = [inttmp; num2str(t)];
+end
+
+INTERCHANGE_VAL=INTERCHANGE_FULL(H*(interval_index-1)+1:H*(interval_index-1)+H,3:end);
 
 INTERCHANGE.val = INTERCHANGE_VAL;
-INTERCHANGE.uels = {INTERVAL.uels INTERCHANGE_FIELD(1,3:end)};
+INTERCHANGE.uels = {inttmp' INTERCHANGE_FIELD(1,3:end)};
 INTERCHANGE.name = 'INTERCHANGE';
 INTERCHANGE.form = 'full';
 INTERCHANGE.type = 'parameter';

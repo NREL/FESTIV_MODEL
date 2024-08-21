@@ -16,6 +16,7 @@ for i=1:ngen
         end;
     end;
 end;
+LAST_STATUS_VAL(:,1)=0;
 LAST_STATUS_VAL(LAST_GEN_SCHEDULE_VAL>0)=1;  
 else
     LAST_GEN_SCHEDULE_VAL = RTSCUCBINDINGSCHEDULE(RTSCUC_binding_interval_index -1,2:ngen+1)';
@@ -26,6 +27,7 @@ else
         ACTUAL_GEN_OUTPUT_VAL = ACTUAL_GENERATION(AGC_interval_index-round(PRTC*60/t_AGC),2:ngen+1)';
     end;
 end;
+LAST_STATUS_ACTUAL_VAL(:,1)=0;
 LAST_STATUS_ACTUAL_VAL(ACTUAL_GEN_OUTPUT_VAL>0)=1; 
 
 if Solving_Initial_Models
@@ -39,7 +41,9 @@ for e=1:nESR
         LAST_PUMP_SCHEDULE_VAL(e,1)= min(STORAGEVALUE_VAL(e,min_pump),STORAGEVALUE_VAL(e,min_pump)*((IDAC*60/IRTC -1)/(ceil(STORAGEVALUE_VAL(e,pump_sd_time)*60/IRTC))));
     end;
 end;
+LAST_PUMPSTATUS_VAL(:,1)=0;
 LAST_PUMPSTATUS_VAL(LAST_PUMP_SCHEDULE_VAL>0)=1;
+LAST_PUMPSTATUS_ACTUAL_VAL(:,1)=0;
 LAST_PUMPSTATUS_ACTUAL_VAL(ACTUAL_PUMP_OUTPUT_VAL>0)=1;
 else
     STORAGEVALUE_VAL(:,initial_storage) = RTSCUCSTORAGELEVEL(RTSCUC_binding_interval_index -1,2:1+nESR)';
@@ -50,6 +54,7 @@ else
         ACTUAL_PUMP_OUTPUT_VAL = ACTUAL_PUMP(AGC_interval_index-round(PRTC*60/t_AGC),2:nESR+1)';
     end; 
     LAST_PUMPSTATUS_VAL=PUMPSTATUS(rtscucinterval_index-1,storage_to_gen_index+1);
+    LAST_PUMPSTATUS_ACTUAL_VAL(:,1)=0;
     LAST_PUMPSTATUS_ACTUAL_VAL(ACTUAL_PUMP_OUTPUT_VAL>0)=1;
 end;
 for i=1:ngen

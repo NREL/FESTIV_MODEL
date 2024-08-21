@@ -505,7 +505,7 @@ function sched_proc_comparison(~,~)
     ax1=gca;
     set(ax1,'xcolor','k','ycolor','k')
     ax2=axes('Position',get(ax1,'Position'),'xaxislocation','top','yaxislocation','right','color','none','xcolor','r','ycolor','r','visible','off');
-    line(SCHED_COMPARE.part_2(:,1),SCHED_COMPARE.part_2(:,2),'color','r','parent',ax2);
+    line(SCHED_COMPARE.part_2(:,1).*24,SCHED_COMPARE.part_2(:,2),'color','r','parent',ax2);
     linkaxes([ax1 ax2],'xy');
     text(0.3,0.95,SCHED_NAME.part_1,'units','normalized','color','k');
     text(0.80,0.95,SCHED_NAME.part_2,'units','normalized','color','r');

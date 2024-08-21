@@ -452,9 +452,9 @@ BRANCHDATA.name = 'BRANCHDATA';
 BRANCHDATA.form = 'full';
 BRANCHDATA.type = 'parameter';
 BRANCHDATA_VAL(isfinite(BRANCHDATA_VAL) == 0) = 0;
-if strcmp(NETWORK_CHECK,'NO')
+% if strcmp(NETWORK_CHECK,'NO')
     BRANCHDATA_VAL(:,resistance)=0;
-end;
+% end;
 
 
 

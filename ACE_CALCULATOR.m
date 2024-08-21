@@ -1,5 +1,5 @@
 %instantaneous ACE. In MW
-ACE_raw = sum(current_gen_agc(2:1+ngen)) - current_load_agc(1,2) - sum(current_pump_agc(2:1+nESR)) - losses;
+ACE_raw = sum(current_gen_agc(2:1+ngen)) - current_load_agc(1,2) + sum(current_pump_agc(2:end)) - losses;
 
 %Total ACE summed (integrated) for up to that time. In MWH
 ACE_int = ACE_raw*(t_AGC/(60*60)) + previous_ACE_int;

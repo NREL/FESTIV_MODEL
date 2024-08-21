@@ -65,7 +65,7 @@ DEFAULT_DATA.PTDF=PTDF;
 for b=1:nbranch
     if(BRANCHDATA_VAL(b,branch_type) == fixed_par_branch_type_index || BRANCHDATA_VAL(b,branch_type) == adj_par_branch_type_index)
         B = makeB(SYSTEMVALUE_VAL(mva_pu,1),bus,branch,2);
-        B_adj = B;
+        B_adj = full(B);
         B_adj(slack,:) =[];
         B_adj(:,slack) = [];
 %         B_G = SCUCBGAMMA.val(:,b);
@@ -82,9 +82,17 @@ for b=1:nbranch
         end;
         for b1=1:nbranch
             if(b1==b)
-                PTDF_PAR_VAL(b1,b) = (theta(branch(b1,1),1) - theta(branch(b1,2),1) - 1)/BRANCHDATA_VAL(b1,reactance);
+                tmp = (theta(branch(b1,1),1) - theta(branch(b1,2),1) - 1)/BRANCHDATA_VAL(b1,reactance);
+                if isnan(tmp)
+                    tmp = 0;
+                end
+                PTDF_PAR_VAL(b1,b) = tmp;
             else
-                PTDF_PAR_VAL(b1,b) = (theta(branch(b1,1),1) - theta(branch(b1,2),1))/BRANCHDATA_VAL(b1,reactance);
+                tmp = (theta(branch(b1,1),1) - theta(branch(b1,2),1))/BRANCHDATA_VAL(b1,reactance);
+                if isnan(tmp)
+                    tmp = 0;
+                end
+                PTDF_PAR_VAL(b1,b) = tmp;
             end;
         end;                
     else

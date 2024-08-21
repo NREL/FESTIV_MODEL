@@ -293,11 +293,11 @@ BUS_DELIVERY_FACTORS.form='full';
 BUS_DELIVERY_FACTORS.type='parameter';
 BUS_DELIVERY_FACTORS.uels={BUS_VAL' INTERVAL_VAL'};
 
-if Solving_Initial_Models == 1
+% if Solving_Initial_Models == 1
     LOSS_BIAS.val = 0;
-else
-    LOSS_BIAS.val = storelosses(max(1,AGC_interval_index-1),1)-abs(RTSCUCMARGINALLOSS(RTSCUC_binding_interval_index-1,2));
-end
+% else
+%     LOSS_BIAS.val = storelosses(max(1,AGC_interval_index-1),1)-abs(RTSCUCMARGINALLOSS(RTSCUC_binding_interval_index-1,2));
+% end
 LOSS_BIAS.name = 'LOSS_BIAS';
 LOSS_BIAS.form = 'full';
 LOSS_BIAS.uels = cell(1,0);

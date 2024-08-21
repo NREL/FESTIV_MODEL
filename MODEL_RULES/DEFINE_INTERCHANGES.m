@@ -13,7 +13,7 @@ ninterchange=sum(interchanges);
 if ninterchange > 0
     % Get DASCUC Interchange Schedule
     if useHDF5 == 0
-        [~,DACI_files] = xlsread(inputPath,'DAC_INTERCHANGE','A2:A1000');
+        [~,DACI_files] = xlsread(inputPath,'DAC_FIXED_REF','A2:A1000');
         DAC_INTERCHANGE_FULL=[];
         for d=1:daystosimulate
             path2read = [inputfilepath,filesep,'TIMESERIES\',cell2mat(DACI_files(d,1))];
@@ -21,7 +21,7 @@ if ninterchange > 0
             DAC_INTERCHANGE_FULL = [DAC_INTERCHANGE_FULL; DAC_INTERCHANGE_FULL_TMP];
         end
     else
-        x=h5read(fileName,'/Main Input File/DAC_INTERCHANGE');
+        x=h5read(fileName,'/Main Input File/DAC_FIXED_REF');
         DAC_INTERCHANGE_FULL=zeros(24*simulation_days,ninterchange+2);
         for d=1:simulation_days
             y=h5read(fileName,['/Time Series Data/DAC Interchange Data/',x.DataFiles{d}]);
@@ -46,7 +46,7 @@ if ninterchange > 0
     % Get RTSCUC Interchange Schedule
     try
         if useHDF5 == 0
-            [~,RTCI_files] = xlsread(inputPath,'RTC_INTERCHANGE','A2:A1000');
+            [~,RTCI_files] = xlsread(inputPath,'RTC_FIXED_REF','A2:A1000');
             RTC_INTERCHANGE_FULL=[];
             for d=1:simulation_days
                 path2read = [inputfilepath,filesep,'TIMESERIES\',cell2mat(RTCI_files(d,1))];
@@ -60,7 +60,7 @@ if ninterchange > 0
             RTC_INTERCHANGE_FULL=[RTC_INTERCHANGE_FULL(:,1:2),RTC_INTERCHANGE_FULL(:,find(interchangesToKeep)+2)];
             RTC_INTERCHANGE_FIELD={RTC_INTERCHANGE_FIELD{1:2},RTC_INTERCHANGE_FIELD{find(interchangesToKeep)+2}};
         else
-            x=h5read(fileName,'/Main Input File/RTC_INTERCHANGE');
+            x=h5read(fileName,'/Main Input File/RTC_FIXED_REF');
             RTC_INTERCHANGE_FULL=zeros(60/tRTC*24*simulation_days*HRTC+HRTC,ninterchange+2);
             offset=1;
             for d=1:simulation_days
@@ -81,6 +81,12 @@ if ninterchange > 0
             RTC_INTERCHANGE_FIELD=z';
         end
     catch
+        T=(0:tRTC/60:daystosimulate*24-tRTC/60)';
+        tmp=zeros(size(T,1),ninterchange);
+        for i = 1 : ninterchange
+            tmp(:,i)=interpolateData(DAC_INTERCHANGE_FULL(:,i+2),daystosimulate,60*tRTC,IDAC*60);
+        end   
+        dac_fixed_ref=[T./24,tmp];
         RTC_INTERCHANGE_FULL=[];
         advisory_interval_length=IRTC;interval_update=tRTC;ninterval=HRTC;interval_length=IRTC;
         total_runs = 1+60/interval_update*24*daystosimulate;
@@ -141,15 +147,20 @@ if ninterchange > 0
             time = time + timechange;
         end;
         for t=1:size(RTC_INTERCHANGE_FULL,1)
-            lookahead_index = floor(24*RTC_INTERCHANGE_FULL(t,2)*(1/IDAC)+eps) + 1;      %Because hour 0 is index 1
-            RTC_INTERCHANGE_FULL(t,3:ninterchange+2) = DAC_INTERCHANGE_FULL(min(size(DAC_INTERCHANGE_FULL,1),lookahead_index),3:ninterchange+2);
+%             lookahead_index = floor(24*RTC_INTERCHANGE_FULL(t,2)*(1/IDAC)+eps) + 1;      %Because hour 0 is index 1
+            idx=find(abs(RTC_INTERCHANGE_FULL(t,2)-dac_fixed_ref(:,1))<eps);
+%             RTC_INTERCHANGE_FULL(t,3:ninterchange+2) = DAC_INTERCHANGE_FULL(min(size(DAC_INTERCHANGE_FULL,1),lookahead_index),3:ninterchange+2);
+            if isempty(idx)
+                idx=size(dac_fixed_ref,1);
+            end
+            RTC_INTERCHANGE_FULL(t,3:end)=dac_fixed_ref(idx,2:end);
         end;
         RTC_INTERCHANGE_FIELD = DAC_INTERCHANGE_FIELD;
     end
     % Get RTSCED Interchange Schedule
     try
         if useHDF5 == 0
-            [~,RTDI_files] = xlsread(inputPath,'RTD_INTERCHANGE','A2:A1000');
+            [~,RTDI_files] = xlsread(inputPath,'RTD_FIXED_REF','A2:A1000');
             RTD_INTERCHANGE_FULL=[];
             for d=1:simulation_days
                 path2read = [inputfilepath,filesep,'TIMESERIES\',cell2mat(RTDI_files(d,1))];
@@ -163,7 +174,7 @@ if ninterchange > 0
             RTD_INTERCHANGE_FULL=[RTD_INTERCHANGE_FULL(:,1:2),RTD_INTERCHANGE_FULL(:,find(interchangesToKeep)+2)];
             RTD_INTERCHANGE_FIELD={RTD_INTERCHANGE_FIELD{1:2},RTD_INTERCHANGE_FIELD{find(interchangesToKeep)+2}};
         else
-            x=h5read(fileName,'/Main Input File/RTD_INTERCHANGE');
+            x=h5read(fileName,'/Main Input File/RTD_FIXED_REF');
             RTD_INTERCHANGE_FULL=zeros(60/tRTD*24*simulation_days*HRTD+HRTD,ninterchange+2);
             offset=1;
             for d=1:simulation_days
@@ -184,6 +195,12 @@ if ninterchange > 0
             RTD_INTERCHANGE_FIELD=z';
         end
     catch
+        T=(0:tRTD/60:daystosimulate*24-tRTD/60)';
+        tmp=zeros(size(T,1),ninterchange);
+        for i = 1 : ninterchange
+            tmp(:,i)=interpolateData(DAC_INTERCHANGE_FULL(:,i+2),daystosimulate,60*tRTD,IDAC*60);
+        end   
+        dac_fixed_ref=[T./24,tmp];
         RTD_INTERCHANGE_FULL=[];
         advisory_interval_length=IRTDADV;interval_update=tRTD;ninterval=HRTD;interval_length=IRTD;
         total_runs = 1+60/interval_update*24*daystosimulate;
@@ -244,8 +261,13 @@ if ninterchange > 0
             time = time + timechange;
         end;
         for t=1:size(RTD_INTERCHANGE_FULL,1)
-            lookahead_index = floor(24*RTD_INTERCHANGE_FULL(t,2)*(1/IDAC)+eps) + 1;      %Because hour 0 is index 1
-            RTD_INTERCHANGE_FULL(t,3:ninterchange+2) = DAC_INTERCHANGE_FULL(min(size(DAC_INTERCHANGE_FULL,1),lookahead_index),3:ninterchange+2);
+%             lookahead_index = floor(24*RTD_INTERCHANGE_FULL(t,2)*(1/IDAC)+eps) + 1;      %Because hour 0 is index 1
+%             RTD_INTERCHANGE_FULL(t,3:ninterchange+2) = DAC_INTERCHANGE_FULL(min(size(DAC_INTERCHANGE_FULL,1),lookahead_index),3:ninterchange+2);
+            idx=find(abs(RTD_INTERCHANGE_FULL(t,2)-dac_fixed_ref(:,1))<eps);
+            if isempty(idx)
+                idx=size(dac_fixed_ref,1);
+            end
+            RTD_INTERCHANGE_FULL(t,3:end)=dac_fixed_ref(idx,2:end);
         end;
         RTD_INTERCHANGE_FIELD = DAC_INTERCHANGE_FIELD;
     end

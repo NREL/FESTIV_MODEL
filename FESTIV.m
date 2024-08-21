@@ -282,6 +282,9 @@ if execution_from_previous==0 || time==start_time
     % Initialize delivery factors based on initial conditions
     GATHER_INITIAL_DELIVERY_FACTORS_INPUT_FOR_RTSCUC;
     
+    %Set storage end of horizon target
+    SET_STORAGE_END_TARGET
+    
     for x=1:size(RTSCUC_RULES_PRE_in,1)
         try run(RTSCUC_RULES_PRE_in{x,1});catch;end;
     end
@@ -340,6 +343,9 @@ if execution_from_previous==0 || time==start_time
   
     % Initialize delivery factors based on initial conditions
     GATHER_INITIAL_DELIVERY_FACTORS_INPUT_FOR_RTSCED;
+    
+    %Set storage end of horizon target
+    SET_STORAGE_END_TARGET
     
     for x=1:size(RTSCED_RULES_PRE_in,1)
         try run(RTSCED_RULES_PRE_in{x,1});catch;end; 
@@ -520,7 +526,10 @@ while(time < end_time)
         GATHER_ACTUALS_AND_LAST_GEN_SCHEDULE_FOR_RTSCUC;
 
         %Get PREVIOUS_UNIT_STARTUP,INTERVALS_STARTED_AGO,STARTUP_MIN_GEN_HELPER, STARTUP_PERIOD AND SHUTDOWN_PERIOD FOR GEN AND STORAGE
-        GATHER_SU_PARAMETERS_INPUT_FOR_RTSCUC;       
+        GATHER_SU_PARAMETERS_INPUT_FOR_RTSCUC;  
+        
+        %Set storage end of horizon target
+        SET_STORAGE_END_TARGET
         
         for x=1:size(RTSCUC_RULES_PRE_in,1)
             try run(RTSCUC_RULES_PRE_in{x,1});catch; end; 
@@ -593,6 +602,9 @@ while(time < end_time)
 
         %Data inputs for UNIT_STATUS, STARTINGUP, SHUTTINGDOWN, MINGENHELP
         GATHER_UC_PARAMETERS_FOR_RTSCED;
+        
+        %Set storage end of horizon target
+        SET_STORAGE_END_TARGET
         
         for x=1:size(RTSCED_RULES_PRE_in,1)
             try run(RTSCED_RULES_PRE_in{x,1});catch;end; 
