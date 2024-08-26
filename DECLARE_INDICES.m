@@ -13,12 +13,12 @@ end
 slack_bus               = find(strcmp(headers,'SLACK_BUS'));
 mva_pu                  = find(strcmp(headers,'MVA_PERUNIT'));
 voll                    = find(strcmp(headers,'VOLL'));
-inertia_load            = find(strcmp(headers,'INERTIALOAD'));
-dfmax                   = find(strcmp(headers,'DFMAX'));
-load_damping            = find(strcmp(headers,'LOAD_DAMPING'));
-db_max                  = find(strcmp(headers,'DBMAX'));
-frequency               = find(strcmp(headers,'FREQUENCY'));
-first_stage_startup     = find(strcmp(headers,'FIRST_STAGE_STARTUP'));
+try; inertia_load            = find(strcmp(headers,'INERTIALOAD'));catch;end;
+try; dfmax                   = find(strcmp(headers,'DFMAX'));catch;end;
+try; load_damping            = find(strcmp(headers,'LOAD_DAMPING'));catch;end;
+try; db_max                  = find(strcmp(headers,'DBMAX'));catch;end;
+try; frequency               = find(strcmp(headers,'FREQUENCY'));catch;end;
+try; first_stage_startup     = find(strcmp(headers,'FIRST_STAGE_STARTUP'));catch;end;
 
 % GEN TAB INDICES
 global capacity noload_cost su_cost mr_time md_time ramp_rate min_gen gen_type su_time sd_time agc_qualified gov_beta gov_tg...

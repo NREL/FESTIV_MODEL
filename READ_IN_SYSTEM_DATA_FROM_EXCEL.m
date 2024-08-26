@@ -113,7 +113,7 @@ if useHDF5==0
         dac_reserve_input_file=0;
     end;
     try
-        [~,rtc_reserve_input_file]= xlsread(inputPath,'RTC_RESERVE','A2:A400');
+        [~,rtc_reserve_input_file]= xlsread(inputPath,'RTC_RESERVE_REF','A2:A400');
         rtc_reserve_input_file=rtc_reserve_input_file(start_date:start_date+daystosimulate-1);
         for d=1:size(rtc_reserve_input_file,1)
             rtc_reserve_input_file(d,1)=strcat(pathstr,filesep, 'TIMESERIES', filesep,rtc_reserve_input_file(d,1));
@@ -122,7 +122,7 @@ if useHDF5==0
         rtc_reserve_input_file=0;
     end;
     try
-        [~,rtd_reserve_input_file] = xlsread(inputPath,'RTD_RESERVE','A2:A400');
+        [~,rtd_reserve_input_file] = xlsread(inputPath,'RTD_RESERVE_REF','A2:A400');
         rtd_reserve_input_file=rtd_reserve_input_file(start_date:start_date+daystosimulate-1);
         for d=1:size(rtd_reserve_input_file,1)
             rtd_reserve_input_file(d,1)=strcat(pathstr,filesep, 'TIMESERIES', filesep,rtd_reserve_input_file(d,1));
