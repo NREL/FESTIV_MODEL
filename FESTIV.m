@@ -33,7 +33,7 @@
 %start_execution is a rarely used feature to continue a FESTIV run from
 %where it has just previously stopped. Users would run
 %'START_FESTIV_FROM_PREVIOUS_EXECUTION.m' rather than 'FESTIV.m'
-
+warning('off','all')
 tmp_string = dbstack;
 starting_execution_script = tmp_string(end).name;
 if exist('execution_from_previous','var')==0 || strcmp(starting_execution_script,'FESTIV')

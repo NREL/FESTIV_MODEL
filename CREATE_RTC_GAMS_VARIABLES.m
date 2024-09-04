@@ -293,11 +293,22 @@ BUS_DELIVERY_FACTORS.form='full';
 BUS_DELIVERY_FACTORS.type='parameter';
 BUS_DELIVERY_FACTORS.uels={BUS_VAL' INTERVAL_VAL'};
 
-% if Solving_Initial_Models == 1
-    LOSS_BIAS.val = 0;
-% else
-%     LOSS_BIAS.val = storelosses(max(1,AGC_interval_index-1),1)-abs(RTSCUCMARGINALLOSS(RTSCUC_binding_interval_index-1,2));
-% end
+if Solving_Initial_Models == 1 || time <= eps
+        %     LOSS_BIAS.val = 0;
+    % transmission losses = flow^2 * R
+    load_injection=-1*fullLoadDist*ACTUAL_LOAD_FULL(1,2);
+    if ~exist('losses_temp','var')
+        geninjection_temp=zeros(nbus,ngen);temp2=sortrows(GENBUS_CALCS_VAL,1);
+        for i=1:ngen
+            geninjection_temp(temp2(find(temp2(:,1)==i),2),i)=temp2(find(temp2(:,1)==i),3);
+        end
+    end
+    bus_injection=geninjection_temp*DASCUCSCHEDULE(1,2:end)' + load_injection;
+    ACTUAL_LF = (PTDF_VAL*bus_injection);
+    LOSS_BIAS.val=sum(ACTUAL_LF(:,1).*ACTUAL_LF(:,1).*BRANCHDATA_VAL(:,resistance))./SYSTEMVALUE_VAL(mva_pu,1);
+else
+    LOSS_BIAS.val = storelosses(max(1,AGC_interval_index-1),1)-abs(RTSCUCMARGINALLOSS(RTSCUC_binding_interval_index-1,2));
+end
 LOSS_BIAS.name = 'LOSS_BIAS';
 LOSS_BIAS.form = 'full';
 LOSS_BIAS.uels = cell(1,0);

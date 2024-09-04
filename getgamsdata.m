@@ -330,7 +330,7 @@ load_rgdx.name = 'LOAD';
 load_rgdx.uels = {INTERVAL.uels};
 LOAD = rgdx(input1,load_rgdx);
 LOAD.val=LOAD.val.*SYSTEMVALUE_VAL(mva_pu);
-tetemp=(sum(GENSCHEDULE.val)'-sum(PUMPSCHEDULE.val)'-LOAD.val+LOSSLOAD.val-overgeneration.val.*SYSTEMVALUE_VAL(mva_pu)-LOSS_BIAS.val.*ones(HLMP,1).*SYSTEMVALUE_VAL(mva_pu));
+tetemp=(sum(GENSCHEDULE.val)'-sum(PUMPSCHEDULE.val(:,1))'-LOAD.val+LOSSLOAD.val-overgeneration.val.*SYSTEMVALUE_VAL(mva_pu)-LOSS_BIAS.val.*ones(HLMP,1).*SYSTEMVALUE_VAL(mva_pu));
 assignin('caller','marginalLoss',tetemp);
 
 end
