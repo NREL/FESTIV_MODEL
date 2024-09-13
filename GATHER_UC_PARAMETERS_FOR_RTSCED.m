@@ -81,9 +81,6 @@ for i=1:ngen
         end
         
         for t=1:HRTD
-            if i == 56 && t == HRTD
-                i;
-            end
             lookahead_interval_index_ceil = min(size(STATUS,1),ceil(RTD_LOOKAHEAD_INTERVAL_VAL(t,1)*rtscuc_I_perhour-eps) + 1);
             lookahead_interval_index_floor = min(size(STATUS,1),floor(RTD_LOOKAHEAD_INTERVAL_VAL(t,1)*rtscuc_I_perhour+eps) + 1); 
             %determining what the unit status will be will depend on the RTSCUC status at both sides of its time interval.
@@ -108,9 +105,6 @@ for i=1:ngen
                 last_startup = UNIT_STARTINGUP_VAL(i,t-1); % for knowing whether start-up is continuous or new.
                 last_status = UNIT_STATUS_VAL(i,t-1);
             end
-             if i == 5 && t == 1
-        i;
-    end
             [UNIT_STARTINGUP_VAL(i,t),UNIT_STARTUPMINGENHELP_VAL(i,t),UNIT_SHUTTINGDOWN_VAL(i,t)]=RTSCED_SUSD_Trajectories(STATUS(:,1+i),UNIT_STATUS_VAL(i,t),last_status,GENVALUE_VAL(i,gen_type),GENVALUE_VAL(i,:),ACTUAL_START_TIME(i,1),RTD_LOOKAHEAD_INTERVAL_VAL(t,1),INTERVAL_MINUTES_VAL,rtscuc_I_perhour,eps,su_time,sd_time,min_gen,initial_status,t,time,IDAC,last_startup);
             
             if isempty(find(storage_to_gen_index==i))==0
@@ -159,5 +153,5 @@ for e=1:nESR
             last_startup = UNIT_PUMPINGUP_VAL(e,t-1); % for knowing whether start-up is continuous or new.
         end
     [UNIT_PUMPINGUP_VAL(e,t),UNIT_PUMPUPMINGENHELP_VAL(e,t),UNIT_PUMPINGDOWN_VAL(e,t)]=RTSCED_SUSD_Trajectories(PUMPSTATUS(:,1+storage_to_gen_index(e,1)),PUMPING_VAL(e,t),last_pump_status,GENVALUE_VAL(storage_to_gen_index(e,1),gen_type),STORAGEVALUE_VAL(e,:),ACTUAL_PUMPUP_TIME(e,1),RTD_LOOKAHEAD_INTERVAL_VAL(t,1),INTERVAL_MINUTES_VAL,rtscuc_I_perhour,eps,pump_su_time,pump_sd_time,min_pump,initial_pump_status,t,time,IDAC,last_startup);
-    end
+end
 

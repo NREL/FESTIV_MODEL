@@ -780,6 +780,9 @@ while(time < end_time)
         %For su and sd trajectories
         GATHER_SU_PARAMETERS_INPUT_FOR_RTSCUC
                 
+        %Set storage end of horizon target
+        SET_STORAGE_END_TARGET
+
         for x=1:size(RPU_RULES_PRE_in,1)
             try run(RPU_RULES_PRE_in{x,1});catch;end; 
         end

@@ -89,7 +89,7 @@ if nvcr > 0
             end
             VG_FIELD_VG = [' ' ACTUAL_VG_FIELD];
             if nvcr>nvg
-                for w=1:nvg
+                for w=1:nvg_input_file
                     w2=1;
                     while w2<=size_of_initial_input_read
                         if(strcmp(VG_FIELD_VG(1,2+w),VG_FIELD(1,2+w2)))

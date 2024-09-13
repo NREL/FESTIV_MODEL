@@ -1,6 +1,6 @@
 function[PRODCOST,GENSCHEDULE,LMP,UNITSTATUS,UNITSTARTUP,UNITSHUTDOWN,GENRESERVESCHEDULE,RCP,...
     VGCURTAILMENT,LOSSLOAD,INSUFFRESERVE,PUMPSCHEDULE,STORAGELEVEL,PUMPING] ...
-    = getgamsdata(inputfile,MODEL,CONTINGENCY,GEN,INTERVAL,BUS,BRANCH,RESERVETYPE,SYSTEMVALUE_VAL,RESERVEVALUE_VAL,GENPARAM,STORAGEVALUE_VAL,BRANCHPARAM)
+    = getgamsdata(inputfile,MODEL,CONTINGENCY,GEN,INTERVAL,BUS,BRANCH,RESERVETYPE,SYSTEMVALUE_VAL,RESERVEVALUE_VAL,GENPARAM,STORAGEVALUE,BRANCHPARAM)
 
 
 PRODCOST=[];GENSCHEDULE=[];LMP=[];UNITSTATUS=[];UNITSTARTUP=[];UNITSHUTDOWN=[];GENRESERVESCHEDULE=[];RCP=[];
@@ -8,7 +8,6 @@ MVAPERUNIT=[];VGCURTAILMENT=[];LOSSLOAD=[];PUMPSCHEDULE=[];STORAGELEVEL=[];PUMPI
 global capacity min_gen ramp_rate initial_MW storage_max initial_storage final_storage max_pump min_pump pump_ramp_rate initial_pump_mw line_rating ste_rating mva_pu slack_bus nESR
 
 LOSS_BIAS=evalin('base','LOSS_BIAS');
-
 
 
 input1 = ['TEMP',filesep,inputfile];
@@ -29,11 +28,8 @@ block_rgdx.name = 'BLOCK';
 BLOCKSET_TMP = rgdx(input1,block_rgdx);
 ctgc_rgdx.name = 'CTGC_BRANCH';
 ctgc_rgdx = rgdx(input1,ctgc_rgdx);
-storage_rgdx.name = 'STORAGE_GEN';
-STORAGESET_TMP = rgdx(input1,storage_rgdx);
-tmp=STORAGESET_TMP.uels{1,1};
-STORAGE_GEN_UELS=tmp(STORAGESET_TMP.val);
-
+STORAGE_UNITS_TMP=STORAGEVALUE.uels{1,1};
+STORAGE_PARAM_TMP=STORAGEVALUE.uels{1,2};
 
 
 
@@ -78,12 +74,12 @@ GENRESERVESCHEDULE = rgdx(input1,genreserveschedule_rgdx);
 GENRESERVESCHEDULE.val=GENRESERVESCHEDULE.val.*SYSTEMVALUE_VAL(mva_pu);
 pumpschedule_rgdx.form = 'full';
 pumpschedule_rgdx.name = 'PUMP_SCHEDULE';
-pumpschedule_rgdx.uels = {STORAGE_GEN_UELS INTERVAL.uels};
+pumpschedule_rgdx.uels = {STORAGE_UNITS_TMP INTERVAL.uels};
 PUMPSCHEDULE = rgdx(input1,pumpschedule_rgdx);
 PUMPSCHEDULE.val=PUMPSCHEDULE.val.*SYSTEMVALUE_VAL(mva_pu);
 storagelevel_rgdx.form = 'full';
 storagelevel_rgdx.name = 'STORAGE_LEVEL';
-storagelevel_rgdx.uels = {STORAGE_GEN_UELS INTERVAL.uels};
+storagelevel_rgdx.uels = {STORAGE_UNITS_TMP INTERVAL.uels};
 STORAGELEVEL = rgdx(input1,storagelevel_rgdx);
 STORAGELEVEL.val=STORAGELEVEL.val.*SYSTEMVALUE_VAL(mva_pu);
 
@@ -306,7 +302,7 @@ lost_load_cost=sum(LOSSLOAD.val)*SYSTEMVALUE_VAL(voll);
 additional_load_cost=sum(overgeneration.val.*SYSTEMVALUE_VAL(mva_pu))*SYSTEMVALUE_VAL(voll);
 insuf_reserve_cost=sum((sum(INSUFFRESERVE.val))'.*RESERVEVALUE_VAL(:,res_voir));
 if nESR>0
-    reservoir_value_kept=sum(STORAGELEVEL.val(:,end).*STORAGEVALUE_VAL(:,reservoir_value));
+    reservoir_value_kept=sum(STORAGELEVEL.val(:,end).*STORAGEVALUE.val(:,reservoir_value));
 else
     reservoir_value_kept=0;
 end;
@@ -330,7 +326,7 @@ load_rgdx.name = 'LOAD';
 load_rgdx.uels = {INTERVAL.uels};
 LOAD = rgdx(input1,load_rgdx);
 LOAD.val=LOAD.val.*SYSTEMVALUE_VAL(mva_pu);
-tetemp=(sum(GENSCHEDULE.val)'-sum(PUMPSCHEDULE.val(:,1))'-LOAD.val+LOSSLOAD.val-overgeneration.val.*SYSTEMVALUE_VAL(mva_pu)-LOSS_BIAS.val.*ones(HLMP,1).*SYSTEMVALUE_VAL(mva_pu));
+tetemp=(sum(GENSCHEDULE.val)'-sum(PUMPSCHEDULE.val)'-LOAD.val+LOSSLOAD.val-overgeneration.val.*SYSTEMVALUE_VAL(mva_pu)-LOSS_BIAS.val.*ones(HLMP,1).*SYSTEMVALUE_VAL(mva_pu));
 assignin('caller','marginalLoss',tetemp);
 
 end

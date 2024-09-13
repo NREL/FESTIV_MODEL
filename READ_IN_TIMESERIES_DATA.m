@@ -61,10 +61,6 @@ DEFINE_INTERCHANGES
 % Create RTSCED load,vg,and reserve forecasts
 [RTD_LOAD_FULL,RTD_VG_FULL,RTD_VG_FIELD,RTD_RESERVE_FULL,RTD_RESERVE_FIELD]=forecastInputs('RTD',rtd_load_data_create,simulation_days,rtd_load_input_file,ACTUAL_VG_FULL,ACTUAL_LOAD_FULL,IRTD,tRTD,HRTD,t_AGC,PRTD,rtd_load_error,nvcr,nvg,rtd_vg_data_create,rtd_vg_input_file,max_data,ACTUAL_VG_FIELD,rtd_vg_error,IRTDADV,RTD_RESERVE_FORECAST_MODE,IDAC,eps,nreserve,DAC_RESERVE_FULL,DAC_RESERVE_FIELD,rtd_reserve_input_file,RESERVETYPE.uels);
 
-DAC_RESERVE_FULL(:,5)=0.015.*DAC_LOAD_FULL(:,3);
-RTC_RESERVE_FULL(:,5)=0.015.*RTC_LOAD_FULL(:,3);
-RTD_RESERVE_FULL(:,5)=0.015.*RTD_LOAD_FULL(:,3);
-
 DAC_VG_FULL(DAC_VG_FULL<eps)=0;
 RTC_VG_FULL(RTC_VG_FULL<eps)=0;
 RTD_VG_FULL(RTD_VG_FULL<eps)=0;

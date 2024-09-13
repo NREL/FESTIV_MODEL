@@ -12,7 +12,7 @@ for i=1:ngen
        else
            Initial_RTC_last_startup_check = STATUS(startup_period_check_time-1,1+i);
        end;
-       if STATUS(startup_period_check_time,1+i)-Initial_RTC_last_startup_check == 1 % && GENVALUE_VAL(i,su_time) >= IDAC
+       if STATUS(startup_period_check_time,1+i)-Initial_RTC_last_startup_check == 1  && GENVALUE_VAL(i,su_time) >= IRTC
            if startup_period_check_time <=1
                if GENVALUE_VAL(i,su_time) >= IDAC + time
                    PREVIOUS_UNIT_STARTUP_VAL(i,1) =  1;
