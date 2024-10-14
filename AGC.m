@@ -52,9 +52,6 @@ agctemp=REGULATION_DOWN(1,2:end);
 AGC_rampdown_available=sum(ramp_agc(agctemp>eps));
 
 for i=1:ngen
-    if i == 56 && time >= 15.6625
-       time;
-   end
     if ( (ACE_Target(i) < -1*agc_deadband_Target(i) && REGULATION_UP(:,1+i) > eps) ...
             || ( ACE_Target(i) > agc_deadband_Target(i) && REGULATION_DOWN(:,1+i) > eps) )
             if ACE_Target(i) < -1*agc_deadband_Target(i)

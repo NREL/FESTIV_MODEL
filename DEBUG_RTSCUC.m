@@ -8,7 +8,7 @@ fprintf(fid,'%s','blockpic');
 fprintf(fid,'\r\n');
 fclose(fid);
 
-RTSCUC_DEBUG_GAMS_CALL = ['gams ..\RTSCUC.gms Cdir="',DIRECTORY,'TEMP" --DIRECTORY="',DIRECTORY,'" --INPUT_FILE="',inputPath,'" --NETWORK_CHECK="',NETWORK_CHECK,'" --CONTINGENCY_CHECK="',CONTINGENCY_CHECK,'" --USE_INTEGER="NO"',' --USEGAMS="',USEGAMS,'"'];
+RTSCUC_DEBUG_GAMS_CALL = ['gams ..\RTSCUC.gms Lo=2 Cdir="',DIRECTORY,'TEMP" --DIRECTORY="',DIRECTORY,'" --INPUT_FILE="',inputPath,'" --NETWORK_CHECK="',NETWORK_CHECK,'" --CONTINGENCY_CHECK="',CONTINGENCY_CHECK,'" --USE_INTEGER="NO"',' --USEGAMS="',USEGAMS,'"'];
 rtscuc_debug=1;
 
 RUN_RTSCUC

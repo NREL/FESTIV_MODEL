@@ -14,5 +14,5 @@ if RPU_TRIGGER_MODE == 1
         RPU_YES = 1;
     end;
 else
-    %User entered code can go here.
+    RPU_TRIGGER_USER_DEFINED
 end
