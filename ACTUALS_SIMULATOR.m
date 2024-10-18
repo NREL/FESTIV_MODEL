@@ -53,8 +53,15 @@
             else
                 ACTUAL_PUMP(AGC_interval_index,1+e) = 0;
             end;
-           ACTUAL_STORAGE_LEVEL(AGC_interval_index,1+e) = min(STORAGEVALUE_VAL(e,storage_max),ACTUAL_STORAGE_LEVEL(AGC_interval_index-1,1+e) ...
-                - (t_AGC/60/60)*ACTUAL_GENERATION(AGC_interval_index,1+storage_to_gen_index(e,1)) + (t_AGC/60/60)*ACTUAL_PUMP(AGC_interval_index,1+e)*STORAGEVALUE_VAL(e,efficiency));
+           ACTUAL_STORAGE_LEVEL(AGC_interval_index,1+e) = ACTUAL_STORAGE_LEVEL(AGC_interval_index-1,1+e) ...
+                - (t_AGC/60/60)*ACTUAL_GENERATION(AGC_interval_index,1+storage_to_gen_index(e,1)) + (t_AGC/60/60)*ACTUAL_PUMP(AGC_interval_index,1+e)*STORAGEVALUE_VAL(e,efficiency);
+           if ACTUAL_STORAGE_LEVEL(AGC_interval_index,1+e) > STORAGEVALUE_VAL(e,storage_max)
+               ACTUAL_PUMP(AGC_interval_index,1+e) = ACTUAL_PUMP(AGC_interval_index,1+e) - (ACTUAL_STORAGE_LEVEL(AGC_interval_index,1+e) - STORAGEVALUE_VAL(e,storage_max))/(t_AGC/60/60)/STORAGEVALUE_VAL(e,efficiency);
+               ACTUAL_STORAGE_LEVEL(AGC_interval_index,1+e) = STORAGEVALUE_VAL(e,storage_max);
+           elseif ACTUAL_STORAGE_LEVEL(AGC_interval_index,1+e) < 0
+               ACTUAL_GENERATION(AGC_interval_index,1+storage_to_gen_index(e,1)) = ACTUAL_GENERATION(AGC_interval_index,1+storage_to_gen_index(e,1)) + ACTUAL_STORAGE_LEVEL(AGC_interval_index,1+e)/(t_AGC/60/60);
+               ACTUAL_STORAGE_LEVEL(AGC_interval_index,1+e) = 0;
+           end
         end;
         AGC_LAST = AGC_SCHEDULE(AGC_interval_index-1,:);
     elseif AGC_interval_index ==2
@@ -102,9 +109,16 @@
             else
                 ACTUAL_PUMP(AGC_interval_index,1+e) = 0;
             end
+            %Only works for constant efficiency.
             ACTUAL_STORAGE_LEVEL(AGC_interval_index,1+e) = min(STORAGEVALUE_VAL(e,storage_max),ACTUAL_STORAGE_LEVEL(AGC_interval_index-1,1+e) ...
                 - (t_AGC/60/60)*ACTUAL_GENERATION(AGC_interval_index,1+storage_to_gen_index(e,1)) + (t_AGC/60/60)*ACTUAL_PUMP(AGC_interval_index,1+e)*STORAGEVALUE_VAL(e,efficiency));
-            %Only works for constant efficiency.
+            if ACTUAL_STORAGE_LEVEL(AGC_interval_index,1+e) > STORAGEVALUE_VAL(e,storage_max)
+               ACTUAL_PUMP(AGC_interval_index,1+e) = ACTUAL_PUMP(AGC_interval_index,1+e) - (ACTUAL_STORAGE_LEVEL(AGC_interval_index,1+e) - STORAGEVALUE_VAL(e,storage_max))/(t_AGC/60/60)/STORAGEVALUE_VAL(e,efficiency);
+               ACTUAL_STORAGE_LEVEL(AGC_interval_index,1+e) = STORAGEVALUE_VAL(e,storage_max);
+            elseif ACTUAL_STORAGE_LEVEL(AGC_interval_index,1+e) < 0
+               ACTUAL_GENERATION(AGC_interval_index,1+storage_to_gen_index(e,1)) = ACTUAL_GENERATION(AGC_interval_index,1+storage_to_gen_index(e,1)) + ACTUAL_STORAGE_LEVEL(AGC_interval_index,1+e)/(t_AGC/60/60);
+               ACTUAL_STORAGE_LEVEL(AGC_interval_index,1+e) = 0;
+            end
         end
         AGC_LAST = AGC_SCHEDULE(AGC_interval_index-1,:);
     else

@@ -15,6 +15,9 @@ RTSCUCMARGINALLOSS(RTSCUC_binding_interval_index:RTSCUC_binding_interval_index +
 RTSCUCBINDINGCOMMITMENT(RTSCUC_binding_interval_index:RTSCUC_binding_interval_index + HRTC - 1,2:ngen+1) = round(RTCUNITSTATUS.val(:,:)');
 RTSCUCBINDINGPUMPING(RTSCUC_binding_interval_index:RTSCUC_binding_interval_index + HRTC - 1,2:ngen+1) = round(RTCPUMPING.val(:,:)');
 RTSCUCBINDINGSTARTUP(RTSCUC_binding_interval_index:RTSCUC_binding_interval_index + HRTC - 1,2:ngen+1) = round(RTCUNITSTARTUP.val(:,:)');
+if rtscucinterval_index+HRTC-1 > size(STATUS,1)
+    STATUS(rtscucinterval_index:rtscucinterval_index+HRTC-1,1)=RTC_LOOKAHEAD_INTERVAL_VAL;
+end
 STATUS(rtscucinterval_index:rtscucinterval_index+HRTC-1,2:end) = round(RTCUNITSTATUS.val(:,:)');
 PUMPSTATUS(rtscucinterval_index:rtscucinterval_index+HRTC-1,2:end) = round(RTCPUMPING.val(:,:)');
 RTSCUCBINDINGSHUTDOWN(RTSCUC_binding_interval_index:RTSCUC_binding_interval_index + HRTC - 1,2:1+ngen) = round(RTCUNITSHUTDOWN.val(:,:)');

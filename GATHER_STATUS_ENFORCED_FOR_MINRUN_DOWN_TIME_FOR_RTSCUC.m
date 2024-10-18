@@ -69,7 +69,7 @@ if Solving_Initial_Models == 0
             min_pump_check_time = min_pump_check_start_time;
             while min_pump_check_time <= min_pump_check_end_time
                 if min_pump_check_time == 1
-                    minpump_last_status = STORAGE_VALUE_VAL(e,initial_pump_status);
+                    minpump_last_status = STORAGEVALUE_VAL(e,initial_pump_status);
                 else
                     minpump_last_status = PUMPSTATUS(min_pump_check_time-1,1+storage_to_gen_index(e,1));
                 end;

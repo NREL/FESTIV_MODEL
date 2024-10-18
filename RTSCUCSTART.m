@@ -60,7 +60,7 @@ if RTSCUCSTART_MODE == 1 %RTSCUC
                     end
                     t=t-1;
                 end
-                RTSCUC_allow = RTSCUC_binding_interval_index - RTSCUC_start_index + rtscuc_I_perhour*ceil(GENVALUE_VAL(i,su_time)) + rtscuc_I_perhour*ceil(GENVALUE_VAL(i,mr_time));
+                RTSCUC_allow = max(1,RTSCUC_binding_interval_index - RTSCUC_start_index + rtscuc_I_perhour*ceil(GENVALUE_VAL(i,su_time)) + rtscuc_I_perhour*ceil(GENVALUE_VAL(i,mr_time)));
                 RTSCUCSTART_YES(i,1:RTSCUC_allow-1) = 0;
                 RTSCUCSTART_YES(i,RTSCUC_allow:HRTC) = 1;
                 RTSCUCSHUT_YES(i,1:RTSCUC_allow-1) = 0;
@@ -77,7 +77,7 @@ if RTSCUCSTART_MODE == 1 %RTSCUC
                     end
                     t=t+1;
                 end
-                RTSCUC_allow = RTSCUC_shut_index - RTSCUC_binding_interval_index + rtscuc_I_perhour*ceil(GENVALUE_VAL(i,md_time));
+                RTSCUC_allow = max(1,RTSCUC_shut_index - RTSCUC_binding_interval_index + rtscuc_I_perhour*ceil(GENVALUE_VAL(i,md_time)));
                 RTSCUCSTART_YES(i,1:RTSCUC_allow-1) = 0;
                 RTSCUCSTART_YES(i,RTSCUC_allow:HRTC) = 1;
                 RTSCUCSHUT_YES(i,1:RTSCUC_allow-1) = 0;
