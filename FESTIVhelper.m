@@ -291,7 +291,7 @@ function sched_proc_comparison(~,~)
                         tmp=evalin('base','RTC_VG_FULL');
                         HRTC=evalin('base','HRTC');
                         tmp_sched_names = evalin('base','RTC_VG_FIELD');
-                        tmp_new=[24.*tmp(:,2) zeros(size(tmp,1),1)];
+                        tmp_new=[1.*tmp(:,2) zeros(size(tmp,1),1)];
                         for z=1:nvg
                             w=3;
                             while w<=size(tmp_sched_names,2)
@@ -308,7 +308,7 @@ function sched_proc_comparison(~,~)
                         tmp=evalin('base','RTD_VG_FULL');
                         HRTD=evalin('base','HRTD');
                         tmp_sched_names = evalin('base','RTD_VG_FIELD');
-                        tmp_new=[24.*tmp(:,2) zeros(size(tmp,1),1)];
+                        tmp_new=[1.*tmp(:,2) zeros(size(tmp,1),1)];
                         for z=1:nvg
                             w=3;
                             while w<=size(tmp_sched_names,2)
@@ -324,7 +324,7 @@ function sched_proc_comparison(~,~)
                     case 4
                         tmp = evalin('base','ACTUAL_VG_FULL');
                         tmp_sched_names = evalin('base','ACTUAL_VG_FIELD');
-                        tmp_new=[24.*tmp(:,1) zeros(size(tmp,1),1)];
+                        tmp_new=[1.*tmp(:,1) zeros(size(tmp,1),1)];
                         for z=1:nvg
                             w=2;
                             while w<=size(tmp_sched_names,2)
