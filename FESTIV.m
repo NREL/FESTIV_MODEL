@@ -170,7 +170,7 @@ if execution_from_previous==0 || time==start_time
     GATHER_DEFAULT_DATA
     
     %TIMESTAMP for intervals being used.
-    DAC_LOOKAHEAD_INTERVAL_VAL = DAC_LOAD_FULL(1:HDAC,2)*24; %time must be converted to hours instead of days
+    DAC_LOOKAHEAD_INTERVAL_VAL = DAC_LOAD_FULL(1:HDAC,2)*1; %time must be converted to hours instead of days
     INTERVAL_MINUTES_VAL = round([60*IDAC;60.*diff(DAC_LOOKAHEAD_INTERVAL_VAL)],3);
 
     %Gather LOAD Forecasts
@@ -425,7 +425,7 @@ while(time < end_time)
         GATHER_DEFAULT_DATA
 
         %TIMESTAMP for intervals being used.
-        DAC_LOOKAHEAD_INTERVAL_VAL = DAC_LOAD_FULL(HDAC*(DASCUC_binding_interval_index-1)+1:HDAC*(DASCUC_binding_interval_index-1)+HDAC,2)*24; %time must be converted to hours instead of days
+        DAC_LOOKAHEAD_INTERVAL_VAL = DAC_LOAD_FULL(HDAC*(DASCUC_binding_interval_index-1)+1:HDAC*(DASCUC_binding_interval_index-1)+HDAC,2)*1; %time must be converted to hours instead of days
         INTERVAL_MINUTES_VAL = round([60*IDAC;60.*diff(DAC_LOOKAHEAD_INTERVAL_VAL)],3);
         
         %Gather LOAD Forecasts
