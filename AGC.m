@@ -130,5 +130,11 @@ for i=1:ngen
     end;
             
 end;
-
-
+% Check for min/max SoC being reached
+for e=1:nESR
+    if ACTUAL_STORAGE_LEVEL(AGC_interval_index,1+e) > STORAGEVALUE_VAL(e,storage_max)
+       AGC_BASEPOINT(1+storage_to_gen_index(e)) = current_pump_agc(1+storage_to_gen_index(e)) - (ACTUAL_STORAGE_LEVEL(AGC_interval_index,1+e) - STORAGEVALUE_VAL(e,storage_max))/(t_AGC/60/60)/STORAGEVALUE_VAL(e,efficiency);
+    elseif ACTUAL_STORAGE_LEVEL(AGC_interval_index,1+e) < 0
+       AGC_BASEPOINT(1+storage_to_gen_index(e)) = current_gen_agc(1+storage_to_gen_index(e)) + ACTUAL_STORAGE_LEVEL(AGC_interval_index,1+e)/(t_AGC/60/60);
+    end
+end
