@@ -124,37 +124,24 @@ for i=1:ngen
     end;
 end;
 for e=1:nESR
-    for t=1:HRTD
-        if time - PRTD/60 < ACTUAL_GENERATION(1,1)
-            UNIT_PUMPINGUP_ACTUAL_VAL(e,1) = max(0,PUMPSTATUS(1,1+storage_to_gen_index(e,1))-STORAGEVALUE_VAL(e,initial_pump_status));
-            UNIT_PUMPINGDOWN_ACTUAL_VAL(e,1) = max(0,STORAGEVALUE_VAL(e,initial_pump_status)-PUMPSTATUS(1,1+storage_to_gen_index(e,1)));
-            Actuals_time = ACTUAL_GENERATION(1,1);
-        else
-            [UNIT_PUMPINGUP_ACTUAL_VAL(e,1),~,UNIT_PUMPINGDOWN_ACTUAL_VAL(e,1)]=RTSCED_SUSD_Trajectories(PUMPSTATUS(:,1+storage_to_gen_index(e,1)),LAST_PUMPSTATUS_VAL(e,1),LAST_PUMPSTATUS_ACTUAL_VAL(e,1),GENVALUE_VAL(storage_to_gen_index(e,1),gen_type),STORAGEVALUE_VAL(e,:),ACTUAL_PUMPUP_TIME(e,1),Actuals_time,INTERVAL_MINUTES_VAL,rtscuc_I_perhour,eps,pump_su_time,pump_sd_time,min_pump,initial_pump_status,t,time,IDAC,0);
-            Actuals_time = ACTUAL_GENERATION(AGC_interval_index-round(PRTD*60/t_AGC),1);
-        end
-            
-            lookahead_interval_index_ceil = min(size(PUMPSTATUS,1),ceil(Actuals_time*rtscuc_I_perhour-eps) + 1);
-            lookahead_interval_index_floor = min(size(PUMPSTATUS,1),floor(Actuals_time*rtscuc_I_perhour+eps) + 1); 
-            if PUMPSTATUS(lookahead_interval_index_ceil,1+storage_to_gen_index(e,1)) == PUMPSTATUS(lookahead_interval_index_floor,1+storage_to_gen_index(e,1))
-                last_pump_status = PUMPSTATUS(lookahead_interval_index_ceil,1+storage_to_gen_index(e,1)); %no change across the RTSCUC interval
-            elseif PUMPSTATUS(lookahead_interval_index_ceil,1+storage_to_gen_index(e,1)) == 1 %unit in process of turning on
-                if STORAGEVALUE_VAL(e,pump_su_time) > RTSCUCBINDINGPUMPING(lookahead_interval_index_ceil,1)-RTD_LOOKAHEAD_INTERVAL_VAL(t,1)+eps
-                    last_pump_status = 1;
-                else
-                    last_pump_status = 0;
-                end;
-            elseif PUMPSTATUS(lookahead_interval_index_ceil,1+storage_to_gen_index(e,1)) == 0 %unit in process of turning off should still be on until absolute last interval
-                last_pump_status = 1;
-            end;
-        
+    
+    if time - PRTD/60 < ACTUAL_GENERATION(1,1)
+        UNIT_PUMPINGUP_ACTUAL_VAL(e,1) = max(0,PUMPSTATUS(1,1+storage_to_gen_index(e,1))-STORAGEVALUE_VAL(e,initial_pump_status));
+        UNIT_PUMPINGDOWN_ACTUAL_VAL(e,1) = max(0,STORAGEVALUE_VAL(e,initial_pump_status)-PUMPSTATUS(1,1+storage_to_gen_index(e,1)));
+        Actuals_time = ACTUAL_GENERATION(1,1);
+    else
+        [UNIT_PUMPINGUP_ACTUAL_VAL(e,1),~,UNIT_PUMPINGDOWN_ACTUAL_VAL(e,1)]=RTSCED_SUSD_Trajectories(PUMPSTATUS(:,1+storage_to_gen_index(e,1)),LAST_PUMPSTATUS_VAL(e,1),LAST_PUMPSTATUS_ACTUAL_VAL(e,1),GENVALUE_VAL(storage_to_gen_index(e,1),gen_type),STORAGEVALUE_VAL(e,:),ACTUAL_PUMPUP_TIME(e,1),Actuals_time,INTERVAL_MINUTES_VAL,rtscuc_I_perhour,eps,pump_su_time,pump_sd_time,min_pump,initial_pump_status,t,time,IDAC,0);
+        Actuals_time = ACTUAL_GENERATION(AGC_interval_index-round(PRTD*60/t_AGC),1);
+    end
+    for t=1:HRTD      
             if t==1
                 last_startup = 0;
+                last_pump_status = LAST_PUMPSTATUS_VAL(e,1);
             else
                 last_startup = UNIT_PUMPINGUP_VAL(e,t-1); % for knowing whether start-up is continuous or new.
+                last_pump_status = PUMPING_VAL(storage_to_gen_index(e,1),t-1);
             end
-    
-        [UNIT_PUMPINGUP_VAL(e,t),UNIT_PUMPUPMINGENHELP_VAL(e,t),UNIT_PUMPINGDOWN_VAL(e,t)]=RTSCED_SUSD_Trajectories(PUMPSTATUS(:,1+storage_to_gen_index(e,1)),PUMPING_VAL(e,t),last_pump_status,GENVALUE_VAL(storage_to_gen_index(e,1),gen_type),STORAGEVALUE_VAL(e,:),ACTUAL_PUMPUP_TIME(e,1),RTD_LOOKAHEAD_INTERVAL_VAL(t,1),INTERVAL_MINUTES_VAL,rtscuc_I_perhour,eps,pump_su_time,pump_sd_time,min_pump,initial_pump_status,t,time,IDAC,last_startup);
+        [UNIT_PUMPINGUP_VAL(e,t),UNIT_PUMPUPMINGENHELP_VAL(e,t),UNIT_PUMPINGDOWN_VAL(e,t)]=RTSCED_SUSD_Trajectories(PUMPSTATUS(:,1+storage_to_gen_index(e,1)),PUMPING_VAL(storage_to_gen_index(e,1),t),last_pump_status,GENVALUE_VAL(storage_to_gen_index(e,1),gen_type),STORAGEVALUE_VAL(e,:),ACTUAL_PUMPUP_TIME(e,1),RTD_LOOKAHEAD_INTERVAL_VAL(t,1),INTERVAL_MINUTES_VAL,rtscuc_I_perhour,eps,pump_su_time,pump_sd_time,min_pump,initial_pump_status,t,time,IDAC,last_startup);
     end
 end
 
