@@ -158,7 +158,7 @@ SYSTEMVALUE.type = 'parameter';
 DEFAULT_DATA.SYSTEMVALUE=SYSTEMVALUE;
 
 if useHDF5==0
-    [~,GEN_VAL] = xlsread(inputPath,'GEN','A2:A1000');
+    [~,GEN_VAL] = xlsread(inputPath,'GEN','A2:A10000');
 else
     x=h5read(fileName,'/Main Input File/GEN');
     GEN_VAL=x.Generator;
@@ -185,7 +185,7 @@ GENPARAM.type = 'set';
 DEFAULT_DATA.GENPARAM=GENPARAM;
 
 if useHDF5==0
-    GENVALUE_VAL = xlsread(inputPath,'GEN','B2:AH1000');
+    GENVALUE_VAL = xlsread(inputPath,'GEN','B2:AH10000');
 else
     temp=zeros(ngen,size(GENPARAM_VAL,2));
     for i=1:size(GENPARAM_VAL,2)
@@ -489,7 +489,7 @@ COSTCURVEPARAM.type = 'set';
 DEFAULT_DATA.COSTCURVEPARAM=COSTCURVEPARAM;
 
 if useHDF5==0
-    [COST_CURVE_VAL, COST_CURVE_STRING] = xlsread(inputPath,'COST','A2:W1000');
+    [COST_CURVE_VAL, COST_CURVE_STRING] = xlsread(inputPath,'COST','A2:W10000');
 else
     COST_CURVE_STRING=x.Generator;
     temp=zeros(ngen,size(COSTCURVEPARAM_VAL,2));
@@ -545,8 +545,8 @@ DEFAULT_DATA.BLOCK_CAP=BLOCK_CAP;
 
 
 if useHDF5==0
-    RESERVE_COST_VAL = xlsread(inputPath,'ASC','B2:P1000');
-    [~, RESERVE_COST_STRING1] = xlsread(inputPath,'ASC','A2:A1000');
+    RESERVE_COST_VAL = xlsread(inputPath,'ASC','B2:P10000');
+    [~, RESERVE_COST_STRING1] = xlsread(inputPath,'ASC','A2:A10000');
     [~, RESERVE_COST_STRING2] = xlsread(inputPath,'ASC','B1:P1');
 else
     x=h5read(fileName,'/Main Input File/ASC');
@@ -587,8 +587,8 @@ DEFAULT_DATA.START_PARAMETER=START_PARAMETER;
 
 try
 if useHDF5==0
-    STARTUP_VALUE_VAL = xlsread(inputPath,'STARTUP','B2:K1000');
-    [~, STARTUP_VALUE_STRING1] = xlsread(inputPath,'STARTUP','A2:A1000');
+    STARTUP_VALUE_VAL = xlsread(inputPath,'STARTUP','B2:K10000');
+    [~, STARTUP_VALUE_STRING1] = xlsread(inputPath,'STARTUP','A2:A10000');
     [~, STARTUP_VALUE_STRING2] = xlsread(inputPath,'STARTUP','B1:K1');
 else
     if ~strcmp(fieldnames(x),'None')
